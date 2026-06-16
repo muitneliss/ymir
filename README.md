@@ -19,18 +19,28 @@ ymir/
     └── ymir/                   # the "ymir" plugin
         ├── .claude-plugin/
         │   └── plugin.json
-        └── skills/
-            └── init/
-                └── SKILL.md    # entry-point skill → /ymir:init
+        └── SKILL.md            # single dispatcher skill → /ymir
+```
+
+Ymir is one skill, not a fixed command list. Whatever you type after `ymir` is
+the intent; the skill interprets it and acts on the current project:
+
+```
+ymir init for this project
+ymir add lint for this project
+ymir add rules
+ymir set up CI
 ```
 
 ## Try it locally
 
 ```shell
-/plugin marketplace add ./ymir
+/plugin marketplace add ./
 /plugin install ymir@ymir
-/ymir:init
+/reload-plugins
 ```
+
+Then: `/ymir init for this project`
 
 ## Status
 
