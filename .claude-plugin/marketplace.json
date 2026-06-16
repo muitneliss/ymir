@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "ymir",
+  "owner": {
+    "name": "articalam",
+    "email": "lamhiep16@gmail.com"
+  },
+  "description": "Ymir — project harness scaffolder for Claude Code.",
+  "plugins": [
+    {
+      "name": "ymir",
+      "source": "./plugins/ymir",
+      "description": "Scaffolds the mandatory project harness (rules, lint, CI lint, wiki/context, CLAUDE.md) via a socratic techstack interview. Does not generate application code."
+    }
+  ]
+}
