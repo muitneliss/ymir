@@ -25,13 +25,24 @@ describe("mergeSettings", () => {
   });
 
   it("preserves unrelated hooks namespaces and top-level keys", () => {
+    const sessionStart = [
+      { matcher: "*", hooks: [{ type: "command" as const, command: "x" }] },
+    ];
     const start: Settings = {
-      hooks: { SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "x" }] }] },
+      hooks: { SessionStart: sessionStart },
       otherKey: 42,
     };
     const out = mergeSettings(start, SETTINGS_HOOK_ENTRY);
     expect(out.otherKey).toBe(42);
-    expect(out.hooks?.SessionStart).toEqual(start.hooks!.SessionStart);
+    expect(out.hooks?.SessionStart).toEqual(sessionStart);
     expect(out.hooks?.PreToolUse).toEqual([SETTINGS_HOOK_ENTRY]);
+  });
+
+  it("does not mutate the existing settings argument", () => {
+    const start: Settings = { hooks: { PreToolUse: [] }, otherKey: 1 };
+    const before = JSON.stringify(start);
+    mergeSettings(start, SETTINGS_HOOK_ENTRY);
+    expect(JSON.stringify(start)).toBe(before);
+    expect(start.hooks?.PreToolUse).toEqual([]);
   });
 });
