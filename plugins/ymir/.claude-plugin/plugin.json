@@ -1,6 +1,6 @@
 {
   "name": "ymir",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Scaffolds a project harness — rules, lint, CI lint, wiki/context, and CLAUDE.md — by interviewing the user about their techstack. Builds only the skeleton; never generates application code.",
   "author": {
     "name": "articalam",
