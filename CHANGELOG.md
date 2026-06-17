@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/muitneliss/ymir/compare/ymir-v0.2.0...ymir-v0.3.0) (2026-06-17)
+
+
+### Features
+
+* wiki auto-sync (provenance + drift detection) ([#13](https://github.com/muitneliss/ymir/issues/13)) ([017e729](https://github.com/muitneliss/ymir/commit/017e7290168e0fd765e7cafa651e03a7bfef9329))
+
 ## [0.2.0](https://github.com/muitneliss/ymir/compare/ymir-v0.1.0...ymir-v0.2.0) (2026-06-17)
 
 
