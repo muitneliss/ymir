@@ -1,22 +1,8 @@
-import matter from "gray-matter";
-import { load, JSON_SCHEMA } from "js-yaml";
 import { join } from "node:path";
+import { parseFrontmatter } from "./frontmatter.js";
 import { listPages, readPage } from "./store.js";
 import { sourceFrontmatter, noteFrontmatter } from "./schema.js";
 import { slugify } from "./paths.js";
-
-// Recursive type alias that satisfies gray-matter's self-referential O extends GrayMatterOption<I,O>.
-type MatterOpts = matter.GrayMatterOption<string, MatterOpts>;
-
-// JSON_SCHEMA prevents js-yaml from coercing unquoted YYYY-MM-DD dates into Date objects,
-// which would break the z.string() check in the zod schema.
-const matterOptions: MatterOpts = {
-  engines: {
-    yaml: {
-      parse: (str: string) => load(str, { schema: JSON_SCHEMA }) as Record<string, unknown>,
-    },
-  },
-};
 
 export interface ValidationResult {
   ok: boolean;
@@ -30,7 +16,7 @@ function loadDir(root: string, sub: string, errors: string[]): Page[] {
   const out: Page[] = [];
   for (const file of listPages(join(root, sub))) {
     const rel = `${sub}/${file}`;
-    const parsed = matter(readPage(join(root, sub, file)), matterOptions);
+    const parsed = parseFrontmatter(readPage(join(root, sub, file)));
     const schema = sub === "sources" ? sourceFrontmatter : noteFrontmatter;
     const res = schema.safeParse(parsed.data);
     if (!res.success) {

@@ -1,12 +1,12 @@
-import matter from "gray-matter";
 import { join } from "node:path";
+import { parseFrontmatter } from "./frontmatter.js";
 import { listPages, readPage } from "./store.js";
 
 function entries(root: string, sub: string): string[] {
   return listPages(join(root, sub))
     .sort()
     .map((file) => {
-      const fm = matter(readPage(join(root, sub, file))).data as { title?: string };
+      const fm = parseFrontmatter(readPage(join(root, sub, file))).data as { title?: string };
       const title = fm.title ?? file.replace(/\.md$/, "");
       return `- [${title}](${sub}/${file})`;
     });

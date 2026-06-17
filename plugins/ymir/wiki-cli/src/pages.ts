@@ -1,4 +1,4 @@
-import matter from "gray-matter";
+import { stringifyFrontmatter } from "./frontmatter.js";
 import { formatMarkdown } from "./format.js";
 import { sourceFrontmatter, noteFrontmatter, type NoteTypeT } from "./schema.js";
 
@@ -15,7 +15,7 @@ export async function renderSourcePage(i: SourcePageInput): Promise<string> {
     title: i.title, type: "source", date: i.date,
     tags: i.tags, source: i.source, ingested: i.date,
   });
-  const md = matter.stringify(`# ${i.title}\n\n${i.body}\n`, fm);
+  const md = stringifyFrontmatter(`# ${i.title}\n\n${i.body}\n`, fm);
   return formatMarkdown(md);
 }
 
@@ -24,6 +24,6 @@ export async function renderNotePage(i: NotePageInput): Promise<string> {
     title: i.name, type: i.type, date: i.date,
     tags: i.tags, source_count: i.sourceCount,
   });
-  const md = matter.stringify(`# ${i.name}\n\n${i.body}\n`, fm);
+  const md = stringifyFrontmatter(`# ${i.name}\n\n${i.body}\n`, fm);
   return formatMarkdown(md);
 }

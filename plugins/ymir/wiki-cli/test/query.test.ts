@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "bun:test";
 import { runQuery } from "../src/commands/query.js";
 
 describe("runQuery", () => {
@@ -13,6 +13,7 @@ describe("runQuery", () => {
     expect(calls[0]!.args).toContain("query");
     expect(calls[0]!.args).toContain("rate limit");
     expect(calls[0]!.args).toContain("--json");
+    expect(calls[0]!.args).toContain("--files");
     expect(out).toContain("wiki/notes/a.md");
   });
 });

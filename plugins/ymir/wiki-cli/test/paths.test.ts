@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "bun:test";
 import { slugify, sourcePath, notePath, wikiPaths } from "../src/paths.js";
 
 describe("slugify", () => {

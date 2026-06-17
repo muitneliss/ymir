@@ -78,11 +78,16 @@ node ${CLAUDE_PLUGIN_ROOT}/wiki-cli/dist/cli.js <cmd> --root <project>/wiki [...
 
 (`--root` defaults to `./wiki` relative to cwd.)
 
+Toolchain: built and tested with **bun** (`bun build` for the self-contained
+bundle, `bun test` for the suite). No `tsup`/`vitest`/`esbuild` dev chain.
+
 Dependencies:
 
 - `commander` — CLI parsing + auto-generated help.
-- `gray-matter` — YAML frontmatter read/write.
-- `remark` (+ `remark-stringify`, lint plugins) — markdown parse + format.
+- `js-yaml` (4.2.0+, parsed with `JSON_SCHEMA`) — frontmatter read/write via a
+  small internal `frontmatter.ts` (replaces `gray-matter` to drop its
+  vulnerable bundled js-yaml and avoid YAML date coercion / merge-key DoS).
+- `remark` (+ `remark-frontmatter`, `remark-gfm`) — markdown parse + format.
 - `zod` — frontmatter schema validation per page type.
 
 Commands:
@@ -194,7 +199,7 @@ Exact config filename/syntax pinned from the qmd README at build time.
 
 ## Testing
 
-- CLI unit/integration tests (Vitest or node:test) for: each command happy path,
+- CLI unit/integration tests (`bun test`) for: each command happy path,
   frontmatter validation rejection, broken-link detection, index rebuild, log
   append format, `fmt` idempotence.
 - Scaffold smoke test: run the SKILL flow against a temp dir, assert the tree +
@@ -206,4 +211,4 @@ Exact config filename/syntax pinned from the qmd README at build time.
 
 - qmd config filename/syntax (from qmd README).
 - Claude Code PreToolUse deny mechanism exact shape (from hook docs).
-- CLI bundling approach (esbuild/tsup → single `dist/cli.js`).
+- CLI bundling approach (`bun build --target node --format esm` → single self-contained `dist/cli.js`).

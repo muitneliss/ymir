@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "bun:test";
 import { sourceFrontmatter, noteFrontmatter, NoteType } from "../src/schema.js";
 
 describe("sourceFrontmatter", () => {

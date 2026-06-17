@@ -1,5 +1,5 @@
 import { existsSync, rmSync } from "node:fs";
-import matter from "gray-matter";
+import { parseFrontmatter } from "../frontmatter.js";
 import { renderNotePage } from "../pages.js";
 import { writePage, readPage } from "../store.js";
 import { notePath, wikiPaths } from "../paths.js";
@@ -16,7 +16,7 @@ export async function runNote(i: NoteInput): Promise<string> {
   const path = notePath(i.root, i.name);
   const existed = existsSync(path);
   const prevSourceCount = existed
-    ? ((matter(readPage(path)).data as { source_count?: number }).source_count ?? 0)
+    ? ((parseFrontmatter(readPage(path)).data as { source_count?: number }).source_count ?? 0)
     : 0;
 
   const page = await renderNotePage({
