@@ -62,7 +62,6 @@ re-audit gate, and a spec emitted to `.ymir/` (`harness-profile.yaml` +
 (with backups + `ymir revert`). The spec's per-concern playbook sections live in
 `plugins/ymir/templates/playbook/`. The **wiki / context** section drives the
 bundled wiki tooling (`plugins/ymir/wiki-cli`, templates, and the PreToolUse hook
-that blocks hand-editing wiki docs). The skill itself writes only the spec;
-generating the harness from it is a downstream Claude Code step — *except*
-`/ymir add context` (or `add wiki`), which still scaffolds the wiki directly, as
-before.
+that blocks hand-editing wiki docs). The interview step writes only the spec; `ymir apply` generates the harness from
+it (with backups + `ymir revert`), and `/ymir add context` (or `add wiki`)
+scaffolds the wiki directly, as before.
