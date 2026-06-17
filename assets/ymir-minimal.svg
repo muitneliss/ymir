@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Minimal geometric Ymir frost rune icon">
+  <rect x="0" y="0" width="256" height="256" rx="40" ry="40" fill="#0D1B2A"/>
+
+  <g fill="none" stroke-linecap="square" stroke-linejoin="miter">
+    <g stroke="#8FD8F7" stroke-width="2" opacity="0.38">
+      <path d="M128 42V214"/>
+      <path d="M54 85L202 171"/>
+      <path d="M54 171L202 85"/>
+      <path d="M82 64H174"/>
+      <path d="M82 192H174"/>
+      <path d="M64 128H192"/>
+    </g>
+
+    <g stroke="#D7F3FF" stroke-width="10">
+      <path d="M128 42V214"/>
+      <path d="M74 73L128 128L182 73"/>
+      <path d="M74 183L128 128L182 183"/>
+      <path d="M96 100L128 68L160 100"/>
+      <path d="M96 156L128 188L160 156"/>
+      <path d="M84 128H172"/>
+    </g>
+
+    <g stroke="#B8E9FA" stroke-width="6">
+      <path d="M104 52H152"/>
+      <path d="M104 204H152"/>
+      <path d="M64 108L84 128L64 148"/>
+      <path d="M192 108L172 128L192 148"/>
+    </g>
+  </g>
+
+  <g fill="#EAFBFF">
+    <circle cx="128" cy="42" r="5"/>
+    <circle cx="128" cy="214" r="5"/>
+    <circle cx="74" cy="73" r="4"/>
+    <circle cx="182" cy="73" r="4"/>
+    <circle cx="74" cy="183" r="4"/>
+    <circle cx="182" cy="183" r="4"/>
+    <circle cx="128" cy="128" r="6"/>
+  </g>
+</svg>

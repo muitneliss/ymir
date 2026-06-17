@@ -1,3 +1,5 @@
+![Ymir Logo](assets/ymir-minimal.svg)
+
 # Ymir
 
 [![release-please](https://github.com/muitneliss/ymir/actions/workflows/release-please.yml/badge.svg)](https://github.com/muitneliss/ymir/actions/workflows/release-please.yml)
