@@ -1,14 +1,19 @@
 import matter from "gray-matter";
-import yaml from "js-yaml";
+import { load, JSON_SCHEMA } from "js-yaml";
 import { join } from "node:path";
 import { listPages, readPage } from "./store.js";
 import { sourceFrontmatter, noteFrontmatter } from "./schema.js";
 import { slugify } from "./paths.js";
 
-const matterOptions: matter.GrayMatterOption<string, matter.GrayMatterOption<string, never>> = {
+// Recursive type alias that satisfies gray-matter's self-referential O extends GrayMatterOption<I,O>.
+type MatterOpts = matter.GrayMatterOption<string, MatterOpts>;
+
+// JSON_SCHEMA prevents js-yaml from coercing unquoted YYYY-MM-DD dates into Date objects,
+// which would break the z.string() check in the zod schema.
+const matterOptions: MatterOpts = {
   engines: {
     yaml: {
-      parse: (str: string) => yaml.load(str, { schema: yaml.JSON_SCHEMA }) as Record<string, unknown>,
+      parse: (str: string) => load(str, { schema: JSON_SCHEMA }) as Record<string, unknown>,
     },
   },
 };
