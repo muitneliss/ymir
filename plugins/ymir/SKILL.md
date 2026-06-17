@@ -71,8 +71,11 @@ If it errors, stop and report.
 Then tell the user the qmd one-time setup (also documented in `wiki/SCHEMA.md`):
 
 ```bash
-qmd collection add ./wiki --name <project>-wiki && qmd embed
+qmd collection add ./wiki --name <project>-wiki
 ```
+
+Search is keyword-only (BM25) — no `qmd embed`, no local LLM. Re-run
+`qmd collection add` after adding pages to refresh the index.
 
 **Design principle:** every change to the wiki harness goes through the wiki
 CLI. The skill must never copy templates, edit `.claude/settings.json`, or
