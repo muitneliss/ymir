@@ -4,6 +4,7 @@ import { runIngest } from "./commands/ingest.js";
 import { runNote } from "./commands/note.js";
 import { runQuery } from "./commands/query.js";
 import { runHelp } from "./commands/help.js";
+import { runInit } from "./commands/init.js";
 import { buildIndex } from "./index-build.js";
 import { appendLog, type LogOp } from "./wikilog.js";
 import { validateWiki } from "./validate.js";
@@ -77,5 +78,27 @@ program.command("query").argument("<q>").action(async (q: string) => {
 });
 
 program.command("help").action(() => runHelp());
+
+program
+  .command("init")
+  .option("--project-root <dir>", "project root", process.cwd())
+  .option("--name <name>", "project name (defaults to basename of project root)")
+  .action((opts: { projectRoot: string; name?: string }) => {
+    const root = program.opts<{ root: string }>().root;
+    const s = runInit({ projectRoot: opts.projectRoot, root, name: opts.name });
+    for (const p of s.created) process.stdout.write(`created ${p}\n`);
+    for (const p of s.skipped) process.stdout.write(`skipped ${p}\n`);
+    process.stdout.write(
+      s.settingsMerged ? "settings merged\n" : "settings unchanged\n",
+    );
+    process.stdout.write(
+      s.claudeBlockAppended ? "CLAUDE.md appended\n" : "CLAUDE.md unchanged\n",
+    );
+    if (!s.valid) {
+      process.stderr.write("wiki invalid\n");
+      process.exit(1);
+    }
+    process.stdout.write("wiki valid\n");
+  });
 
 program.parseAsync();
