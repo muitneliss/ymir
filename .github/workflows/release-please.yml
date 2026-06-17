@@ -17,9 +17,46 @@ jobs:
   release-please:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@v4
+        id: rp
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  compile:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugins/ymir/wiki-cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - name: Compile all targets
+        run: |
+          bun build ./src/cli.ts --compile --target=bun-darwin-arm64  --outfile dist/wiki-darwin-arm64
+          bun build ./src/cli.ts --compile --target=bun-darwin-x64    --outfile dist/wiki-darwin-x64
+          bun build ./src/cli.ts --compile --target=bun-linux-x64     --outfile dist/wiki-linux-x64
+          bun build ./src/cli.ts --compile --target=bun-linux-arm64   --outfile dist/wiki-linux-arm64
+      - name: Generate checksums
+        run: cd dist && sha256sum wiki-darwin-arm64 wiki-darwin-x64 wiki-linux-x64 wiki-linux-arm64 > SHA256SUMS.txt
+      - name: Upload to release
+        run: |
+          gh release upload "$TAG" \
+            dist/wiki-darwin-arm64 \
+            dist/wiki-darwin-x64 \
+            dist/wiki-linux-x64 \
+            dist/wiki-linux-arm64 \
+            dist/SHA256SUMS.txt
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

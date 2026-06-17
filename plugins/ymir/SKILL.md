@@ -84,7 +84,7 @@ Do all of the following with tools (Bash/Write), in order:
    `wiki/SCHEMA.md` for the rules and command reference.
    ```
 4. **Verify**: run
-   `node ${CLAUDE_PLUGIN_ROOT}/wiki-cli/dist/cli.js --root ./wiki validate`
+   `${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki --root ./wiki validate`
    and confirm it prints `wiki valid`. If it errors, stop and report.
 5. **Tell the user** the qmd one-time setup (from `wiki/SCHEMA.md`):
    `qmd collection add ./wiki --name <project>-wiki && qmd embed`.
