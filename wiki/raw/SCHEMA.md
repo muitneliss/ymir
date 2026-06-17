@@ -41,7 +41,7 @@ Run `... help` for the full command reference. Key commands:
 One-time, on this machine:
 
 ```
-qmd collection add ./wiki --name PROJECT_NAME-wiki
+qmd collection add ./wiki --name dogfood-wiki-wiki
 ```
 
 Then `wiki query "..."` (which shells out to `qmd search --json --files`).
