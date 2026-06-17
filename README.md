@@ -6,16 +6,18 @@
 A Claude Code plugin marketplace + plugin that produces a **harness spec** for a
 repo — rules, lint, CI lint, wiki/context, and `CLAUDE.md`/`AGENT.md`.
 
-Ymir does **not** generate application code, and it does **not** write the harness
-files itself. It interviews you across a checklist of harness concerns, re-audits
-to confirm nothing is missing, and emits a spec under `.ymir/`:
+Ymir does **not** generate application code. The interview step writes only a
+spec — it interviews you across a checklist of harness concerns, re-audits to
+confirm nothing is missing, and emits a spec under `.ymir/`:
 
 - `.ymir/harness-profile.yaml` — your audited decisions (machine-readable).
 - `.ymir/harness-playbook.md` — step-by-step instructions an LLM follows to
   generate the harness.
 
-You then drive generation through a normal Claude Code session, guided by the spec
-Ymir produced.
+You then generate the harness with `ymir apply`, which reads the spec and writes
+the real files (backing up anything it overwrites); `ymir revert` undoes the last
+apply. You can also drive generation by hand in a normal Claude Code session,
+guided by the spec.
 
 ## Layout
 
@@ -38,6 +40,8 @@ ymir init for this project
 ymir add lint for this project
 ymir add rules
 ymir set up CI
+ymir apply            # generate the harness from the spec
+ymir revert           # undo the last apply
 ```
 
 ## Try it locally
@@ -54,7 +58,8 @@ Then: `/ymir init for this project`
 
 `v0.2.0`. Ymir runs a 3-step flow: a checklist-driven socratic interview, a
 re-audit gate, and a spec emitted to `.ymir/` (`harness-profile.yaml` +
-`harness-playbook.md`). The spec's per-concern playbook sections live in
+`harness-playbook.md`); `ymir apply` then generates the harness from that spec
+(with backups + `ymir revert`). The spec's per-concern playbook sections live in
 `plugins/ymir/templates/playbook/`. The **wiki / context** section drives the
 bundled wiki tooling (`plugins/ymir/wiki-cli`, templates, and the PreToolUse hook
 that blocks hand-editing wiki docs). The skill itself writes only the spec;
