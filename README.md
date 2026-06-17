@@ -1,5 +1,8 @@
 # Ymir
 
+[![release-please](https://github.com/muitneliss/ymir/actions/workflows/release-please.yml/badge.svg)](https://github.com/muitneliss/ymir/actions/workflows/release-please.yml)
+[![release](https://img.shields.io/github/v/release/muitneliss/ymir?sort=semver)](https://github.com/muitneliss/ymir/releases)
+
 A Claude Code plugin marketplace + plugin that scaffolds the **mandatory project
 harness** every repo should start with — rules, lint, CI lint, wiki/context, and
 `CLAUDE.md`/`AGENT.md`.
