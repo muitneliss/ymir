@@ -1,0 +1,33 @@
+import { rmSync } from "node:fs";
+import { renderSourcePage } from "../pages.js";
+import { writePage } from "../store.js";
+import { sourcePath, wikiPaths } from "../paths.js";
+import { buildIndex } from "../index-build.js";
+import { appendLog } from "../wikilog.js";
+import { validateWiki } from "../validate.js";
+
+export interface IngestInput {
+  root: string;
+  raw: string;
+  title: string;
+  body: string;
+  today: string;
+}
+
+export async function runIngest(i: IngestInput): Promise<string> {
+  const page = await renderSourcePage({
+    title: i.title, source: i.raw, date: i.today, tags: [], body: i.body,
+  });
+  const path = sourcePath(i.root, i.title);
+  writePage(path, page);
+
+  const result = validateWiki(i.root);
+  if (!result.ok) {
+    rmSync(path);
+    throw new Error(`ingest rejected:\n${result.errors.join("\n")}`);
+  }
+
+  writePage(wikiPaths(i.root).index, buildIndex(i.root));
+  appendLog(i.root, "ingest", i.title, i.today);
+  return path;
+}

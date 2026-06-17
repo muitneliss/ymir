@@ -8,5 +8,6 @@ const processor = remark()
 
 export async function formatMarkdown(input: string): Promise<string> {
   const file = await processor.process(input);
-  return String(file);
+  // remark escapes `[[` to `\[\[`; restore wikilink syntax that validate.ts depends on.
+  return String(file).replace(/\\\[/g, "[");
 }
