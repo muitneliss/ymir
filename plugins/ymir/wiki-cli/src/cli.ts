@@ -8,6 +8,7 @@ import { runInit } from "./commands/init.js";
 import { buildIndex } from "./index-build.js";
 import { appendLog, type LogOp } from "./wikilog.js";
 import { validateWiki } from "./validate.js";
+import { runStatus } from "./commands/status.js";
 import { formatMarkdown } from "./format.js";
 import { writePage, readPage, listPages } from "./store.js";
 import { wikiPaths } from "./paths.js";
@@ -99,6 +100,16 @@ program
       process.exit(1);
     }
     process.stdout.write("wiki valid\n");
+  });
+
+program
+  .command("status")
+  .option("--json", "emit JSON output", false)
+  .action((opts: { json: boolean }) => {
+    const root = program.opts<{ root: string }>().root;
+    const { text, exitCode } = runStatus({ root, json: opts.json });
+    process.stdout.write(text);
+    if (exitCode !== 0) process.exit(exitCode);
   });
 
 program.parseAsync();
