@@ -1,15 +1,15 @@
 ---
 name: ymir
-description: Ymir interviews the user about THIS project (the current working directory) across a harness checklist, re-audits for completeness, and emits a SPEC under .ymir/ — it never writes harness files itself. The spec drives an LLM to generate the harness: rules, lint, CI lint, wiki/context, and CLAUDE.md/AGENT.md. Use whenever the user asks Ymir to do something to the project, e.g. "ymir init for this project", "ymir add lint", "ymir add rules", "ymir set up CI", "scaffold the harness", "bootstrap this repo".
-argument-hint: "init | add lint | add rules | add ci | add context | add claude.md — what to do for this project"
+description: Ymir interviews the user about THIS project (the current working directory) across a harness checklist, re-audits for completeness, and emits a SPEC under .ymir/ (the interview step writes only the spec). The spec covers rules, lint, CI lint, wiki/context, and CLAUDE.md/AGENT.md; 'ymir apply' then generates the harness from the spec (with backups + 'ymir revert'). Use whenever the user asks Ymir to do something to the project, e.g. "ymir init for this project", "ymir add lint", "ymir add rules", "ymir set up CI", "ymir apply", "ymir revert", "scaffold the harness", "bootstrap this repo".
+argument-hint: "init | add lint | add rules | add ci | add context | add claude.md | apply [concern] | revert — what to do for this project"
 ---
 
 # Ymir
 
-Ymir produces a **harness spec** for the current project — never application code,
-and never the harness files themselves. The user drives all real coding through
-Claude Code; Ymir interviews, audits, and writes a spec that an LLM then follows
-to generate the foundation that steers Claude Code:
+Ymir produces a **harness spec** for the current project — never application code.
+The *interview* step writes only the spec; `ymir apply` is the separate, explicit
+step that generates the harness files from that spec. The foundation it generates
+steers Claude Code:
 
 1. **rules** — coding standards / conventions
 2. **lint** — linter config for the chosen stack
@@ -22,8 +22,9 @@ The deliverable is two files under `.ymir/`:
 - `.ymir/harness-profile.yaml` — the audited decisions (machine-readable).
 - `.ymir/harness-playbook.md` — step-by-step generation instructions for an LLM.
 
-**Ymir writes only these two files.** It does not create rules docs, lint configs,
-CI workflows, the wiki, or `CLAUDE.md` — that is the downstream generation step.
+**The interview step writes only these two files.** Generating the actual rules
+docs, lint configs, CI workflows, wiki, or `CLAUDE.md` happens when you run
+`ymir apply` (see "Applying the spec" below) — not during the interview.
 
 ## How this skill works
 
@@ -116,7 +117,7 @@ Assemble the playbook from the bundled per-concern templates — do not free-for
 3. Tell the user the spec is ready under `.ymir/`, and that a normal Claude Code
    session can now follow `harness-playbook.md` to generate the harness.
 
-Never write the harness files themselves; only the two spec files above.
+(Spec-generation step only — never write the harness files here; only the two spec files above. `ymir apply` is the separate step that generates them.)
 
 ## Applying the spec — `ymir apply` (writes the harness)
 
@@ -180,7 +181,7 @@ End by telling the user: `ymir revert` undoes this run (run-id `<run_id>`).
 1. **Find the latest run-id.** List backups under the project and take the
    greatest `<run-id>` suffix (timestamps sort lexically):
    ```bash
-   ls **/*.backup.* 2>/dev/null | sed 's/.*\.backup\.//' | sort -u | tail -1
+   find . -name '*.backup.*' 2>/dev/null | sed 's/.*\.backup\.//' | sort -u | tail -1
    ```
 2. **Restore each backup of that run-id:** for every `<file>.backup.<run-id>`, run
    `mv "<file>.backup.<run-id>" "<file>"` (overwriting the applied version).
