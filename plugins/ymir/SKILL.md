@@ -119,6 +119,23 @@ Assemble the playbook from the bundled per-concern templates — do not free-for
 
 (Spec-generation step only — never write the harness files here; only the two spec files above. `ymir apply` is the separate step that generates them.)
 
+## Step 4 — Offer to apply (the full flow is init → apply)
+
+Emitting the spec is **not** the finish line — the user almost always wants the
+harness generated next. Do not stop and treat `init` as done. After the spec is
+written, **ask** (via `AskUserQuestion`) whether to generate it now:
+
+> "Spec written to `.ymir/`. Generate the harness now with `ymir apply`?"
+
+- **Yes** → proceed directly into the "Applying the spec" flow below, in this same
+  session (preview → confirm → generate → verify). No need to re-run `ymir apply`
+  as a separate command.
+- **No** → tell the user they can run `ymir apply` whenever they're ready; stop here.
+
+For a narrow intent (e.g. `ymir add lint`), offer `ymir apply lint` — apply just
+that one concern — instead of the full sweep. Never auto-run apply without a yes;
+apply writes files.
+
 ## Applying the spec — `ymir apply` (writes the harness)
 
 `ymir apply` is the explicit, user-triggered step that turns the spec into real
