@@ -5,6 +5,7 @@ import { sourcePath, wikiPaths } from "../paths.js";
 import { buildIndex } from "../index-build.js";
 import { appendLog } from "../wikilog.js";
 import { validateWiki } from "../validate.js";
+import { reindex, type ReindexRunner } from "../reindex.js";
 
 export interface IngestInput {
   root: string;
@@ -14,6 +15,8 @@ export interface IngestInput {
   today: string;
   sourcePath?: string;
   sourceHash?: string;
+  noReindex?: boolean;
+  reindexRunner?: ReindexRunner;
 }
 
 export async function runIngest(i: IngestInput): Promise<string> {
@@ -39,5 +42,6 @@ export async function runIngest(i: IngestInput): Promise<string> {
 
   writePage(wikiPaths(i.root).index, buildIndex(i.root));
   appendLog(i.root, "ingest", i.title, i.today);
+  if (!i.noReindex) reindex(i.root, i.reindexRunner);
   return path;
 }

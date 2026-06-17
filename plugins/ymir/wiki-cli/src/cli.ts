@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { runIngest } from "./commands/ingest.js";
 import { runNote } from "./commands/note.js";
 import { runQuery } from "./commands/query.js";
@@ -13,7 +13,8 @@ import { formatMarkdown } from "./format.js";
 import { writePage, readPage, listPages } from "./store.js";
 import { wikiPaths } from "./paths.js";
 import { NoteType } from "./schema.js";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileProvenance } from "./provenance.js";
 import { reindex } from "./reindex.js";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -24,11 +25,47 @@ program.name("wiki").description("Ymir wiki CLI").option("--root <dir>", "wiki r
 
 program
   .command("ingest")
-  .requiredOption("--raw <path>")
+  .option("--raw <path>", "raw source identifier (legacy)")
+  .option("--source <path>", "tracked source file (computes hash for drift detection)")
   .requiredOption("--title <title>")
-  .action(async (opts: { raw: string; title: string }) => {
+  .option("--no-reindex", "skip qmd reindex after write")
+  .action(async (opts: { raw?: string; source?: string; title: string; reindex: boolean }) => {
     const root = program.opts<{ root: string }>().root;
-    const path = await runIngest({ root, raw: opts.raw, title: opts.title, body: readStdin(), today: today() });
+
+    if (!opts.raw && !opts.source) {
+      process.stderr.write("error: --raw or --source is required\n");
+      process.exit(1);
+    }
+
+    let raw: string;
+    let ingestSourcePath: string | undefined;
+    let ingestSourceHash: string | undefined;
+
+    if (opts.source) {
+      const absPath = resolve(opts.source);
+      if (!existsSync(absPath)) {
+        process.stderr.write(`error: --source file not found: ${opts.source}\n`);
+        process.exit(1);
+      }
+      const projectRoot = resolve(root, "..");
+      const prov = fileProvenance(projectRoot, absPath);
+      raw = opts.source;
+      ingestSourcePath = prov.sourcePath;
+      ingestSourceHash = prov.sourceHash;
+    } else {
+      raw = opts.raw!;
+    }
+
+    const path = await runIngest({
+      root,
+      raw,
+      title: opts.title,
+      body: readStdin(),
+      today: today(),
+      sourcePath: ingestSourcePath,
+      sourceHash: ingestSourceHash,
+      noReindex: !opts.reindex,
+    });
     process.stdout.write(`wrote ${path}\n`);
   });
 
