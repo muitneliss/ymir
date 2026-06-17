@@ -62,8 +62,8 @@ skill.
 | Checklist | One foundation item (project/techstack) + the five harness concerns |
 | Interview style | Socratic, one decision at a time via `AskUserQuestion` (unchanged ethos) |
 | Re-audit | Required-field check per in-scope concern, then a coverage table the user confirms |
-| Wiki's place | One entry in the spec; its playbook steps point at the existing CLI/templates/hook |
-| Generation | Out of scope for the skill; performed downstream by an LLM reading the spec |
+| Wiki's place | One entry in the spec for broad intents; **exception** — the narrow `ymir add context` / `ymir add wiki` intent executes the wiki scaffold directly (current flow preserved verbatim) |
+| Generation | Out of scope for the skill, with the single wiki-only exception above; otherwise performed downstream by an LLM reading the spec |
 
 ## Architecture
 
@@ -81,6 +81,15 @@ The previous "Step 2 — Scaffold" (which ran the wiki scaffold inline) is
 **removed** from the skill. The detailed wiki procedure currently living in
 `SKILL.md` is relocated into a **wiki playbook-section template** so it becomes
 part of the emitted spec instead of something the skill executes.
+
+**Wiki-only intent exception.** The relocated `wiki` playbook template is the
+single source of truth for the wiki procedure. When — and only when — the intent
+is explicitly wiki-only (`ymir add context` / `ymir add wiki`), the skill
+*executes* that template's steps directly against the project (the current wiki
+behavior, unchanged). For `ymir init` or any other intent, the same template is
+*written into* `harness-playbook.md` and execution is downstream. This keeps the
+existing wiki flow intact when invoked on its own while staying spec-only
+everywhere else.
 
 ### The checklist
 
@@ -181,7 +190,9 @@ lives in `SKILL.md`.
 - **Edit** `plugins/ymir/SKILL.md` — replace the 2-step body with the 3-step
   flow: checklist interview → re-audit gate → emit spec. Remove the inline wiki
   scaffold; reference the playbook templates instead. State plainly that the
-  skill writes only the spec.
+  skill writes only the spec, with the single wiki-only intent exception
+  (`ymir add context` / `ymir add wiki` executes the wiki playbook template
+  directly).
 - **Edit** `README.md` / `plugin.json` — reframe Ymir as a **harness-spec
   generator**: it interviews, audits, and emits a spec under `.ymir/` that drives
   LLM harness generation.
@@ -198,6 +209,10 @@ lives in `SKILL.md`.
 - **narrow action:** `ymir add lint` → read existing `.ymir/` if present → ask
   only item 0 (if unknown) + `lint` → audit `lint` only → update the `lint:`
   block in the profile and the `## lint` section in the playbook.
+- **wiki-only intent (exception):** `ymir add context` / `ymir add wiki` →
+  execute the steps in the `wiki` playbook template directly against the project
+  (create tree, install hook, point CLAUDE.md, `wiki validate`, qmd setup) — the
+  current wiki behavior, unchanged. No spec-only deferral for this intent.
 
 ## Error handling
 
@@ -222,7 +237,10 @@ lives in `SKILL.md`.
 ## Boundaries (unchanged, and stronger)
 
 - Operate on the current project only (`cwd`).
-- **Spec only** — the skill writes no harness files, including wiki.
+- **Spec only, with one exception** — the skill writes no harness files, *except*
+  when the intent is explicitly wiki-only (`ymir add context` / `ymir add wiki`),
+  in which case it executes the existing wiki scaffold directly (verbatim current
+  flow). Every other intent, including `ymir init`, stays spec-only.
 - The interview is the source of truth; prefer asking over assuming.
 
 ## Open items pinned to build time

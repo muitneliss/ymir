@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **Spec only:** the skill writes exactly two files — `.ymir/harness-profile.yaml` and `.ymir/harness-playbook.md`. It never writes rules docs, lint configs, CI workflows, the wiki, or `CLAUDE.md`. Generation is downstream.
+- **Spec only, with one exception:** the skill writes exactly two files — `.ymir/harness-profile.yaml` and `.ymir/harness-playbook.md` — and never writes rules docs, lint configs, CI workflows, the wiki, or `CLAUDE.md`. **Exception:** when the intent is explicitly wiki-only (`ymir add context` / `ymir add wiki`), the skill *executes* the existing wiki scaffold directly (verbatim current flow). Every other intent, including `ymir init`, stays spec-only. The wiki playbook template (`templates/playbook/wiki.md`) is the single source of truth for that procedure — executed for the wiki-only intent, written into the playbook otherwise.
 - Operate on the current project only (cwd).
 - **Do not modify** `plugins/ymir/wiki-cli/`, `plugins/ymir/templates/wiki/`, or `plugins/ymir/templates/hooks/` — the wiki playbook section references them.
 - No new tooling / no validator binary (validation is inline prose against the schema doc).
@@ -180,43 +180,51 @@ Create `plugins/ymir/templates/playbook/ci.md`:
   `lint` concern produced.
 ```
 
-- [ ] **Step 5: Create the `wiki` section template (relocated procedure)**
+- [ ] **Step 5: Create the `wiki` section template (relocated procedure — VERBATIM)**
 
-Create `plugins/ymir/templates/playbook/wiki.md`:
+Reproduce the **current** `SKILL.md` wiki procedure exactly — same 5 steps, every
+clause, no rewording. Only the framing line (Inputs / "this is the current wiki
+flow, unchanged") is added. Create `plugins/ymir/templates/playbook/wiki.md`:
 
-```markdown
+````markdown
 ## wiki / context → LLM-maintained wiki
 
-- **Inputs:** `concerns.wiki.enabled`, `concerns.wiki.collection`, `meta.project`
-- **Steps:** (only if `concerns.wiki.enabled: true`)
-  1. **Create the tree** under the project root: `wiki/raw/`, `wiki/sources/`,
-     `wiki/notes/` — each with a `.gitkeep` (copy
-     `${CLAUDE_PLUGIN_ROOT}/templates/wiki/gitkeep`).
-  2. `wiki/SCHEMA.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/SCHEMA.md`,
-     then replace the literal `PROJECT_NAME` with `meta.project`.
-  3. `wiki/index.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/index.seed.md`.
-  4. `wiki/log.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/log.seed.md`.
-  5. **Install the hook:** copy
-     `${CLAUDE_PLUGIN_ROOT}/templates/hooks/block-wiki-edits.mjs` to
-     `.claude/hooks/block-wiki-edits.mjs`; merge
-     `${CLAUDE_PLUGIN_ROOT}/templates/hooks/settings.snippet.json` into
-     `.claude/settings.json` (deep-merge the `hooks.PreToolUse` array; never
-     clobber existing hooks).
-  6. **Point CLAUDE.md at the wiki:** append (creating the file if absent):
+- **Inputs:** `concerns.wiki.enabled` (run only when `true`), `concerns.wiki.collection`, `meta.project`
 
-     ```markdown
-     ## Wiki / Context
-     This project has an LLM-maintained wiki under `wiki/`. You MUST NOT hand-edit
-     wiki docs (`wiki/sources`, `wiki/notes`, `index.md`, `log.md`) — they are
-     managed by the Ymir wiki CLI and a PreToolUse hook blocks direct edits. See
-     `wiki/SCHEMA.md` for the rules and command reference.
-     ```
-  7. **Tell the user** the qmd one-time setup:
-     `qmd collection add ./wiki --name {{collection}} && qmd embed`.
-- **Verify:** run
-  `${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki --root ./wiki validate` and confirm it
-  prints `wiki valid`.
-```
+This lays down an LLM-maintained wiki backed by the Ymir wiki CLI. Do all of the
+following with tools (Bash/Write), in order — this is the existing wiki flow,
+unchanged:
+
+1. **Create the tree** under the project root:
+   - `wiki/raw/`, `wiki/sources/`, `wiki/notes/` — each with a `.gitkeep`
+     (copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/gitkeep`).
+   - `wiki/SCHEMA.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/SCHEMA.md`,
+     then replace the literal `PROJECT_NAME` with the current directory's base
+     name (`meta.project`).
+   - `wiki/index.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/index.seed.md`.
+   - `wiki/log.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/log.seed.md`.
+2. **Install the hook**:
+   - Copy `${CLAUDE_PLUGIN_ROOT}/templates/hooks/block-wiki-edits.mjs` to
+     `.claude/hooks/block-wiki-edits.mjs`.
+   - Merge `${CLAUDE_PLUGIN_ROOT}/templates/hooks/settings.snippet.json` into `.claude/settings.json`.
+     If `.claude/settings.json` exists, deep-merge the `hooks.PreToolUse` array
+     (append the matcher entry; do not clobber existing hooks). If it does not
+     exist, create it from the snippet.
+3. **Point CLAUDE.md at the wiki**: append (creating the file if absent) a block:
+
+   ```markdown
+   ## Wiki / Context
+   This project has an LLM-maintained wiki under `wiki/`. You MUST NOT hand-edit
+   wiki docs (`wiki/sources`, `wiki/notes`, `index.md`, `log.md`) — they are
+   managed by the Ymir wiki CLI and a PreToolUse hook blocks direct edits. See
+   `wiki/SCHEMA.md` for the rules and command reference.
+   ```
+4. **Verify**: run
+   `${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki --root ./wiki validate`
+   and confirm it prints `wiki valid`. If it errors, stop and report.
+5. **Tell the user** the qmd one-time setup (from `wiki/SCHEMA.md`):
+   `qmd collection add ./wiki --name <project>-wiki && qmd embed`.
+````
 
 - [ ] **Step 6: Create the `claude_md` section template**
 
@@ -309,11 +317,26 @@ to the checklist of harness concerns above. Examples:
 | `ymir add lint for this project` | interview + audit only the `lint` concern; update the spec |
 | `ymir add rules` | interview + audit only `rules`; update the spec |
 | `ymir set up CI` | interview + audit only `ci`; update the spec |
+| `ymir add context` / `ymir add wiki` | **scaffold the wiki directly** — execute the existing wiki flow (the one exception to spec-only); see "Wiki-only intent" below |
 | anything ambiguous | ask a short clarifying question, then proceed |
 
 If `$ARGUMENTS` is empty, treat it as `init`. If `.ymir/harness-profile.yaml`
 already exists, read it first and ask only what is missing or requested
 (idempotent / resumable).
+
+### Wiki-only intent (the one exception to spec-only)
+
+If — and only if — the intent is explicitly to create the wiki
+(`ymir add context`, `ymir add wiki`), Ymir **executes** the wiki scaffold
+immediately against the project, exactly as before: follow every step in
+`${CLAUDE_PLUGIN_ROOT}/templates/playbook/wiki.md` (create the wiki tree, install
+the PreToolUse hook, point CLAUDE.md at the wiki, verify with `wiki validate`, and
+tell the user the qmd one-time setup). This is the only case where Ymir writes
+project files.
+
+For any broader intent (`ymir init`, or any other concern), Ymir stays spec-only:
+the wiki is captured in the profile and written into `harness-playbook.md` as the
+`wiki` section, and generation happens downstream.
 
 ## The checklist
 
@@ -375,8 +398,11 @@ Never write the harness files themselves; only the two spec files above.
 ## Boundaries
 
 - Operate on the current project only ("this project" = cwd).
-- **Spec only** — Ymir writes `.ymir/harness-profile.yaml` and
-  `.ymir/harness-playbook.md`, nothing else. Generation is downstream.
+- **Spec only, with one exception** — Ymir writes `.ymir/harness-profile.yaml`
+  and `.ymir/harness-playbook.md`, nothing else, *except* the wiki-only intent
+  (`ymir add context` / `ymir add wiki`), which executes the wiki scaffold
+  directly (see "Wiki-only intent" above). Every other intent stays spec-only;
+  generation is downstream.
 - Prefer asking over assuming; the interview is the source of truth.
 ````
 
@@ -391,8 +417,14 @@ Expected: `1`
 Run: `grep -c 'templates/playbook/header.md' plugins/ymir/SKILL.md`
 Expected: `1`
 
-Run: `grep -c 'Create the tree' plugins/ymir/SKILL.md`
-Expected: `0` (the inline wiki scaffold procedure has been relocated out of SKILL.md)
+Run: `grep -c 'templates/wiki/gitkeep' plugins/ymir/SKILL.md`
+Expected: `0` (the full inline wiki scaffold procedure is no longer in SKILL.md — it lives in the wiki playbook template, which SKILL.md references by path)
+
+Run: `grep -c 'Wiki-only intent' plugins/ymir/SKILL.md`
+Expected: `3` (intent-table reference + section heading + boundaries reference — the wiki-only execution exception is documented)
+
+Run: `grep -c 'templates/playbook/wiki.md' plugins/ymir/SKILL.md`
+Expected: `1` (the wiki-only intent executes this template directly)
 
 - [ ] **Step 3: Commit**
 
@@ -486,7 +518,9 @@ re-audit gate, and a spec emitted to `.ymir/` (`harness-profile.yaml` +
 `plugins/ymir/templates/playbook/`. The **wiki / context** section drives the
 bundled wiki tooling (`plugins/ymir/wiki-cli`, templates, and the PreToolUse hook
 that blocks hand-editing wiki docs). The skill itself writes only the spec;
-generating the harness from it is a downstream Claude Code step.
+generating the harness from it is a downstream Claude Code step — *except*
+`/ymir add context` (or `add wiki`), which still scaffolds the wiki directly, as
+before.
 ```
 
 - [ ] **Step 4: Verify the doc updates landed**
