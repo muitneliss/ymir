@@ -55,39 +55,28 @@ Map the intent to a harness concern and scaffold it into the current project
 ### wiki / context
 
 Triggered by intents like `ymir add context`, `ymir add wiki`, or as part of
-`ymir init`. This lays down an LLM-maintained wiki backed by the Ymir wiki CLI.
+`ymir init`. The wiki harness is scaffolded by **a single CLI call** — never by
+hand-editing files. The CLI owns the tree, the hook, the `.claude/settings.json`
+entry, the `CLAUDE.md` block, and the validation step.
 
-Do all of the following with tools (Bash/Write), in order:
+From the project root, run:
 
-1. **Create the tree** under the project root:
-   - `wiki/raw/`, `wiki/sources/`, `wiki/notes/` — each with a `.gitkeep`
-     (copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/gitkeep`).
-   - `wiki/SCHEMA.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/SCHEMA.md`,
-     then replace the literal `PROJECT_NAME` with the current directory's base
-     name.
-   - `wiki/index.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/index.seed.md`.
-   - `wiki/log.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/log.seed.md`.
-2. **Install the hook**:
-   - Copy `${CLAUDE_PLUGIN_ROOT}/templates/hooks/block-wiki-edits.mjs` to
-     `.claude/hooks/block-wiki-edits.mjs`.
-   - Merge `${CLAUDE_PLUGIN_ROOT}/templates/hooks/settings.snippet.json` into `.claude/settings.json`.
-     If `.claude/settings.json` exists, deep-merge the `hooks.PreToolUse` array
-     (append the matcher entry; do not clobber existing hooks). If it does not
-     exist, create it from the snippet.
-3. **Point CLAUDE.md at the wiki**: append (creating the file if absent) a block:
+```bash
+"${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki" --root ./wiki init
+```
 
-   ```markdown
-   ## Wiki / Context
-   This project has an LLM-maintained wiki under `wiki/`. You MUST NOT hand-edit
-   wiki docs (`wiki/sources`, `wiki/notes`, `index.md`, `log.md`) — they are
-   managed by the Ymir wiki CLI and a PreToolUse hook blocks direct edits. See
-   `wiki/SCHEMA.md` for the rules and command reference.
-   ```
-4. **Verify**: run
-   `${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki --root ./wiki validate`
-   and confirm it prints `wiki valid`. If it errors, stop and report.
-5. **Tell the user** the qmd one-time setup (from `wiki/SCHEMA.md`):
-   `qmd collection add ./wiki --name <project>-wiki && qmd embed`.
+It is idempotent — safe to re-run. On success the last line is `wiki valid`.
+If it errors, stop and report.
+
+Then tell the user the qmd one-time setup (also documented in `wiki/SCHEMA.md`):
+
+```bash
+qmd collection add ./wiki --name <project>-wiki && qmd embed
+```
+
+**Design principle:** every change to the wiki harness goes through the wiki
+CLI. The skill must never copy templates, edit `.claude/settings.json`, or
+append to `CLAUDE.md` directly.
 
 Never write application code; only the harness skeleton above.
 
