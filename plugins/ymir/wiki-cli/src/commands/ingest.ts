@@ -12,11 +12,19 @@ export interface IngestInput {
   title: string;
   body: string;
   today: string;
+  sourcePath?: string;
+  sourceHash?: string;
 }
 
 export async function runIngest(i: IngestInput): Promise<string> {
   const page = await renderSourcePage({
-    title: i.title, source: i.raw, date: i.today, tags: [], body: i.body,
+    title: i.title,
+    source: i.raw,
+    date: i.today,
+    tags: [],
+    body: i.body,
+    sourcePath: i.sourcePath,
+    sourceHash: i.sourceHash,
   });
   const path = sourcePath(i.root, i.title);
   const prev = existsSync(path) ? readPage(path) : null;
