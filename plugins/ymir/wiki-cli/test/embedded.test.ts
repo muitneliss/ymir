@@ -19,7 +19,9 @@ describe("embedded templates", () => {
   });
   it("SETTINGS_HOOK_ENTRY targets Write|Edit|MultiEdit", () => {
     expect(SETTINGS_HOOK_ENTRY.matcher).toBe("Write|Edit|MultiEdit");
+    expect(SETTINGS_HOOK_ENTRY.hooks).toHaveLength(1);
     const firstHook = SETTINGS_HOOK_ENTRY.hooks[0];
+    expect(firstHook?.type).toBe("command");
     expect(firstHook?.command).toContain(
       ".claude/hooks/block-wiki-edits.mjs",
     );
