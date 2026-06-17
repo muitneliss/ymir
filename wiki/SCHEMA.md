@@ -41,9 +41,11 @@ Run `... help` for the full command reference. Key commands:
 One-time, on this machine:
 
 ```
-qmd collection add ./wiki --name PROJECT_NAME-wiki
-qmd embed
+qmd collection add ./wiki --name dogfood-wiki-wiki
 ```
 
-Then `wiki query "..."` (which shells out to `qmd query --json --files`).
-Optional tighter integration: add a `qmd` MCP server (`qmd mcp`) to your client.
+Then `wiki query "..."` (which shells out to `qmd search --json --files`).
+Search is keyword-only (BM25) — lightweight, no embeddings and no local LLM, so
+there is no `qmd embed` step. Re-run `qmd collection add` after adding pages to
+refresh the index. Optional tighter integration: add a `qmd` MCP server
+(`qmd mcp`) to your client.

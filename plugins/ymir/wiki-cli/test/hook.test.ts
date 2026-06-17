@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const HOOK = join(here, "..", "..", "templates", "hooks", "block-wiki-edits.mjs");
+const HOOK = join(here, "..", "src", "templates", "hooks", "block-wiki-edits.mjs");
 
 function runHook(input: object) {
   const r = spawnSync("node", [HOOK], { input: JSON.stringify(input), encoding: "utf8" });

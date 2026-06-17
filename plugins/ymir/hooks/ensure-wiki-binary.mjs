@@ -58,7 +58,7 @@ try {
   process.exit(2);
 }
 
-const base     = `https://github.com/muitneliss/ymir/releases/download/v${pluginVersion}`;
+const base     = `https://github.com/muitneliss/ymir/releases/download/ymir-v${pluginVersion}`;
 const assetUrl = `${base}/wiki-${label}`;
 const sumsUrl  = `${base}/SHA256SUMS.txt`;
 
