@@ -1,4 +1,4 @@
-import { computeStatus, hasDrift, type SourceState } from "../status.js";
+import { computeStatus, hasDrift } from "../status.js";
 
 export interface StatusInput {
   root: string;
