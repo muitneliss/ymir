@@ -6,5 +6,12 @@
     "name": "articalam",
     "email": "lamhiep16@gmail.com"
   },
-  "keywords": ["scaffold", "harness", "template", "lint", "ci", "rules"]
+  "keywords": [
+    "scaffold",
+    "harness",
+    "template",
+    "lint",
+    "ci",
+    "rules"
+  ]
 }
