@@ -14,6 +14,7 @@ import { writePage, readPage, listPages } from "./store.js";
 import { wikiPaths } from "./paths.js";
 import { NoteType } from "./schema.js";
 import { join } from "node:path";
+import { reindex } from "./reindex.js";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const readStdin = () => readFileSync(0, "utf8");
@@ -35,18 +36,23 @@ program
   .command("note")
   .requiredOption("--type <type>")
   .requiredOption("--name <name>")
-  .action(async (opts: { type: string; name: string }) => {
+  .option("--no-reindex", "skip qmd reindex after write")
+  .action(async (opts: { type: string; name: string; reindex: boolean }) => {
     const root = program.opts<{ root: string }>().root;
     const type = NoteType.parse(opts.type);
-    const path = await runNote({ root, type, name: opts.name, body: readStdin(), today: today() });
+    const path = await runNote({ root, type, name: opts.name, body: readStdin(), today: today(), noReindex: !opts.reindex });
     process.stdout.write(`wrote ${path}\n`);
   });
 
-program.command("index").action(async () => {
-  const root = program.opts<{ root: string }>().root;
-  writePage(wikiPaths(root).index, buildIndex(root));
-  process.stdout.write("rebuilt index.md\n");
-});
+program
+  .command("index")
+  .option("--no-reindex", "skip qmd reindex after write")
+  .action(async (opts: { reindex: boolean }) => {
+    const root = program.opts<{ root: string }>().root;
+    writePage(wikiPaths(root).index, buildIndex(root));
+    process.stdout.write("rebuilt index.md\n");
+    if (opts.reindex) reindex(root);
+  });
 
 program.command("log").argument("<op>").argument("<title>").action((op: string, title: string) => {
   const root = program.opts<{ root: string }>().root;
@@ -111,5 +117,12 @@ program
     process.stdout.write(text);
     if (exitCode !== 0) process.exit(exitCode);
   });
+
+program.command("reindex").action(() => {
+  const root = program.opts<{ root: string }>().root;
+  const r = reindex(root);
+  if (r.ok) process.stdout.write(`reindexed as "${r.name}"\n`);
+  else process.stdout.write(`reindex skipped (qmd unavailable)\n`);
+});
 
 program.parseAsync();
