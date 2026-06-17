@@ -1,3 +1,4 @@
+// Keep in sync with plugins/ymir/hooks/ensure-wiki-binary.mjs (inline copy).
 export function detectAssetLabel(unameSM: string): string {
   const s = unameSM.trim();
   if (s === "Darwin arm64")                          return "darwin-arm64";

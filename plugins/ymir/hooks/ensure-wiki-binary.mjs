@@ -7,6 +7,7 @@ import {
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 
+// Keep in sync with wiki-cli/src/platform.ts (cannot import TS from this .mjs hook).
 function detectAssetLabel(unameSM) {
   const s = unameSM.trim();
   if (s === "Darwin arm64")                         return "darwin-arm64";
@@ -66,10 +67,15 @@ mkdirSync(binDir, { recursive: true });
 const tmpBin  = `${binPath}.tmp`;
 const tmpSums = join(binDir, "SHA256SUMS.txt.tmp");
 
+const cleanupTmp = () => {
+  try { unlinkSync(tmpBin); } catch {}
+  try { unlinkSync(tmpSums); } catch {}
+};
+
 // Download binary
 const dlBin = spawnSync("curl", ["-fsSL", "--output", tmpBin, assetUrl], { stdio: "inherit" });
 if (dlBin.status !== 0) {
-  try { unlinkSync(tmpBin); } catch {}
+  cleanupTmp();
   process.stderr.write(`[ymir] Failed to download wiki binary: ${assetUrl}\n`);
   process.exit(2);
 }
@@ -77,8 +83,7 @@ if (dlBin.status !== 0) {
 // Download checksum file
 const dlSums = spawnSync("curl", ["-fsSL", "--output", tmpSums, sumsUrl], { stdio: "inherit" });
 if (dlSums.status !== 0) {
-  try { unlinkSync(tmpBin); } catch {}
-  try { unlinkSync(tmpSums); } catch {}
+  cleanupTmp();
   process.stderr.write(`[ymir] Failed to download SHA256SUMS: ${sumsUrl}\n`);
   process.exit(2);
 }
@@ -90,12 +95,14 @@ const expectedLine = sumsText.split("\n").find((l) => {
   return name === `wiki-${label}`;
 });
 if (!expectedLine) {
+  cleanupTmp();
   process.stderr.write(`[ymir] No sha256 entry for wiki-${label} in SHA256SUMS.txt\n`);
   process.exit(2);
 }
 const expectedHash = expectedLine.trim().split(/\s+/)[0];
 const actualHash   = createHash("sha256").update(readFileSync(tmpBin)).digest("hex");
 if (actualHash !== expectedHash) {
+  cleanupTmp();
   process.stderr.write(
     `[ymir] SHA256 mismatch for wiki-${label}:\n  expected ${expectedHash}\n  got      ${actualHash}\n`
   );
