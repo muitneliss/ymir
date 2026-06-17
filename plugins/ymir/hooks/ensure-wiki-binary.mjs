@@ -33,6 +33,11 @@ try {
   process.exit(2);
 }
 
+if (typeof pluginVersion !== "string" || !/^\d+\.\d+\.\d+/.test(pluginVersion)) {
+  process.stderr.write(`[ymir] Invalid plugin version: ${JSON.stringify(pluginVersion)}\n`);
+  process.exit(2);
+}
+
 const binDir    = join(PLUGIN_ROOT, "wiki-cli/bin");
 const binPath   = join(binDir, "wiki");
 const stampPath = join(binDir, ".version");
@@ -64,6 +69,7 @@ const tmpSums = join(binDir, "SHA256SUMS.txt.tmp");
 // Download binary
 const dlBin = spawnSync("curl", ["-fsSL", "--output", tmpBin, assetUrl], { stdio: "inherit" });
 if (dlBin.status !== 0) {
+  try { unlinkSync(tmpBin); } catch {}
   process.stderr.write(`[ymir] Failed to download wiki binary: ${assetUrl}\n`);
   process.exit(2);
 }
@@ -71,13 +77,18 @@ if (dlBin.status !== 0) {
 // Download checksum file
 const dlSums = spawnSync("curl", ["-fsSL", "--output", tmpSums, sumsUrl], { stdio: "inherit" });
 if (dlSums.status !== 0) {
+  try { unlinkSync(tmpBin); } catch {}
+  try { unlinkSync(tmpSums); } catch {}
   process.stderr.write(`[ymir] Failed to download SHA256SUMS: ${sumsUrl}\n`);
   process.exit(2);
 }
 
 // Verify sha256
 const sumsText     = readFileSync(tmpSums, "utf8");
-const expectedLine = sumsText.split("\n").find((l) => l.includes(`wiki-${label}`));
+const expectedLine = sumsText.split("\n").find((l) => {
+  const name = l.trim().split(/\s+/)[1];
+  return name === `wiki-${label}`;
+});
 if (!expectedLine) {
   process.stderr.write(`[ymir] No sha256 entry for wiki-${label} in SHA256SUMS.txt\n`);
   process.exit(2);
