@@ -1,6 +1,6 @@
-import { rmSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import { renderSourcePage } from "../pages.js";
-import { writePage } from "../store.js";
+import { writePage, readPage } from "../store.js";
 import { sourcePath, wikiPaths } from "../paths.js";
 import { buildIndex } from "../index-build.js";
 import { appendLog } from "../wikilog.js";
@@ -19,11 +19,13 @@ export async function runIngest(i: IngestInput): Promise<string> {
     title: i.title, source: i.raw, date: i.today, tags: [], body: i.body,
   });
   const path = sourcePath(i.root, i.title);
+  const prev = existsSync(path) ? readPage(path) : null;
   writePage(path, page);
 
   const result = validateWiki(i.root);
   if (!result.ok) {
-    rmSync(path);
+    if (prev === null) rmSync(path);
+    else writePage(path, prev);
     throw new Error(`ingest rejected:\n${result.errors.join("\n")}`);
   }
 

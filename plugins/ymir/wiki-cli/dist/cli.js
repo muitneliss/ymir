@@ -5,7 +5,7 @@ import { Command } from "commander";
 import { readFileSync as readFileSync2 } from "fs";
 
 // src/commands/ingest.ts
-import { rmSync } from "fs";
+import { existsSync as existsSync2, rmSync } from "fs";
 
 // src/pages.ts
 import matter from "gray-matter";
@@ -210,10 +210,12 @@ async function runIngest(i) {
     body: i.body
   });
   const path = sourcePath(i.root, i.title);
+  const prev = existsSync2(path) ? readPage(path) : null;
   writePage(path, page);
   const result = validateWiki(i.root);
   if (!result.ok) {
-    rmSync(path);
+    if (prev === null) rmSync(path);
+    else writePage(path, prev);
     throw new Error(`ingest rejected:
 ${result.errors.join("\n")}`);
   }
@@ -223,11 +225,11 @@ ${result.errors.join("\n")}`);
 }
 
 // src/commands/note.ts
-import { existsSync as existsSync2, rmSync as rmSync2 } from "fs";
+import { existsSync as existsSync3, rmSync as rmSync2 } from "fs";
 import matter4 from "gray-matter";
 async function runNote(i) {
   const path = notePath(i.root, i.name);
-  const existed = existsSync2(path);
+  const existed = existsSync3(path);
   const prevSourceCount = existed ? matter4(readPage(path)).data.source_count ?? 0 : 0;
   const page = await renderNotePage({
     name: i.name,

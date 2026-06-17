@@ -65,12 +65,12 @@ Do all of the following with tools (Bash/Write), in order:
    - `wiki/SCHEMA.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/SCHEMA.md`,
      then replace the literal `PROJECT_NAME` with the current directory's base
      name.
-   - `wiki/index.md` — copy `templates/wiki/index.seed.md`.
-   - `wiki/log.md` — copy `templates/wiki/log.seed.md`.
+   - `wiki/index.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/index.seed.md`.
+   - `wiki/log.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/log.seed.md`.
 2. **Install the hook**:
    - Copy `${CLAUDE_PLUGIN_ROOT}/templates/hooks/block-wiki-edits.mjs` to
      `.claude/hooks/block-wiki-edits.mjs`.
-   - Merge `templates/hooks/settings.snippet.json` into `.claude/settings.json`.
+   - Merge `${CLAUDE_PLUGIN_ROOT}/templates/hooks/settings.snippet.json` into `.claude/settings.json`.
      If `.claude/settings.json` exists, deep-merge the `hooks.PreToolUse` array
      (append the matcher entry; do not clobber existing hooks). If it does not
      exist, create it from the snippet.

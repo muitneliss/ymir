@@ -29,4 +29,19 @@ describe("runIngest", () => {
     })).rejects.toThrow(/broken link/);
     expect(existsSync(join(root, "sources", "doc-a.md"))).toBe(false);
   });
+
+  it("preserves the existing source page when a re-ingest fails validation", async () => {
+    await runIngest({
+      root, raw: "raw/a.pdf", title: "Doc A",
+      body: "Original body. See [[Doc A]].", today: "2026-06-17",
+    });
+    const original = readPage(join(root, "sources", "doc-a.md"));
+
+    await expect(runIngest({
+      root, raw: "raw/a.pdf", title: "Doc A",
+      body: "Broken update. See [[Ghost]].", today: "2026-06-18",
+    })).rejects.toThrow(/broken link/);
+
+    expect(readPage(join(root, "sources", "doc-a.md"))).toBe(original);
+  });
 });
