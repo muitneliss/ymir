@@ -38,6 +38,9 @@ to the checklist of harness concerns above. Examples:
 | `ymir add rules` | interview + audit only `rules`; update the spec |
 | `ymir set up CI` | interview + audit only `ci`; update the spec |
 | `ymir add context` / `ymir add wiki` | **scaffold the wiki directly** — execute the existing wiki flow (the one exception to spec-only); see "Wiki-only intent" below |
+| `ymir apply` | generate the harness from the spec: preview → confirm → per concern (keep/merge/overwrite, backing up first) → verify all → summary; see "Applying the spec" below |
+| `ymir apply lint` (or any concern) | apply only that one concern from the spec |
+| `ymir revert` | restore the files the most recent `ymir apply` overwrote/merged, from `*.backup.<run-id>`; see "Reverting an apply" below |
 | anything ambiguous | ask a short clarifying question, then proceed |
 
 If `$ARGUMENTS` is empty, treat it as `init`. If `.ymir/harness-profile.yaml`
@@ -114,6 +117,61 @@ Assemble the playbook from the bundled per-concern templates — do not free-for
    session can now follow `harness-playbook.md` to generate the harness.
 
 Never write the harness files themselves; only the two spec files above.
+
+## Applying the spec — `ymir apply` (writes the harness)
+
+`ymir apply` is the explicit, user-triggered step that turns the spec into real
+harness files. It never invents a spec: if `.ymir/harness-profile.yaml` or
+`.ymir/harness-playbook.md` is missing, stop and tell the user to run `ymir init`
+first.
+
+**Scope.** `ymir apply` applies every `captured` concern in the profile.
+`ymir apply <concern>` (e.g. `ymir apply lint`) applies only that concern.
+
+**1 — Load + preview.** Read the profile and the playbook. For each in-scope
+concern, read its `**Target:**` line from the playbook section to learn the
+artifact (a literal path like `docs/rules.md`, or a tool/provider-derived one
+such as the linter config for `concerns.lint.tool` or a workflow under
+`.github/workflows/`). Test whether that artifact already exists and print a plan
+table:
+
+| Concern | Target | State | Planned action |
+|---|---|---|---|
+| lint | `eslint.config.mjs` | exists | ask keep/merge/overwrite |
+| wiki | `wiki/` | missing | create |
+
+**2 — Confirm once.** Ask the user to confirm the whole plan a single time before
+writing anything.
+
+**3 — Capture a run-id.** Capture one timestamp for the entire run:
+`run_id=$(date +%Y%m%d%H%M%S)`. Every backup this run makes reuses this same
+`run_id` so `ymir revert` can restore them as one group.
+
+**4 — Execute each in-scope concern**, in playbook order:
+
+- **Target missing** → generate it by following that concern's playbook Steps.
+- **Target exists** → ask **keep / merge / overwrite** (`AskUserQuestion`):
+  - *keep* → write nothing.
+  - *merge* → `cp "<file>" "<file>.backup.$run_id"`, then fold the spec-driven
+    changes into the existing file, guided by the playbook Steps.
+  - *overwrite* → `cp "<file>" "<file>.backup.$run_id"`, then write the freshly
+    generated artifact.
+- **Rule:** back up **before** any overwrite or merge; never back up a file you
+  are creating fresh.
+
+**5 — Verify all.** Run **every** in-scope concern's `**Verify:**` step. Do **not**
+stop on the first failure — run them all and collect the results.
+
+**6 — Summary table.** Print one row per concern and finish with the revert hint:
+
+| Concern | Result |
+|---|---|
+| rules | ✅ generated + verified |
+| lint | ⏭️ kept (existing) |
+| ci | 🔁 merged + verified |
+| wiki | ❌ verify failed — `<reason>` |
+
+End by telling the user: `ymir revert` undoes this run (run-id `<run_id>`).
 
 ## Boundaries
 
