@@ -48,17 +48,48 @@ for `init`, gather the full picture up front.
 
 ## Step 2 — Scaffold
 
-> **TODO (not yet implemented).** The per-stack harness templates are still being
-> designed. For now: after the interview, summarize the captured techstack and
-> state exactly which files/pieces *would* be created for the requested action,
-> then stop. Do not write application code.
->
-> When implemented, this step will create, based on the action + answers:
-> - the linter config (e.g. Go → `golangci-lint`)
-> - the CI lint workflow (e.g. GitHub Actions)
-> - a `rules` file
-> - a `wiki/` or `context/` scaffold
-> - a `CLAUDE.md` / `AGENT.md` seeded with the project's conventions
+Map the intent to a harness concern and scaffold it into the current project
+(cwd). Other concerns (lint, CI, rules, CLAUDE.md) are still stubbed; the
+**wiki / context** concern is implemented below.
+
+### wiki / context
+
+Triggered by intents like `ymir add context`, `ymir add wiki`, or as part of
+`ymir init`. This lays down an LLM-maintained wiki backed by the Ymir wiki CLI.
+
+Do all of the following with tools (Bash/Write), in order:
+
+1. **Create the tree** under the project root:
+   - `wiki/raw/`, `wiki/sources/`, `wiki/notes/` — each with a `.gitkeep`
+     (copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/gitkeep`).
+   - `wiki/SCHEMA.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/SCHEMA.md`,
+     then replace the literal `PROJECT_NAME` with the current directory's base
+     name.
+   - `wiki/index.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/index.seed.md`.
+   - `wiki/log.md` — copy `${CLAUDE_PLUGIN_ROOT}/templates/wiki/log.seed.md`.
+2. **Install the hook**:
+   - Copy `${CLAUDE_PLUGIN_ROOT}/templates/hooks/block-wiki-edits.mjs` to
+     `.claude/hooks/block-wiki-edits.mjs`.
+   - Merge `${CLAUDE_PLUGIN_ROOT}/templates/hooks/settings.snippet.json` into `.claude/settings.json`.
+     If `.claude/settings.json` exists, deep-merge the `hooks.PreToolUse` array
+     (append the matcher entry; do not clobber existing hooks). If it does not
+     exist, create it from the snippet.
+3. **Point CLAUDE.md at the wiki**: append (creating the file if absent) a block:
+
+   ```markdown
+   ## Wiki / Context
+   This project has an LLM-maintained wiki under `wiki/`. You MUST NOT hand-edit
+   wiki docs (`wiki/sources`, `wiki/notes`, `index.md`, `log.md`) — they are
+   managed by the Ymir wiki CLI and a PreToolUse hook blocks direct edits. See
+   `wiki/SCHEMA.md` for the rules and command reference.
+   ```
+4. **Verify**: run
+   `node ${CLAUDE_PLUGIN_ROOT}/wiki-cli/dist/cli.js --root ./wiki validate`
+   and confirm it prints `wiki valid`. If it errors, stop and report.
+5. **Tell the user** the qmd one-time setup (from `wiki/SCHEMA.md`):
+   `qmd collection add ./wiki --name <project>-wiki && qmd embed`.
+
+Never write application code; only the harness skeleton above.
 
 ## Boundaries
 
