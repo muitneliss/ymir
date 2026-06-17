@@ -1,5 +1,6 @@
 ## lint → linter config
 
+- **Target:** the linter config for `concerns.lint.tool` — use `concerns.lint.config` if the profile sets it, else the tool's conventional file (`eslint` → `eslint.config.{mjs,js,cjs}` / `.eslintrc*`; `biome` → `biome.json` / `biome.jsonc`; `golangci-lint` → `.golangci.{yml,yaml}`; `ruff` → `ruff.toml` / `pyproject.toml`)
 - **Inputs:** `project.language`, `project.runtime`, `concerns.lint.tool`,
   `concerns.lint.strict`, `concerns.lint.style`
 - **Steps:**

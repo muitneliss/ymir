@@ -1,5 +1,6 @@
 ## rules → project rules doc
 
+- **Target:** `docs/rules.md` (or the project's existing conventions doc)
 - **Inputs:** `concerns.rules.obey[]`, `concerns.rules.avoid[]`
 - **Steps:**
   1. Create `docs/rules.md` (or the project's existing conventions doc).

@@ -1,5 +1,6 @@
 ## CLAUDE.md / AGENT.md → steering file
 
+- **Target:** `CLAUDE.md` (or `AGENT.md`) at the project root
 - **Inputs:** `concerns.claude_md.steer[]`, plus the other captured concerns
 - **Steps:**
   1. Create or extend `CLAUDE.md` at the project root.

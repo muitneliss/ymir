@@ -1,5 +1,6 @@
 ## CI lint → CI workflow
 
+- **Target:** the CI workflow for `concerns.ci.provider` — use `concerns.ci.workflow` if the profile sets it, else any file under `.github/workflows/` (GitHub Actions)
 - **Inputs:** `project.host`, `project.runtime`, `concerns.ci.provider`,
   `concerns.ci.runs[]`
 - **Steps:**

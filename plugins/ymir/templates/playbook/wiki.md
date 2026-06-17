@@ -1,6 +1,7 @@
 ## wiki / context → LLM-maintained wiki
 
 - **Inputs:** `concerns.wiki.enabled` (run only when `true`), `concerns.wiki.collection`, `meta.project`
+- **Target:** the `wiki/` tree + `.claude/hooks/block-wiki-edits.mjs`
 
 This lays down an LLM-maintained wiki backed by the Ymir wiki CLI. Do all of the
 following with tools (Bash/Write), in order — this is the existing wiki flow,
