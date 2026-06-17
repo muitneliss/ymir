@@ -48,17 +48,37 @@ for `init`, gather the full picture up front.
 
 ## Step 2 — Scaffold
 
-> **TODO (not yet implemented).** The per-stack harness templates are still being
-> designed. For now: after the interview, summarize the captured techstack and
-> state exactly which files/pieces *would* be created for the requested action,
-> then stop. Do not write application code.
->
-> When implemented, this step will create, based on the action + answers:
-> - the linter config (e.g. Go → `golangci-lint`)
-> - the CI lint workflow (e.g. GitHub Actions)
-> - a `rules` file
-> - a `wiki/` or `context/` scaffold
-> - a `CLAUDE.md` / `AGENT.md` seeded with the project's conventions
+Map the intent to a harness concern and scaffold it into the current project
+(cwd). Other concerns (lint, CI, rules, CLAUDE.md) are still stubbed; the
+**wiki / context** concern is implemented below.
+
+### wiki / context
+
+Triggered by intents like `ymir add context`, `ymir add wiki`, or as part of
+`ymir init`. The wiki harness is scaffolded by **a single CLI call** — never by
+hand-editing files. The CLI owns the tree, the hook, the `.claude/settings.json`
+entry, the `CLAUDE.md` block, and the validation step.
+
+From the project root, run:
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki" --root ./wiki init
+```
+
+It is idempotent — safe to re-run. On success the last line is `wiki valid`.
+If it errors, stop and report.
+
+Then tell the user the qmd one-time setup (also documented in `wiki/SCHEMA.md`):
+
+```bash
+qmd collection add ./wiki --name <project>-wiki && qmd embed
+```
+
+**Design principle:** every change to the wiki harness goes through the wiki
+CLI. The skill must never copy templates, edit `.claude/settings.json`, or
+append to `CLAUDE.md` directly.
+
+Never write application code; only the harness skeleton above.
 
 ## Boundaries
 

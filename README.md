@@ -1,5 +1,8 @@
 # Ymir
 
+[![release-please](https://github.com/muitneliss/ymir/actions/workflows/release-please.yml/badge.svg)](https://github.com/muitneliss/ymir/actions/workflows/release-please.yml)
+[![release](https://img.shields.io/github/v/release/muitneliss/ymir?sort=semver)](https://github.com/muitneliss/ymir/releases)
+
 A Claude Code plugin marketplace + plugin that scaffolds the **mandatory project
 harness** every repo should start with — rules, lint, CI lint, wiki/context, and
 `CLAUDE.md`/`AGENT.md`.
@@ -44,5 +47,8 @@ Then: `/ymir init for this project`
 
 ## Status
 
-Early scaffold (`v0.1.0`). The socratic interview is stubbed; per-stack harness
-templates are not implemented yet.
+`v0.2.0`. The **wiki / context** harness piece is implemented: `/ymir add
+context` scaffolds an LLM-maintained `wiki/` (backed by the bundled wiki CLI in
+`plugins/ymir/wiki-cli`), installs a PreToolUse hook that blocks hand-editing
+wiki docs, and wires in `qmd` for search. The socratic interview and the other
+harness pieces (lint, CI, rules) are still stubbed.
