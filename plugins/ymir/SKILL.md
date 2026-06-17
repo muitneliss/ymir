@@ -173,12 +173,32 @@ stop on the first failure — run them all and collect the results.
 
 End by telling the user: `ymir revert` undoes this run (run-id `<run_id>`).
 
+## Reverting an apply — `ymir revert`
+
+`ymir revert` restores the files the most recent `ymir apply` overwrote or merged.
+
+1. **Find the latest run-id.** List backups under the project and take the
+   greatest `<run-id>` suffix (timestamps sort lexically):
+   ```bash
+   ls **/*.backup.* 2>/dev/null | sed 's/.*\.backup\.//' | sort -u | tail -1
+   ```
+2. **Restore each backup of that run-id:** for every `<file>.backup.<run-id>`, run
+   `mv "<file>.backup.<run-id>" "<file>"` (overwriting the applied version).
+3. **Report** which files were restored.
+
+**Limitation (by design — no manifest):** revert only restores files that have a
+`.backup.<run-id>` — i.e. ones apply overwrote or merged. Files apply created from
+scratch have no backup; they remain and show up in `git status`. Remove them
+manually or with `git clean` for a full undo.
+
 ## Boundaries
 
 - Operate on the current project only ("this project" = cwd).
-- **Spec only, with one exception** — Ymir writes `.ymir/harness-profile.yaml`
-  and `.ymir/harness-playbook.md`, nothing else, *except* the wiki-only intent
-  (`ymir add context` / `ymir add wiki`), which executes the wiki scaffold
-  directly (see "Wiki-only intent" above). Every other intent stays spec-only;
-  generation is downstream.
+- **Spec generation is spec-only.** The interview intents (`ymir init`,
+  `ymir add <concern>`) write only `.ymir/harness-profile.yaml` and
+  `.ymir/harness-playbook.md`. Two intents write harness files on purpose:
+  `ymir apply` (generates the harness from the spec, with backups) and
+  `ymir revert` (restores those backups). The wiki-only shortcut
+  (`ymir add context` / `ymir add wiki`) also executes directly; `ymir apply wiki`
+  reaches the same result through the general apply path.
 - Prefer asking over assuming; the interview is the source of truth.
