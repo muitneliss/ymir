@@ -34,7 +34,7 @@ to the checklist of harness concerns above. Examples:
 
 | User says | Intent |
 |---|---|
-| `ymir init for this project` | sweep the whole checklist, audit, emit the spec |
+| `ymir init for this project` | understand the codebase, sweep the checklist, audit, emit the spec |
 | `ymir add lint for this project` | interview + audit only the `lint` concern; update the spec |
 | `ymir add rules` | interview + audit only `rules`; update the spec |
 | `ymir set up CI` | interview + audit only `ci`; update the spec |
@@ -84,65 +84,97 @@ plus the five concerns:
 | 4 | wiki / context | enabled?, collection name |
 | 5 | CLAUDE.md / AGENT.md | steering points (derived from 1–4) |
 
-## Step 1 — Checklist-driven interview (socratic)
+## Step 0 — Understand the project (codebase-first)
 
-The user does not hand-write code, so Ymir cannot infer the stack from files.
-Ask **one decision at a time** (`AskUserQuestion`), multiple-choice when possible.
-Walk the checklist: item 0 first, then the in-scope concerns.
+Before asking anything, scan the repo and build a **gap report**. Detect the
+foundation (language, runtime, layer, host) from manifests (`package.json`,
+`go.mod`, `pyproject.toml`, …), lockfiles, and the `.git` remote; and per concern
+detect current state + a verdict — `present-strong`, `present-weak`, or `missing`:
 
-- For `ymir init`, sweep the whole checklist.
-- For a narrow action (e.g. `add lint`), ask only item 0 (if not already in the
-  profile) plus that one concern.
+- `rules`: existing `.claude/rules/*.md`, conventions docs, `.editorconfig`, a
+  `CLAUDE.md`/`AGENT.md` rules section.
+- `lint`: a linter config present? which tool? strict?
+- `ci`: workflows present? what do they run?
+- `wiki`: a docs/context/wiki dir already used for project knowledge?
+- `claude_md`: `CLAUDE.md`/`AGENT.md` present? what does it steer?
+
+Print a one-line-per-concern findings summary so the interview is visibly
+grounded. **Greenfield fallback:** if there are no usable signals, mark every
+concern `missing` and proceed to ask cold.
+
+## Step 1 — Per-concern Socratic interview
+
+Walk item 0 (techstack — mostly **confirm** what Step 0 detected) then each
+in-scope concern. For each concern run the 4-move engine — **probe why → recommend
+(2-3 trade-offs, recommendation first) → adaptive follow-up only when needed →
+confirm** — asking **one question per `AskUserQuestion` message**. The full engine,
+the per-concern probe bank, the rules scope-probing, and the greenfield phrasing
+live in `${CLAUDE_PLUGIN_ROOT}/references/socratic-interview.md` — read it before
+interviewing.
+
+- For `ymir init`, sweep the whole checklist; for a narrow action (e.g. `add
+  lint`), run item 0 (if unknown) plus that one concern.
 - The user may skip a concern → record `status: skipped` with a `reason`.
-- Write each answer into `.ymir/harness-profile.yaml` as you go. Field shape and
-  required-fields-per-status:
+- Write each answer into `.ymir/harness-profile.yaml` as you go, including
+  `why`, `findings`, and `alternatives_considered`. Field shape:
   `${CLAUDE_PLUGIN_ROOT}/templates/harness-profile.schema.md`.
 
-## Step 2 — Re-audit (gate)
+## Step 2 — Consistency + re-audit (gate)
 
-Before emitting, re-check every in-scope concern against the schema's required
-fields (e.g. "have we clarified the techstack? the rules to obey/avoid? the lint
-tool?"):
+Before emitting:
 
-- Any required field missing → loop back and ask exactly that question; keep the
-  concern `status: pending` until resolved.
-- When all in-scope concerns are `captured` or `skipped`, print a coverage table
-  (`✅ captured` / `⏭️ skipped` / `❌ pending`) and ask the user to confirm.
+1. **Required-field check** — every in-scope concern has its decision fields plus
+   `why` and `findings`. Anything missing → keep the concern `pending` and loop
+   back to ask exactly that.
+2. **Cross-concern consistency pass** — run the bounded checklist in
+   `references/socratic-interview.md` ("Cross-concern consistency checklist"). On a
+   conflict, surface it plainly and **go back** to re-ask the implicated concern.
+3. **Reflection gate** — print, per concern, `decision + one-line why` (with
+   `✅ captured` / `⏭️ skipped` / `❌ pending` markers) and ask: *"Does this reflect
+   your intent? Want to revisit any concern before I write the spec?"*
 
 **Do not proceed to Step 3 while any in-scope concern is `pending`, or before the
-user confirms the coverage table.**
+user confirms the reflection summary.**
 
 ## Step 3 — Emit the spec
 
 Assemble the playbook from the bundled per-concern templates — do not free-form it:
 
-1. Ensure `.ymir/harness-profile.yaml` reflects the final audited decisions.
+1. Ensure `.ymir/harness-profile.yaml` reflects the final audited decisions
+   (`spec_version: 2`).
 2. Write `.ymir/harness-playbook.md`: start from
    `${CLAUDE_PLUGIN_ROOT}/templates/playbook/header.md` (fill `{{PROJECT}}` and
-   `{{DATE}}`), then append one section per `captured` concern, copied from
-   `${CLAUDE_PLUGIN_ROOT}/templates/playbook/<concern>.md`, filling any `{{...}}`
-   placeholders from the profile. Omit `skipped` concerns.
-3. Tell the user the spec is ready under `.ymir/`, and that a normal Claude Code
-   session can now follow `harness-playbook.md` to generate the harness.
+   `{{DATE}}`), then append one section per `captured` concern from
+   `${CLAUDE_PLUGIN_ROOT}/templates/playbook/<concern>.md`, filling every `{{...}}`
+   placeholder (including the `Why / Findings` block) from the profile. Omit
+   `skipped` concerns.
+3. Tell the user the spec is ready under `.ymir/`.
 
-(Spec-generation step only — never write the harness files here; only the two spec files above. `ymir apply` is the separate step that generates them.)
+(Spec-generation only — never write harness files here; `ymir apply` does that.)
 
-## Step 4 — Offer to apply (the full flow is init → apply)
+## Step 4 — Spec-review gate
 
-Emitting the spec is **not** the finish line — the user almost always wants the
-harness generated next. Do not stop and treat `init` as done. After the spec is
-written, **ask** (via `AskUserQuestion`) whether to generate it now:
+After emitting, before offering apply, ask the user to review the written files:
 
-> "Spec written to `.ymir/`. Generate the harness now with `ymir apply`?"
+> "Spec written to `.ymir/harness-profile.yaml` and `.ymir/harness-playbook.md`.
+> Please review them and tell me if you want any changes before I generate the
+> harness."
 
-- **Yes** → proceed directly into the "Applying the spec" flow below, in this same
-  session (preview → confirm → generate → verify). No need to re-run `ymir apply`
-  as a separate command.
+Wait. On a change request, revisit the relevant concern, re-emit, and return to
+this gate. Only on approval proceed to Step 5.
+
+## Step 5 — Offer to apply (the full flow is init → apply)
+
+After the user approves the spec, **ask** (via `AskUserQuestion`) whether to
+generate it now:
+
+> "Generate the harness now with `ymir apply`?"
+
+- **Yes** → proceed into the "Applying the spec" flow below, in this same session.
 - **No** → tell the user they can run `ymir apply` whenever they're ready; stop here.
 
 For a narrow intent (e.g. `ymir add lint`), offer `ymir apply lint` — apply just
-that one concern — instead of the full sweep. Never auto-run apply without a yes;
-apply writes files.
+that one concern. Never auto-run apply without a yes; apply writes files.
 
 ## Applying the spec — `ymir apply` (writes the harness)
 
@@ -227,4 +259,7 @@ manually or with `git clean` for a full undo.
   `ymir revert` (restores those backups). The wiki-only shortcut
   (`ymir add context` / `ymir add wiki`) also executes directly; `ymir apply wiki`
   reaches the same result through the general apply path.
-- Prefer asking over assuming; the interview is the source of truth.
+- Prefer asking over assuming — but ground the asking in what the codebase
+  actually shows (Step 0). The interview is the source of truth.
+- The `rules` concern emits native `.claude/rules/*.md` (path-scoped), not a
+  `docs/rules.md`; `CLAUDE.md` does not point at them (auto-discovered).
