@@ -69,7 +69,8 @@ a *bounded, enumerated* checklist, not open-ended magic.
 ## Non-Goals (YAGNI)
 
 - No change to `ymir apply` / `ymir revert` mechanics, or the wiki CLI / hook /
-  templates.
+  templates — **except** the minimal accommodation for the `rules` concern's
+  directory-valued `**Target:**` (`.claude/rules/`; see Open items).
 - No new automated test framework. Verification is a schema self-check plus
   documented dry-run scenarios.
 - No dropping, adding, or reordering concerns — the five stay fixed.
@@ -88,6 +89,8 @@ a *bounded, enumerated* checklist, not open-ended magic.
 | Capture rationale | **Fully structured** — `why` / `findings` / `alternatives_considered` per concern in YAML **and** playbook. Bump `spec_version` to 2. |
 | Structural fidelity | **Full set** — cross-concern consistency + go-back, a reflection gate, and a spec-review gate. |
 | Edit structure | **Lean `SKILL.md` + a new `references/socratic-interview.md`** reference doc holding the engine detail. |
+| `rules` output location | Generate native **`.claude/rules/*.md`** (Claude Code path-scoped rules), **not** `docs/rules.md`. Each rule group = one file with optional `paths:` frontmatter globs (omit `paths` = always-on, same priority as `CLAUDE.md`). Path-scoped rules lazy-load when Claude reads a matching file. |
+| `rules` ↔ `claude_md` | **No overlap** — they write to different locations (`.claude/rules/*.md` vs `CLAUDE.md`). `CLAUDE.md` does **not** point at the rules (Claude Code auto-discovers `.claude/rules/`). Both concerns stay in the fixed five. |
 
 ## Architecture
 
@@ -124,8 +127,8 @@ steps are marked ▶.
 |---|---|
 | `plugins/ymir/SKILL.md` | Rewrite Steps 0–4 into the codebase-first Socratic flow; **lean** — step structure + pointers, not full mechanics. Replace `line 81` ("cannot infer from files") with the codebase-first premise. |
 | `plugins/ymir/references/socratic-interview.md` | **NEW.** The engine: the 4-move per-concern loop, a per-concern probe bank, the recommendation pattern, the cross-concern consistency checklist, the greenfield fallback, and an explicit anti-pattern callout. |
-| `plugins/ymir/templates/harness-profile.schema.md` | Schema **v2**: add `why` / `findings` / `alternatives_considered` per concern; bump `spec_version`. |
-| `plugins/ymir/templates/playbook/header.md` + each `*.md` | Add a non-breaking `**Why / Findings:**` block per concern section. |
+| `plugins/ymir/templates/harness-profile.schema.md` | Schema **v2**: add `why` / `findings` / `alternatives_considered` per concern; bump `spec_version`. Replace `rules`' flat `obey`/`avoid` with a `files[]` list (each `{name, paths?, obey, avoid}`). |
+| `plugins/ymir/templates/playbook/header.md` + each `*.md` | Add a non-breaking `**Why / Findings:**` block per concern section. **`rules.md`:** change `**Target:**` from `docs/rules.md` to the `.claude/rules/` directory; `**Steps:**` iterate `files[]`, writing one `.claude/rules/<name>.md` each (with `paths:` frontmatter when present); `**Verify:**` each file exists and any `avoid` items appear. |
 | `README.md`, `plugins/ymir/.claude-plugin/plugin.json` | Light reframe: codebase-first + deeper interview. Still spec-only. |
 
 ### Component 1 — Step 0: understand the project (codebase-first)
@@ -136,7 +139,7 @@ Before any question, ymir scans the repo and forms a **gap report**. It detects:
   repo host — from manifests (`package.json`, `go.mod`, `pyproject.toml`, …),
   lockfiles, and the `.git` remote.
 - **Per concern, current state + quality verdict:**
-  - `rules`: existing conventions docs, `.editorconfig`, an existing `CLAUDE.md`/`AGENT.md` rules section.
+  - `rules`: existing `.claude/rules/*.md`, conventions docs, `.editorconfig`, an existing `CLAUDE.md`/`AGENT.md` rules section.
   - `lint`: a linter config present? which tool? strict?
   - `ci`: workflows present? what do they run? provider inferred from host.
   - `wiki`: any docs/context/wiki directory already used for project knowledge?
@@ -186,6 +189,13 @@ cold question.
 
 - A **per-concern probe bank**: the grounded *why*-question and the recommendation
   skeleton for each of `rules`/`lint`/`ci`/`wiki`/`claude_md`.
+- **`rules`-specific depth — scope probing.** Because each rule becomes a
+  `.claude/rules/<name>.md` file with optional `paths:` globs, the `rules` engine
+  adds a scope move: for each rule (group), ask whether it is project-wide
+  (always-on, no `paths`) or scoped to certain files (e.g. *"Does
+  'explicit return types' apply to all TS, or just `src/api/**`?"*). This is the
+  native context-efficiency win — path-scoped rules only load when Claude reads a
+  matching file — and it is a natural deepening the old flat `obey`/`avoid` lacked.
 - The **greenfield fallback** phrasing (no finding to cite → ask the purpose
   directly).
 - An explicit **anti-pattern** callout: *"DON'T just ask 'which tool?' — that bare
@@ -201,15 +211,20 @@ Runs after the per-concern sweep, in three parts:
   loops back to ask exactly that.
 - **(b) Cross-concern consistency pass (NEW, bounded).** A finite, enumerated
   checklist of known couplings — not a general reasoner:
-  - `lint.tool` ↔ `rules`: do `obey`/`avoid` rules need enforcement the chosen
-    tool cannot provide? (e.g. an architectural rule biome cannot lint → flag that
-    it belongs in the rules doc / `CLAUDE.md`, not expected from lint).
+  - `lint.tool` ↔ `rules`: do any rule items need enforcement the chosen lint tool
+    cannot provide? A purely architectural rule lint can't catch is fine — it lives
+    as a `.claude/rules/` file — but flag it if the user expected lint to enforce
+    something only a rule file can state.
+  - `rules` `paths` ↔ project layout: each rule's globs should match real paths
+    seen in the Step 0 scan; flag a glob that matches nothing (likely a typo or a
+    rule scoped to a directory that doesn't exist).
   - `ci.provider` ↔ `project.host`: does the provider match the repo host
     (github → github-actions)?
   - `lint.strict` ↔ `project.layer`/`runtime`: is the strictness sensible for the
     declared stack?
-  - `claude_md.steer` ↔ concerns 1–4: does it point at the rules/wiki/lint that
-    were actually set up?
+  - `claude_md.steer` ↔ concerns 2–4: does `CLAUDE.md` steer toward the wiki and
+    lint-before-commit that were actually set up? It must **not** redundantly point
+    at `.claude/rules/` (those auto-load) — flag a `steer` that does.
   On a conflict, ymir surfaces it plainly and **goes back** to re-ask the specific
   concern (the "be flexible" mechanism).
 - **(c) Reflection gate (NEW).** Replaces the bare coverage table. Print, per
@@ -235,7 +250,28 @@ concerns:
     why: "catch real bugs + kill mixed quote styles without config overhead"
     findings: "missing — no linter config; src/ mixes single+double quotes"
     alternatives_considered: [eslint+prettier]
+  rules:
+    status: captured
+    files:
+      - name: typescript-conventions      # → .claude/rules/typescript-conventions.md
+        paths: ["src/**/*.{ts,tsx}"]       # omit `paths` for an always-on rule
+        obey: [explicit-return-types, functional-core-imperative-shell]
+        avoid: [any, default-exports]
+      - name: testing
+        paths: ["**/*.test.ts"]
+        obey: [arrange-act-assert]
+    why: "encode the conventions Claude keeps violating, scoped so they load only when relevant"
+    findings: "present-weak — conventions implied in code but undocumented; no .claude/rules/"
+    alternatives_considered: [single-CLAUDE.md-section, docs/rules.md]
 ```
+
+The `rules` concern emits one `.claude/rules/<name>.md` per `files[]` entry, each
+with that entry's `paths:` as YAML frontmatter (omitted when absent → always-on)
+and the `obey`/`avoid` items as the rule body. Accordingly, the
+`templates/playbook/rules.md` section's `**Target:**` changes from `docs/rules.md`
+to the **`.claude/rules/`** directory, and its `**Steps:**` iterate `files[]`. The
+`rules` required-when-`captured` fields become **at least one `files[]` entry**
+(each with `obey`/`avoid` content) plus `why`/`findings`.
 
 `harness-playbook.md` per-concern sections gain a `**Why / Findings:**` block
 directly under the heading, filled from the profile via the existing `{{...}}`
@@ -313,10 +349,16 @@ ymir's skill behaviour is prose, so verification is lightweight and explicit:
    - Greenfield empty repo → fallback path, asks cold, `findings: missing`.
    - Seeded cross-concern conflict (a rule needing a plugin biome lacks) → the
      consistency pass flags it and loops back.
+   - `rules` with a scoped entry → ymir asks the scope question, emits
+     `.claude/rules/<name>.md` with a `paths:` frontmatter, and an always-on entry
+     emits a file with no frontmatter.
 3. **Backward-compat check:** a v1 profile loads, resumes, and upgrades to v2 on
-   next emit without data loss.
+   next emit without data loss. A v1 `rules.obey/avoid` (flat) upgrades to a single
+   always-on `files[]` entry.
 4. **Apply non-regression:** `ymir apply` against a v2 spec still parses
-   `Target`/`Verify` correctly and ignores the `Why / Findings` block.
+   `Target`/`Verify` and executes `Steps`, ignoring the `Why / Findings` block; the
+   `rules` concern writes the `.claude/rules/` directory and `ymir revert` cleanly
+   undoes it.
 
 ## Boundaries (unchanged, and stronger)
 
@@ -336,4 +378,10 @@ ymir's skill behaviour is prose, so verification is lightweight and explicit:
   (`{state, detail}`) — default to a prose string for YAGNI; revisit if the
   consistency pass needs structured access.
 - The precise enumerated entries of the cross-concern consistency checklist
-  (finalize in the plan; the four couplings above are the seed set).
+  (finalize in the plan; the couplings above are the seed set).
+- `ymir apply` granularity for the multi-file `.claude/rules/` target: per-file
+  keep/merge/overwrite vs whole-directory (finalize in the plan; backups must still
+  yield a clean `ymir revert`). The playbook `**Target:**` parser must accept a
+  directory target, not only a single file path.
+- Default rule-file `name` derivation when the user doesn't supply one (e.g. from
+  the concern/topic, kebab-cased) — finalize in the plan.
