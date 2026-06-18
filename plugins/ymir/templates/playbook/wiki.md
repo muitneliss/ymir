@@ -1,5 +1,6 @@
 ## wiki / context → LLM-maintained wiki
 
+- **Why / Findings:** {{WIKI_WHY}} — repo scan: {{WIKI_FINDINGS}}.
 - **Target:** the `wiki/` tree + `.claude/hooks/block-wiki-edits.mjs`
 - **Inputs:** `concerns.wiki.enabled` (run only when `true`), `concerns.wiki.collection`, `meta.project`
 

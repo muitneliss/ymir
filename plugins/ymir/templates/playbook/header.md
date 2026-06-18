@@ -7,3 +7,6 @@
 > **How to use:** read `.ymir/harness-profile.yaml` for decisions, then follow
 > the per-concern sections below. Each section lists the profile keys it
 > consumes (Inputs), the generation Steps, and how to Verify the result.
+>
+> Each section opens with a **Why / Findings** line recording the rationale and
+> what the codebase scan saw — context for the engineer/LLM; not an action.
