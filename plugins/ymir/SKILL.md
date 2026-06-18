@@ -188,13 +188,14 @@ first.
 
 **1 — Load + preview.** Read the profile and the playbook. For each in-scope
 concern, read its `**Target:**` line from the playbook section to learn the
-artifact (a literal path like `docs/rules.md`, or a tool/provider-derived one
-such as the linter config for `concerns.lint.tool` or a workflow under
+artifact (a literal path, a directory like `.claude/rules/`, or a tool/provider-derived
+one such as the linter config for `concerns.lint.tool` or a workflow under
 `.github/workflows/`). Test whether that artifact already exists and print a plan
 table:
 
 | Concern | Target | State | Planned action |
 |---|---|---|---|
+| rules | `.claude/rules/` | missing | create |
 | lint | `eslint.config.mjs` | exists | ask keep/merge/overwrite |
 | wiki | `wiki/` | missing | create |
 
@@ -214,6 +215,10 @@ writing anything.
     changes into the existing file, guided by the playbook Steps.
   - *overwrite* → `cp "<file>" "<file>.backup.$run_id"`, then write the freshly
     generated artifact.
+- **Directory target (e.g. `.claude/rules/`)** → treat each file in it as its own
+  artifact: test existence, ask keep/merge/overwrite, and back up **per file**
+  (`cp "<file>" "<file>.backup.$run_id"`) so `ymir revert` restores them
+  individually.
 - **Rule:** back up **before** any overwrite or merge; never back up a file you
   are creating fresh.
 
