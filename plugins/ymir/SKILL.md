@@ -1,6 +1,6 @@
 ---
 name: ymir
-description: Ymir interviews the user about THIS project (the current working directory) across a harness checklist, re-audits for completeness, and emits a SPEC under .ymir/ (the interview step writes only the spec). The spec covers rules, lint, CI lint, wiki/context, and CLAUDE.md/AGENT.md; 'ymir apply' then generates the harness from the spec (with backups + 'ymir revert'). Use whenever the user asks Ymir to do something to the project, e.g. "ymir init for this project", "ymir add lint", "ymir add rules", "ymir set up CI", "ymir apply", "ymir revert", "scaffold the harness", "bootstrap this repo".
+description: Ymir explores THIS project's codebase (the current working directory), then runs a deep Socratic interview across a harness checklist, re-audits for completeness + consistency, and emits a SPEC under .ymir/ (the interview step writes only the spec). The spec covers rules, lint, CI lint, wiki/context, and CLAUDE.md/AGENT.md; 'ymir apply' then generates the harness from the spec (with backups + 'ymir revert'). Use whenever the user asks Ymir to do something to the project, e.g. "ymir init for this project", "ymir add lint", "ymir add rules", "ymir set up CI", "ymir apply", "ymir revert", "scaffold the harness", "bootstrap this repo".
 argument-hint: "init | add lint | add rules | add ci | add context | add claude.md | apply [concern] | revert — what to do for this project"
 ---
 

@@ -6,11 +6,13 @@
 [![release](https://img.shields.io/github/v/release/muitneliss/ymir?sort=semver)](https://github.com/muitneliss/ymir/releases)
 
 A Claude Code plugin marketplace + plugin that produces a **harness spec** for a
-repo — rules, lint, CI lint, wiki/context, and `CLAUDE.md`/`AGENT.md`.
+repo — rules (as native `.claude/rules/`), lint, CI lint, wiki/context, and
+`CLAUDE.md`/`AGENT.md`.
 
-Ymir does **not** generate application code. The interview step writes only a
-spec — it interviews you across a checklist of harness concerns, re-audits to
-confirm nothing is missing, and emits a spec under `.ymir/`:
+Ymir does **not** generate application code. It first **explores your codebase**,
+then runs a **deep Socratic interview** — per concern it probes the *why*,
+recommends a grounded option, and captures the rationale — re-audits for
+consistency, and emits a spec under `.ymir/`:
 
 - `.ymir/harness-profile.yaml` — your audited decisions (machine-readable).
 - `.ymir/harness-playbook.md` — step-by-step instructions an LLM follows to
@@ -58,10 +60,14 @@ Then: `/ymir init for this project`
 
 ## Status
 
-`v0.3.0`. Ymir runs a 3-step flow: a checklist-driven socratic interview, a
-re-audit gate, and a spec emitted to `.ymir/` (`harness-profile.yaml` +
-`harness-playbook.md`); `ymir apply` then generates the harness from that spec
-(with backups + `ymir revert`). The spec's per-concern playbook sections live in
-`plugins/ymir/templates/playbook/`. The **wiki / context** section drives the
-bundled wiki tooling (`plugins/ymir/wiki-cli`, templates, and the PreToolUse hook
-that blocks hand-editing wiki docs). The `/ymir add context` (or `add wiki`) intent scaffolds the wiki directly, as before.
+`v0.4.0`. Ymir runs a codebase-first flow: it scans the repo, then runs a deep
+per-concern Socratic interview (probe *why* → recommend → confirm, capturing
+`why`/`findings`), a consistency + reflection gate, a spec-review gate, and a spec
+emitted to `.ymir/` (`harness-profile.yaml` + `harness-playbook.md`); `ymir apply`
+then generates the harness from that spec (with backups + `ymir revert`). The
+spec's per-concern playbook sections live in `plugins/ymir/templates/playbook/`;
+the interview engine is in `plugins/ymir/references/socratic-interview.md`. The
+**rules** concern emits native `.claude/rules/*.md`. The **wiki / context** section
+drives the bundled wiki tooling (`plugins/ymir/wiki-cli`, templates, and the
+PreToolUse hook that blocks hand-editing wiki docs). The `/ymir add context` (or
+`add wiki`) intent scaffolds the wiki directly, as before.
