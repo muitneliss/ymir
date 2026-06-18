@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/muitneliss/ymir/compare/ymir-v0.3.0...ymir-v0.4.0) (2026-06-18)
+
+
+### Features
+
+* **ymir:** reframe Ymir as a harness-spec generator ([#8](https://github.com/muitneliss/ymir/issues/8)) ([acb0487](https://github.com/muitneliss/ymir/commit/acb0487af9bcad2a2cfd972a9b9fff97579845a4))
+
 ## [0.3.0](https://github.com/muitneliss/ymir/compare/ymir-v0.2.0...ymir-v0.3.0) (2026-06-17)
 
 
