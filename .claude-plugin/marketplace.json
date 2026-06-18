@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "ymir",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "owner": {
     "name": "articalam",
     "email": "lamhiep16@gmail.com"
