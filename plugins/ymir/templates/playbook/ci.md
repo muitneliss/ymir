@@ -1,5 +1,6 @@
 ## CI lint → CI workflow
 
+- **Why / Findings:** {{CI_WHY}} — repo scan: {{CI_FINDINGS}}. Considered: {{CI_ALTERNATIVES}}.
 - **Target:** the CI workflow for `concerns.ci.provider` — use `concerns.ci.workflow` if the profile sets it, else the provider's conventional file (`.github/workflows/` for GitHub Actions, `.gitlab-ci.yml` for GitLab CI, `.circleci/config.yml` for CircleCI)
 - **Inputs:** `project.host`, `project.runtime`, `concerns.ci.provider`,
   `concerns.ci.runs[]`
