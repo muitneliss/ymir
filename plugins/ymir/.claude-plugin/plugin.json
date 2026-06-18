@@ -1,6 +1,6 @@
 {
   "name": "ymir",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Explores THIS project's codebase first, then runs a deep Socratic interview across a harness checklist (rules → .claude/rules/, lint, CI lint, wiki/context, CLAUDE.md), captures the rationale, re-audits for consistency, and emits a spec under .ymir/. 'ymir apply' then generates the harness from the spec (with backups + 'ymir revert'). Never writes application code.",
   "author": {
     "name": "articalam",
