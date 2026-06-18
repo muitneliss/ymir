@@ -9,6 +9,11 @@
           "type": "json",
           "path": "plugins/ymir/.claude-plugin/plugin.json",
           "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": ".claude-plugin/marketplace.json",
+          "jsonpath": "$.version"
         }
       ]
     }
