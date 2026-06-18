@@ -35,10 +35,10 @@ ymir add rules
 ymir set up CI
 ```
 
-## Try it locally
+## Install
 
 ```shell
-/plugin marketplace add ./
+/plugin marketplace add muitneliss/ymir
 /plugin install ymir@ymir
 /reload-plugins
 ```
