@@ -23,5 +23,5 @@ export interface QueryInput {
 
 export async function runQuery(i: QueryInput): Promise<string> {
   const run = i.runner ?? defaultRunner;
-  return run("qmd", ["query", i.q, "--json", "--files"]);
+  return run("qmd", ["search", i.q, "--json", "--files"]);
 }

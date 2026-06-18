@@ -6,10 +6,13 @@ import { notePath, wikiPaths } from "../paths.js";
 import { buildIndex } from "../index-build.js";
 import { appendLog } from "../wikilog.js";
 import { validateWiki } from "../validate.js";
+import { reindex, type ReindexRunner } from "../reindex.js";
 import type { NoteTypeT } from "../schema.js";
 
 export interface NoteInput {
   root: string; type: NoteTypeT; name: string; body: string; today: string;
+  noReindex?: boolean;
+  reindexRunner?: ReindexRunner;
 }
 
 export async function runNote(i: NoteInput): Promise<string> {
@@ -35,5 +38,6 @@ export async function runNote(i: NoteInput): Promise<string> {
 
   writePage(wikiPaths(i.root).index, buildIndex(i.root));
   appendLog(i.root, "note", i.name, i.today);
+  if (!i.noReindex) reindex(i.root, i.reindexRunner);
   return path;
 }

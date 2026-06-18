@@ -1,6 +1,6 @@
 {
   "name": "ymir",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Interviews the user about THIS project across a harness checklist (rules, lint, CI lint, wiki/context, CLAUDE.md), re-audits, and emits a spec under .ymir/. 'ymir apply' then generates the harness from the spec (with backups + 'ymir revert'). Never writes application code.",
   "author": {
     "name": "articalam",

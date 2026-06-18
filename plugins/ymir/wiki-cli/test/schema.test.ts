@@ -1,37 +1,49 @@
 import { describe, it, expect } from "bun:test";
-import { sourceFrontmatter, noteFrontmatter, NoteType } from "../src/schema.js";
+import { sourceFrontmatter } from "../src/schema.js";
+
+const base = {
+  title: "Auth Module",
+  type: "source" as const,
+  date: "2026-06-17",
+  tags: ["auth"],
+  ingested: "2026-06-17",
+};
 
 describe("sourceFrontmatter", () => {
-  it("accepts valid source frontmatter", () => {
-    const r = sourceFrontmatter.safeParse({
-      title: "T", type: "source", date: "2026-06-17",
-      tags: ["a"], source: "raw/t.pdf", ingested: "2026-06-17",
-    });
-    expect(r.success).toBe(true);
+  it("accepts legacy page with only source field", () => {
+    const result = sourceFrontmatter.safeParse({ ...base, source: "src/auth.ts" });
+    expect(result.success).toBe(true);
   });
-  it("rejects missing source path", () => {
-    const r = sourceFrontmatter.safeParse({
-      title: "T", type: "source", date: "2026-06-17", tags: [],
-    });
-    expect(r.success).toBe(false);
-  });
-});
 
-describe("noteFrontmatter", () => {
-  it("accepts valid note frontmatter", () => {
-    const r = noteFrontmatter.safeParse({
-      title: "Token Bucket", type: "concept", date: "2026-06-17",
-      tags: [], source_count: 2,
+  it("accepts page with source_path and source_hash (no source)", () => {
+    const result = sourceFrontmatter.safeParse({
+      ...base,
+      source_path: "src/auth.ts",
+      source_hash: "abc123",
     });
-    expect(r.success).toBe(true);
+    expect(result.success).toBe(true);
   });
-  it("rejects bad note type", () => {
-    const r = noteFrontmatter.safeParse({
-      title: "X", type: "source", date: "2026-06-17", tags: [], source_count: 0,
+
+  it("accepts page with all three fields", () => {
+    const result = sourceFrontmatter.safeParse({
+      ...base,
+      source: "src/auth.ts",
+      source_path: "src/auth.ts",
+      source_hash: "abc123",
     });
-    expect(r.success).toBe(false);
+    expect(result.success).toBe(true);
   });
-  it("enumerates note types", () => {
-    expect(NoteType.options).toEqual(["entity", "concept", "topic"]);
+
+  it("rejects page with neither source nor source_path", () => {
+    const result = sourceFrontmatter.safeParse({ ...base });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts page with source_path but no source_hash (untracked)", () => {
+    const result = sourceFrontmatter.safeParse({
+      ...base,
+      source_path: "src/auth.ts",
+    });
+    expect(result.success).toBe(true);
   });
 });

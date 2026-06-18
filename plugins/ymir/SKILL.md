@@ -52,11 +52,19 @@ already exists, read it first and ask only what is missing or requested
 
 If — and only if — the intent is explicitly to create the wiki
 (`ymir add context`, `ymir add wiki`), Ymir **executes** the wiki scaffold
-immediately against the project, exactly as before: follow every step in
-`${CLAUDE_PLUGIN_ROOT}/templates/playbook/wiki.md` (create the wiki tree, install
-the PreToolUse hook, point CLAUDE.md at the wiki, verify with `wiki validate`, and
-tell the user the qmd one-time setup). This is the only case where Ymir writes
-project files.
+immediately against the project via **a single CLI call** — never by hand-editing
+files. The CLI owns the tree, the PreToolUse hook, the `.claude/settings.json`
+entry, the `CLAUDE.md` block, and the validation step. From the project root:
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki" --root ./wiki init
+```
+
+It is idempotent (safe to re-run); on success the last line is `wiki valid`. If it
+errors, stop and report. Then tell the user the qmd one-time setup (also in
+`wiki/SCHEMA.md`): `qmd collection add ./wiki --name <project>-wiki`. Search is
+keyword-only (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after
+adding pages. This is the only case where Ymir writes project files.
 
 For any broader intent (`ymir init`, or any other concern), Ymir stays spec-only:
 the wiki is captured in the profile and written into `harness-playbook.md` as the

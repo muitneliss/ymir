@@ -1,3 +1,5 @@
+![Ymir Logo](assets/ymir-minimal.svg)
+
 # Ymir
 
 [![release-please](https://github.com/muitneliss/ymir/actions/workflows/release-please.yml/badge.svg)](https://github.com/muitneliss/ymir/actions/workflows/release-please.yml)
@@ -44,10 +46,10 @@ ymir apply            # generate the harness from the spec
 ymir revert           # undo the last apply
 ```
 
-## Try it locally
+## Install
 
 ```shell
-/plugin marketplace add ./
+/plugin marketplace add muitneliss/ymir
 /plugin install ymir@ymir
 /reload-plugins
 ```
@@ -56,7 +58,7 @@ Then: `/ymir init for this project`
 
 ## Status
 
-`v0.2.0`. Ymir runs a 3-step flow: a checklist-driven socratic interview, a
+`v0.3.0`. Ymir runs a 3-step flow: a checklist-driven socratic interview, a
 re-audit gate, and a spec emitted to `.ymir/` (`harness-profile.yaml` +
 `harness-playbook.md`); `ymir apply` then generates the harness from that spec
 (with backups + `ymir revert`). The spec's per-concern playbook sections live in
