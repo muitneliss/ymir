@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { basename, resolve } from "node:path";
+import { collectionName } from "./paths.js";
 
 export type ReindexRunner = (cmd: string, args: string[]) => { status: number | null };
 
@@ -15,7 +15,7 @@ const defaultRunner: ReindexRunner = (cmd, args) => {
 };
 
 export function reindex(root: string, runner: ReindexRunner = defaultRunner): ReindexResult {
-  const name = `${basename(resolve(root, ".."))}-wiki`;
+  const name = collectionName(root);
   try {
     const r = runner("qmd", ["collection", "add", root, "--name", name]);
     if (r.status === 0) return { ok: true, skipped: false, name };

@@ -29,7 +29,7 @@ Run `... help` for the full command reference. Key commands:
 - `status` — show drift between source pages and their tracked files.
   Use `--json` for machine-readable output (exit 1 if stale/missing).
 - `reindex` — re-run `qmd collection add` to refresh the search index.
-- `query <q>` — search via qmd.
+- `query <q> [--limit <n>] [--chunks]` — search this wiki via qmd.
 
 ## Page conventions
 - Cross-reference pages with `[[Exact Title]]`. The CLI validates every link target exists.
@@ -69,7 +69,11 @@ One-time, on this machine:
 qmd collection add ./wiki --name PROJECT_NAME-wiki
 ```
 
-Then `wiki query "..."` (which shells out to `qmd search --json --files`).
+Then `wiki query "..."` (which shells out to `qmd search --json --files -c
+PROJECT_NAME-wiki`). The `-c` scope matters: without it qmd searches *every*
+collection registered on the machine, not just this project's wiki. Use
+`--limit <n>` to cap results and `--chunks` to get matching passages instead of
+whole files.
 Search is keyword-only (BM25) — lightweight, no embeddings and no local LLM, so
 there is no `qmd embed` step. `ingest`, `note`, and `index` automatically call
 `wiki reindex` (best-effort) after each write; pass `--no-reindex` to skip.

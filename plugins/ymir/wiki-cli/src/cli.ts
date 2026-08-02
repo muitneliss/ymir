@@ -116,10 +116,19 @@ program.command("fmt").action(async () => {
   process.stdout.write("formatted\n");
 });
 
-program.command("query").argument("<q>").action(async (q: string) => {
-  const root = program.opts<{ root: string }>().root;
-  process.stdout.write(await runQuery({ root, q }));
-});
+program
+  .command("query")
+  .argument("<q>")
+  .option("--limit <n>", "max results", (v: string) => Number.parseInt(v, 10))
+  .option("--chunks", "return matching chunks instead of whole files", false)
+  .action(async (q: string, opts: { limit?: number; chunks: boolean }) => {
+    const root = program.opts<{ root: string }>().root;
+    if (opts.limit !== undefined && (!Number.isInteger(opts.limit) || opts.limit < 1)) {
+      process.stderr.write("error: --limit must be a positive integer\n");
+      process.exit(1);
+    }
+    process.stdout.write(await runQuery({ root, q, limit: opts.limit, chunks: opts.chunks }));
+  });
 
 program.command("help").action(() => runHelp());
 

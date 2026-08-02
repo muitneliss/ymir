@@ -12,7 +12,9 @@ Commands:
   log <op> <title>                    Append a dated entry to log.md.
   validate                            Check frontmatter, [[links]], orphans. Exit !=0 on error.
   fmt                                 Format all wiki markdown (remark).
-  query <q>                           Search the wiki via qmd (read side).
+  query <q> [--limit <n>] [--chunks]  Search this wiki via qmd (read side). Scoped to
+                                      this project's collection. --chunks returns
+                                      matching passages instead of whole files.
   help                                Show this text.
 
 Page conventions:
@@ -24,6 +26,7 @@ Examples:
   echo "Key points..." | wiki ingest --raw raw/paper.pdf --title "Rate Limiting"
   echo "A token-bucket limiter. See [[Rate Limiting]]." | wiki note --type concept --name "Token Bucket"
   wiki query "how does backoff work"
+  wiki query "backoff" --limit 20 --chunks
   wiki validate
 `;
 
