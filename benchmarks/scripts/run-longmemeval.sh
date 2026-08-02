@@ -8,7 +8,7 @@ ARM="${1:-raw}"; shift || true
 case "$ARM" in raw|synth) ;; *) echo "usage: $0 <raw|synth> [harness args...]"; exit 1 ;; esac
 
 preflight
-start_shim "$ARM"
+start_services "$ARM"
 run_bench benchmarks.longmemeval.run "$ARM" "$@"
-stop_shim
+stop_all
 echo "done — results under benchmarks/results/raw/benchmarks.longmemeval.run/$ARM"

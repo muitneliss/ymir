@@ -49,12 +49,40 @@ calling LLM. So a single number would be ambiguous. We run both:
    A page is not a memory item, so top-k would not be comparable to mem0's
    atomic facts. The shim passes `--chunks`.
 
+## No API key — answering and judging run on Claude Code headless
+
+`shim/claude_proxy.py` implements the Anthropic **Messages API** on top of
+`claude -p`. The harness constructs `anthropic.AsyncAnthropic()`, and the SDK
+honours `ANTHROPIC_BASE_URL`, so pointing that at the proxy reroutes every
+answerer, judge and structured-output call through your existing Claude Code
+subscription — with the harness still unmodified.
+
+```
+harness LLMClient ──anthropic SDK──▶ claude_proxy :8898 ──subprocess──▶ claude -p
+```
+
+Each call runs `claude -p` with `--tools` (none), `--strict-mcp-config` and an
+empty MCP config, in a scratch cwd — so no project `CLAUDE.md`, skills, plugins
+or MCP servers leak into a judgment, and per-call startup stays low.
+
+**Requires an authenticated CLI:** run `claude login` once. `scripts/_common.sh`
+probes auth before every run and fails in seconds rather than mid-benchmark.
+
+Two consequences worth knowing:
+
+- **`temperature` is ignored.** The CLI exposes no temperature flag, so the
+  harness's `temperature=0` for judging cannot be honoured. Judgments are
+  therefore slightly less deterministic than an API run.
+- **Throughput is process-bound.** Concurrency is capped by
+  `CLAUDE_PROXY_CONCURRENCY` (default 6) and the harness's `--max-workers` is
+  pinned to match, so a full matrix takes hours rather than minutes.
+
 ## Running
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+claude login                                   # once — the CLI must be authenticated
 bash scripts/setup.sh                          # build CLI, install qmd, clone harness, venv
-export PATH="$HOME/.bun/bin:$PATH"             # qmd lives here
+export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
 
 bash scripts/run-locomo.sh raw --conversations 0,1   # pilot first
 bash scripts/run-locomo.sh raw                       # full
@@ -62,10 +90,10 @@ bash scripts/run-locomo.sh synth
 bash scripts/run-longmemeval.sh raw --all-questions
 ```
 
-Defaults live in `scripts/_common.sh` (`PROVIDER`, `ANSWERER_MODEL`,
-`JUDGE_MODEL`); override by exporting them.
+Defaults live in `scripts/_common.sh` (`ANSWERER_MODEL`, `JUDGE_MODEL`,
+`CLAUDE_PROXY_CONCURRENCY`, `MAX_WORKERS`); override by exporting them.
 
-**Run the pilot before any full run.** A full matrix is ~12,800 judged LLM calls.
+**Run the pilot before any full run.** A full matrix is ~12,800 judged calls.
 
 ## Bugs this work found in the wiki CLI
 
@@ -89,11 +117,12 @@ Verified against qmd 2.5.3.
 ```
 benchmarks/
 ├── PLAN.md              design + rationale
-├── shim/                the mem0-compatible service
-│   ├── app.py           endpoints, session buffering, per-tenant locking
+├── shim/
+│   ├── app.py           mem0 API: endpoints, session buffering, per-tenant locking
 │   ├── wiki_backend.py  typed subprocess driver for the wiki CLI
 │   ├── tenancy.py       user_id → wiki root + qmd collection
-│   └── synthesiser.py   arm B: Anthropic session → source page + notes
+│   ├── synthesiser.py   arm B: session → source page + notes
+│   └── claude_proxy.py  Anthropic Messages API over `claude -p` (no API key)
 ├── scripts/             setup + run wrappers
 ├── results/             curated reports (raw outputs gitignored)
 └── .vendor/             pristine harness clone (gitignored)

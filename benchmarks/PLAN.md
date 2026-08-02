@@ -173,6 +173,22 @@ we never edit it, so it stays trivially upgradable.
 Phase 4 is a hard gate. We do **not** spend a full run's budget before a hand-read of
 judged samples confirms the pipeline is sound.
 
+## 5b. LLM routing — Claude Code headless, no API key
+
+`shim/claude_proxy.py` serves the Anthropic Messages API from `claude -p`. The
+harness builds `anthropic.AsyncAnthropic()`, the SDK honours
+`ANTHROPIC_BASE_URL`, so every answerer/judge/structured call is rerouted with
+the harness still unmodified. The harness's Anthropic path is plain text in,
+`content[0].text` out — even "structured output" is just a JSON instruction — so
+one text-only endpoint covers everything, including arm B's synthesiser.
+
+Verified end-to-end against a stubbed CLI: the real `anthropic` SDK parses the
+proxy's responses into `Message` objects, and the harness's own `LLMClient`
+`generate()` and `judge_yes_no()` both work through it.
+
+Two accepted consequences: `temperature` cannot be honoured (the CLI has no such
+flag), and throughput is process-bound rather than rate-limit-bound.
+
 ## 6. Cost — this is the main risk
 
 Answer + judge fires **once per cutoff per question**:
@@ -205,8 +221,11 @@ contexts this is plausibly **$150–250**.
 
 ## 8. Environment prerequisites
 
-- `ANTHROPIC_API_KEY` — **not currently set**; required before phase 3.
-- `qmd` — **not currently installed**; `setup.sh` installs `@tobilu/qmd` via bun.
-- Python 3 present; `uv` absent — `setup.sh` uses `venv` + `pip`.
-- No OpenAI key needed: the shim replaces the mem0 OSS server, which was the only
-  component that required OpenAI for extraction and embeddings.
+- **`claude login`** — the CLI's stored OAuth session is expired and its
+  `refreshToken` is empty, so it cannot self-heal. This is the one remaining
+  blocker; `preflight()` probes it before every run.
+- `qmd` — installed (`@tobilu/qmd` 2.5.3, at `~/.bun/bin`).
+- Python venv — provisioned at `benchmarks/.venv`.
+- No API key of any kind is needed: `claude_proxy` covers the LLM side and the
+  wiki shim replaces the mem0 OSS server, which was the only component that
+  required OpenAI for extraction and embeddings.

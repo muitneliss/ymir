@@ -53,8 +53,13 @@ class Synthesiser:
     """Turns a raw session transcript into a source page plus synthesis notes."""
 
     def __init__(self, model: str = MODEL) -> None:
+        # Routed through claude_proxy (Claude Code headless) by default, so the
+        # key is usually a placeholder — but the SDK still requires one.
         if not os.environ.get("ANTHROPIC_API_KEY"):
-            raise RuntimeError("ANTHROPIC_API_KEY must be set for WIKI_SHIM_MODE=synth")
+            raise RuntimeError(
+                "ANTHROPIC_API_KEY must be set for WIKI_SHIM_MODE=synth "
+                "(any placeholder works when ANTHROPIC_BASE_URL points at claude_proxy)"
+            )
         self.model = model
         self.client = anthropic.AsyncAnthropic()
 
