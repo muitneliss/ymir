@@ -25,6 +25,7 @@ import os
 import shutil
 from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
@@ -97,6 +98,29 @@ class TenantState:
 
 _state: dict[str, TenantState] = defaultdict(TenantState)
 
+# `qmd update` re-indexes EVERY collection through one shared SQLite database,
+# so it is a process-global critical section, not a per-tenant one. Without this
+# lock, two tenants reindexing concurrently contend on the DB; the CLI reports
+# "skipped" and every later search silently returns zero hits.
+_QMD_LOCK = asyncio.Lock()
+
+
+def _session_label(key: str) -> tuple[str, str]:
+    """Human date for a session key, as (title_suffix, body_header).
+
+    The harness identifies sessions by unix timestamp. Using that opaque number
+    as the page title discards the date entirely — which makes LoCoMo's temporal
+    questions ("When did X happen?") unanswerable no matter how good retrieval
+    is. The date has to survive into the page text.
+    """
+    try:
+        dt = datetime.fromtimestamp(int(key), tz=timezone.utc)
+    except (ValueError, OverflowError, OSError):
+        return key, ""
+    iso = dt.strftime("%Y-%m-%d")
+    pretty = dt.strftime("%d %B %Y (%A)")
+    return f"{iso} {key}", f"Session date: {pretty}, {iso}.\n\n"
+
 
 def _require_user(user_id: str | None) -> str:
     if not user_id:
@@ -127,8 +151,9 @@ async def _flush(tenant: Tenant, st: TenantState, keys: list[str]) -> int:
         turns = st.buffer.pop(key, [])
         if not turns:
             continue
-        body = "\n\n".join(turns)
-        title = f"session {key}"
+        suffix, header = _session_label(key)
+        body = header + "\n\n".join(turns)
+        title = f"session {suffix}"
         try:
             if synthesiser is not None:
                 page, notes = await synthesiser.summarise(body)
@@ -200,6 +225,27 @@ async def add_memories(req: AddRequest) -> dict[str, Any]:
     return {"results": [{"event": "BUFFERED", "memory": t} for t in turns], "pages_written": written}
 
 
+async def _reindex_verified(tenant: Tenant, st: TenantState) -> None:
+    """Bring the tenant's collection up to date, serialised process-wide.
+
+    Retries because `qmd update` can lose a race against another tenant; raises
+    rather than leaving the tenant queryable-but-empty, so a failure surfaces as
+    an HTTP error the harness retries instead of a silent wrong answer.
+    """
+    last = ""
+    for attempt in range(4):
+        async with _QMD_LOCK:
+            try:
+                if await asyncio.to_thread(wiki.reindex, tenant):
+                    st.dirty = False
+                    return
+                last = "wiki reindex reported 'skipped'"
+            except WikiCLIError as exc:
+                last = str(exc)
+        await asyncio.sleep(1.5 * (attempt + 1))
+    raise HTTPException(status_code=503, detail=f"reindex failed for {tenant.collection}: {last}")
+
+
 @app.post("/search")
 async def search(req: SearchRequest) -> dict[str, Any]:
     user_id = _require_user(req.user_id)
@@ -214,11 +260,17 @@ async def search(req: SearchRequest) -> dict[str, Any]:
         if st.buffer:
             await _flush(tenant, st, list(st.buffer))
         if st.dirty:
-            await asyncio.to_thread(wiki.reindex, tenant)
-            st.dirty = False
+            await _reindex_verified(tenant, st)
 
-    hits = await asyncio.to_thread(wiki.query, tenant, req.query, req.limit, True)
-    return {"results": [h.to_mem0() for h in hits[: req.limit]]}
+    for attempt in range(3):
+        try:
+            hits = await asyncio.to_thread(wiki.query, tenant, req.query, req.limit, True)
+            return {"results": [h.to_mem0() for h in hits[: req.limit]]}
+        except WikiCLIError as exc:
+            if attempt == 2:
+                raise HTTPException(status_code=503, detail=f"query failed: {exc}") from exc
+            await asyncio.sleep(1.0 * (attempt + 1))
+    return {"results": []}
 
 
 @app.delete("/memories")

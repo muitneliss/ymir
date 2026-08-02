@@ -9,6 +9,11 @@ VENV="$BENCH/.venv"
 PORT="${WIKI_SHIM_PORT:-8899}"
 LLM_PORT="${CLAUDE_PROXY_PORT:-8898}"
 
+# Each `claude -p` is a Node process measured at ~400 MB peak on this machine.
+# 12 keeps ~5 GB resident against ~9 GB available, leaving room for the harness,
+# the wiki CLI and qmd. Raise only after checking `free -g`.
+export CLAUDE_PROXY_CONCURRENCY="${CLAUDE_PROXY_CONCURRENCY:-12}"
+
 export PATH="${BUN_INSTALL:-$HOME/.bun}/bin:$HOME/.local/bin:$PATH"
 
 # Local secrets (CLAUDE_CODE_OAUTH_TOKEN). Gitignored; see README.
@@ -109,9 +114,26 @@ stop_all() {
   SHIM_PID=""; LLM_PID=""
 }
 
+# Drop qmd collections whose directory no longer exists. Each run uses fresh
+# user_ids, so stale benchmark collections accumulate and slow the GLOBAL
+# `qmd update` that every reindex triggers.
+purge_stale_collections() {
+  local removed=0 name dir
+  # `collection list` prints names but not paths; `collection show` has Path.
+  while read -r name; do
+    [ -z "$name" ] && continue
+    dir="$(qmd collection show "$name" 2>/dev/null | awk '/^ *Path:/{print $2; exit}')"
+    if [ -n "$dir" ] && [ ! -d "$dir" ]; then
+      qmd collection remove "$name" >/dev/null 2>&1 && removed=$((removed + 1))
+    fi
+  done < <(qmd collection list 2>/dev/null | awk '/^[A-Za-z0-9_-]+ \(qmd:\/\//{print $1}')
+  echo "purged $removed stale qmd collection(s)"
+}
+
 start_services() {
   mkdir -p "$BENCH/.workspace"
   trap stop_all EXIT INT TERM
+  purge_stale_collections
   start_llm_proxy
   start_shim "$1"
 }

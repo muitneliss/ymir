@@ -100,14 +100,20 @@ class WikiCLI:
             stdin=sanitise_body(body),
         )
 
-    def reindex(self, tenant: Tenant) -> None:
-        """Register/refresh the tenant's qmd collection.
+    def reindex(self, tenant: Tenant) -> bool:
+        """Register/refresh the tenant's qmd collection. True if it actually ran.
 
         Called once per flush rather than per page — ``ingest`` is invoked with
         ``--no-reindex`` because a full ``qmd collection add`` per turn is what
         makes naive ingestion quadratic.
+
+        The CLI exits 0 even when it gives up (it treats a missing/failing qmd as
+        non-fatal and prints "reindex skipped"), so the exit code alone cannot be
+        trusted — serving searches against an unindexed collection silently
+        returns zero hits, which scores as a wrong answer rather than an error.
         """
-        self._run(tenant.wiki_root, ["reindex"])
+        out = self._run(tenant.wiki_root, ["reindex"])
+        return "skipped" not in out.lower()
 
     # --- read side ----------------------------------------------------------
 
@@ -115,13 +121,11 @@ class WikiCLI:
         args = ["query", q, "--limit", str(limit)]
         if chunks:
             args.append("--chunks")
-        try:
-            raw = self._run(tenant.wiki_root, args)
-        except WikiCLIError:
-            # An empty collection or a query qmd cannot parse is a legitimate
-            # miss, not a harness failure. Returning [] scores it as a miss.
-            return []
-        return self._parse_hits(raw)
+        # Deliberately NOT swallowing WikiCLIError here. Treating a failed query
+        # as an empty result makes infrastructure failures indistinguishable
+        # from genuine misses, which is how a reindex race silently produced an
+        # 84%-zero-retrieval benchmark run. Let the caller retry or fail loudly.
+        return self._parse_hits(self._run(tenant.wiki_root, args))
 
     @staticmethod
     def _strip_hunk_header(snippet: str) -> str:
