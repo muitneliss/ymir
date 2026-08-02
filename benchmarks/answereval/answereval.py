@@ -102,7 +102,9 @@ def format_context(hits: list[dict[str, Any]]) -> str:
     parts = []
     for i, h in enumerate(hits, start=1):
         title = h.get("title") or "(untitled)"
-        text = strip_diff_header(str(h.get("snippet") or ""))
+        # `--full` returns the whole page in `body`; snippets omit the sentence
+        # that answers the question in ~half of all cases.
+        text = str(h.get("body") or "").strip() or strip_diff_header(str(h.get("snippet") or ""))
         parts.append(f"[{i}] {title}\n{text}")
     return "\n\n".join(parts)
 
@@ -208,10 +210,11 @@ def evaluate_one(
     limit: int,
     item: dict[str, str],
     cache: Cache,
+    full: bool = False,
 ) -> QuestionOutcome:
     q, gold_answer, gold_page = item["q"], item["gold_answer"], item["gold_page"]
     try:
-        hits = selfeval.run_query(cli, wiki, q, limit, verbatim=False)
+        hits = selfeval.run_query(cli, wiki, q, limit, verbatim=False, full=full)
     except selfeval.QueryError as exc:
         return QuestionOutcome(q, gold_page, gold_answer, None, 0, "", False, False, "", error=str(exc))
 
@@ -239,6 +242,7 @@ def evaluate(
     limit: int,
     workers: int,
     cache_path: Path,
+    full: bool = False,
 ) -> dict[str, Any]:
     client = anthropic.Anthropic()
     cache = Cache(cache_path)
@@ -246,7 +250,7 @@ def evaluate(
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {
-            pool.submit(evaluate_one, client, cli, wiki, limit, item, cache): i
+            pool.submit(evaluate_one, client, cli, wiki, limit, item, cache, full): i
             for i, item in enumerate(questions)
         }
         for fut in concurrent.futures.as_completed(futures):
@@ -273,6 +277,7 @@ def evaluate(
         "query_errors": len(errors),
         "errors": [{"q": o.q, "error": o.error} for o in errors],
         "limit": limit,
+        "full": full,
         "model": MODEL,
         "answer_accuracy": correct / n_scored if n_scored else 0.0,
         "insufficient_context_rate": insufficient / n_scored if n_scored else 0.0,
@@ -299,6 +304,7 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=6, help="thread-pool size for LLM calls (capped at 8)")
     ap.add_argument("--cache", default=str(THIS_DIR / "cache.json"))
     ap.add_argument("--out", default=None, help="defaults to results-limit<K>.json in this directory")
+    ap.add_argument("--full", action="store_true", help="return whole pages instead of snippets")
     ap.add_argument("--sample", type=int, default=None, help="only run the first N questions (debugging)")
     ap.add_argument("--json", action="store_true", help="print the full JSON summary instead of a text report")
     args = ap.parse_args()
@@ -311,7 +317,7 @@ def main() -> int:
 
     out_path = Path(args.out) if args.out else THIS_DIR / f"results-limit{args.limit}.json"
 
-    m = evaluate(Path(args.cli), Path(args.wiki).resolve(), questions, args.limit, workers, Path(args.cache))
+    m = evaluate(Path(args.cli), Path(args.wiki).resolve(), questions, args.limit, workers, Path(args.cache), args.full)
     out_path.write_text(json.dumps(m, indent=2), encoding="utf-8")
 
     if args.json:

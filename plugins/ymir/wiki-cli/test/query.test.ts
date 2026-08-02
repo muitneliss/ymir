@@ -352,3 +352,29 @@ describe("runQuery default (file-level) output", () => {
     expect(calls).toHaveLength(1);
   });
 });
+
+describe("runQuery --full", () => {
+  it("asks qmd for whole page bodies when full is set", async () => {
+    const { wikiRoot } = tempWiki();
+    const calls: string[][] = [];
+    const runner = async (_cmd: string, args: string[]) => {
+      calls.push(args);
+      return JSON.stringify([{ docid: "#1", file: "sources/a.md", body: "whole page" }]);
+    };
+
+    await runQuery({ root: wikiRoot, q: "hook", full: true, runner });
+    expect(calls[0]).toContain("--full");
+  });
+
+  it("does not ask for full bodies by default", async () => {
+    const { wikiRoot } = tempWiki();
+    const calls: string[][] = [];
+    const runner = async (_cmd: string, args: string[]) => {
+      calls.push(args);
+      return JSON.stringify([{ docid: "#1", file: "sources/a.md", snippet: "s" }]);
+    };
+
+    await runQuery({ root: wikiRoot, q: "hook", runner });
+    expect(calls[0]).not.toContain("--full");
+  });
+});

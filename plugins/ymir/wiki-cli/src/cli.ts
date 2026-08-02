@@ -122,14 +122,22 @@ program
   .option("--limit <n>", "max results", (v: string) => Number.parseInt(v, 10))
   .option("--chunks", "return matching chunks instead of whole files", false)
   .option("--verbatim", "search the query exactly as typed (skip keyword extraction)", false)
-  .action(async (q: string, opts: { limit?: number; chunks: boolean; verbatim: boolean }) => {
+  .option("--full", "return each hit's whole page instead of a snippet", false)
+  .action(async (q: string, opts: { limit?: number; chunks: boolean; verbatim: boolean; full: boolean }) => {
     const root = program.opts<{ root: string }>().root;
     if (opts.limit !== undefined && (!Number.isInteger(opts.limit) || opts.limit < 1)) {
       process.stderr.write("error: --limit must be a positive integer\n");
       process.exit(1);
     }
     process.stdout.write(
-      await runQuery({ root, q, limit: opts.limit, chunks: opts.chunks, verbatim: opts.verbatim }),
+      await runQuery({
+        root,
+        q,
+        limit: opts.limit,
+        chunks: opts.chunks,
+        verbatim: opts.verbatim,
+        full: opts.full,
+      }),
     );
   });
 

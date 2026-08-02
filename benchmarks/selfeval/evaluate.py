@@ -91,7 +91,7 @@ class QueryError(RuntimeError):
     """The CLI failed. Distinct from a query that legitimately found nothing."""
 
 
-def run_query(cli: Path, wiki: Path, q: str, limit: int, verbatim: bool) -> list[dict]:
+def run_query(cli: Path, wiki: Path, q: str, limit: int, verbatim: bool, full: bool = False) -> list[dict]:
     """Raises QueryError on CLI failure.
 
     Returning [] on a crash would score infrastructure failures as retrieval
@@ -101,6 +101,8 @@ def run_query(cli: Path, wiki: Path, q: str, limit: int, verbatim: bool) -> list
     args = ["node", str(cli), "--root", str(wiki), "query", q, "--limit", str(limit), "--chunks"]
     if verbatim:
         args.append("--verbatim")
+    if full:
+        args.append("--full")
     proc = subprocess.run(args, capture_output=True, text=True, timeout=180)
     if proc.returncode != 0:
         raise QueryError(proc.stderr.strip()[:300] or f"exit {proc.returncode}")

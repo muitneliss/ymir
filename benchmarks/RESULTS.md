@@ -118,3 +118,92 @@ cd selfeval
 
 Regenerating the question set needs the LLM proxy (`shim/claude_proxy.py`) and
 an authenticated `claude` CLI; see `README.md`.
+
+---
+
+# Round 2 — the OKR run (answer accuracy)
+
+Five lanes ran in parallel against the frame in `OKR-PLAN.md`.
+
+## Outcome: objective met, but not by the work we planned
+
+| target | result | |
+| --- | ---: | --- |
+| answer accuracy ≥ 85% | **90.9%** | met |
+| multi-gold recall@3 ≥ 85% | **93.2%** | met |
+| multi-gold MRR ≥ 0.75 | **0.914** | met |
+| query errors 0 | **0** | met |
+
+Walls: A1 held (no embeddings — verified by the qmd subcommands actually
+invoked, not by grep), A2 held (129 tests), A3 held after a human-authorised
+re-baseline to 4.5s (measured 4.00s), A4 held (question set hash frozen),
+A5 held (both scorings reported throughout).
+
+## The `pointless` flag earned the whole exercise
+
+Retrieval improved a lot and answer accuracy **did not move at all**:
+
+| | before | after |
+| --- | ---: | ---: |
+| multi-gold recall@3 | 81.8% | 93.2% |
+| single-gold recall@3 | 63.6% | 81.8% |
+| **answers correct** | **19 / 44** | **19 / 44** |
+
+Nine retrieval misses became hits and produced zero additional correct answers.
+Accuracy *given* a hit actually fell (57.1% → 45.9%), because the newly-retrieved
+pages were relevant but their snippets still lacked the fact.
+
+Without the paired objective read this would have shipped as a clear win:
++18pt recall@3, six bugs fixed, tests green. The objective metric was flat.
+
+## What actually moved it: context, not ranking
+
+`wiki query` returned qmd's snippet — ~333 chars against a ~1.9KB page — which
+omitted the answering sentence in about half of all questions.
+
+| context | k | corpus returned | accuracy |
+| --- | ---: | ---: | ---: |
+| snippet | 5 | ~45% | 43.2% |
+| full page | 5 | ~45% | 100.0% *(degenerate — see below)* |
+| **full page** | **1** | **9%** | **90.9%** |
+
+Returning **fewer pages with more of each** doubled accuracy.
+
+**The 100% is not a real result.** This wiki is 11 pages / 18 KB, so `k=5` full
+pages hands over ~45% of the entire corpus and even retrieval *misses* score
+100%. The k=1 number is the one that generalises: one page, 9% of the corpus,
+90.9% correct. Reported rather than quietly banked.
+
+## Sixth defect: none of the retrieval work reached real users
+
+qmd lets `--files` override `--json`, so default `wiki query` emitted **CSV**.
+`hitCount()` read that as zero hits, so every default-mode query took the failure
+path, burned one probe per term, found "nothing", and returned raw CSV. Every
+retrieval fix from round 1 only ever applied to `--chunks` — the mode the
+benchmark passes. The benchmark was exercising a path its own users do not take.
+
+## Negative results worth keeping
+
+- **Content is not the lever** (Lane C). Every content edit made retrieval worse:
+  BM25 is corpus-relative, so editing one page shifts IDF for all others, and
+  replacing a terse stale claim with an accurate paragraph diluted term density.
+  It did find 4 genuine documentation errors, worth fixing on their own merit.
+- **Embeddings are not worth it** (Lane D). +13pt recall@3, but −9 to −16pt
+  recall@1, 44× slower (0.55s → 24.5s p50), 2.25 GB of models with no offline
+  fallback, and silent degradation on a stale index — which breaks the wiki's
+  fail-loud contract. Wall A1 is defensible on evidence, not preference.
+- **Ranking was never the problem** (Lane B). All 16 remaining failures were
+  recall, not mis-ranking, so reranking and title-boosting were ruled out before
+  any code was written.
+- **The ±9pt "measurement noise" was self-inflicted.** Serialised, the eval is
+  perfectly deterministic — three paired rounds, byte-identical. Running lanes
+  concurrently bought throughput and cost measurement precision.
+
+## Recommended next
+
+1. Make `--full` the default for `wiki query`, or have `SCHEMA.md` instruct the
+   LLM to pass it. The accuracy difference is 43.2% → 90.9%.
+2. Re-measure on a larger wiki before trusting any of this at scale; 11 pages is
+   too small for the k=5 result to mean anything.
+3. DKR-7: why does one query cost ~3s? Suspects are node startup, qmd startup,
+   and up to 12 sequential probe spawns on the backoff path.

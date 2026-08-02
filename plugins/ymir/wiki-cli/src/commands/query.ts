@@ -29,6 +29,16 @@ export interface QueryInput {
   chunks?: boolean;
   /** Search the query exactly as given, skipping term extraction and backoff. */
   verbatim?: boolean;
+  /**
+   * Return each hit's whole page body instead of a snippet.
+   *
+   * qmd's snippet is a few lines around the match (~333 chars against a ~1.9KB
+   * page here), and it frequently omits the sentence that actually answers the
+   * question. Measured end-to-end on this wiki: with snippets, EVERY case of
+   * "correct page ranked first but answer still wrong" was the model reporting
+   * insufficient context — 52% of all questions. Ranking was never the limit.
+   */
+  full?: boolean;
   runner?: Runner;
 }
 
@@ -107,6 +117,7 @@ export async function runQuery(i: QueryInput): Promise<string> {
   // per file — same output shape, and one JSON contract for both modes.
   const exec = async (q: string): Promise<string> => {
     const args = ["search", q, "--json", "-c", collectionName(i.root)];
+    if (i.full) args.push("--full");
     if (i.limit !== undefined) args.push("-n", String(i.limit));
     const raw = await run("qmd", args);
     return i.chunks ? raw : JSON.stringify(collapseToFiles(parseHits(raw), i.limit));
