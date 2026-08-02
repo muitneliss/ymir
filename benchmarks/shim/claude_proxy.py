@@ -139,6 +139,21 @@ def _parse_cli_output(stdout: str) -> tuple[str, dict[str, int]]:
     return str(record.get("result", "")), usage
 
 
+def _child_env() -> dict[str, str]:
+    """Environment for the `claude` child process.
+
+    CRITICAL: the CLI honours ANTHROPIC_BASE_URL exactly as the SDK does. Since
+    that variable is what points the harness at *this* proxy, leaving it set
+    would make every child call back into us — an infinite loop that presents as
+    a hang. Strip the routing/credential overrides and let the CLI use its own
+    OAuth session (CLAUDE_CODE_OAUTH_TOKEN is deliberately preserved).
+    """
+    env = dict(os.environ)
+    for key in ("ANTHROPIC_BASE_URL", "ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"):
+        env.pop(key, None)
+    return env
+
+
 async def _invoke(prompt: str, system: str, model: str) -> tuple[str, dict[str, int]]:
     args = [
         CLAUDE_BIN,
@@ -162,6 +177,7 @@ async def _invoke(prompt: str, system: str, model: str) -> tuple[str, dict[str, 
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=str(_SANDBOX),
+            env=_child_env(),
         )
         try:
             out, err = await asyncio.wait_for(

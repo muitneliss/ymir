@@ -20,9 +20,15 @@ PROVIDER="${PROVIDER:-anthropic}"
 ANSWERER_MODEL="${ANSWERER_MODEL:-claude-sonnet-5}"
 JUDGE_MODEL="${JUDGE_MODEL:-claude-sonnet-5}"
 
-# The Anthropic SDK reads these; the proxy speaks the Messages API.
-export ANTHROPIC_BASE_URL="http://localhost:$LLM_PORT"
-export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-unused-routed-through-claude-code}"
+# Routing for the Anthropic SDK. Deliberately NOT exported globally: the
+# `claude` CLI honours ANTHROPIC_BASE_URL too, so a global export would make the
+# proxy's own child processes call back into the proxy (an infinite loop that
+# looks like a hang) and would misroute the preflight probe. Applied per-process
+# only, to the harness and to the arm-B synthesiser.
+LLM_ROUTE=(
+  "ANTHROPIC_BASE_URL=http://localhost:$LLM_PORT"
+  "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-unused-routed-through-claude-code}"
+)
 
 SHIM_PID=""
 LLM_PID=""
@@ -39,8 +45,11 @@ preflight() {
   echo "checking claude authentication..."
   local probe attempt
   for attempt in 1 2 3; do
+    # `env -u` guards against a stale ANTHROPIC_BASE_URL in the caller's shell
+    # sending this probe to the proxy instead of to Anthropic.
     probe="$(cd /tmp && echo 'Reply with exactly: PONG' \
-      | timeout 120 claude -p --output-format json --model "$ANSWERER_MODEL" \
+      | env -u ANTHROPIC_BASE_URL -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN \
+        timeout 120 claude -p --output-format json --model "$ANSWERER_MODEL" \
           --system-prompt 'Reply with the answer only.' \
           --tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}' 2>&1)" || true
 
@@ -79,6 +88,7 @@ start_shim() {
   local workspace="$BENCH/.workspace/$arm"
   mkdir -p "$workspace"
 
+  env "${LLM_ROUTE[@]}" \
   WIKI_SHIM_MODE="$arm" \
   WIKI_SHIM_WORKSPACE="$workspace" \
   "$VENV/bin/python" -m uvicorn app:app --app-dir "$BENCH/shim" \
@@ -112,7 +122,7 @@ run_bench() {
   # Keep harness concurrency at or below the proxy's, so we don't queue up
   # hundreds of `claude -p` processes.
   local workers="${MAX_WORKERS:-${CLAUDE_PROXY_CONCURRENCY:-6}}"
-  ( cd "$HARNESS" && "$VENV/bin/python" -m "$module" \
+  ( cd "$HARNESS" && env "${LLM_ROUTE[@]}" "$VENV/bin/python" -m "$module" \
       --project-name "ymir-wiki-$arm" \
       --backend oss \
       --mem0-host "http://localhost:$PORT" \
