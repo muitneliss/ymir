@@ -42,17 +42,27 @@ def page_of(hit: dict) -> str:
     return m.group(0) if m else raw
 
 
+class QueryError(RuntimeError):
+    """The CLI failed. Distinct from a query that legitimately found nothing."""
+
+
 def run_query(cli: Path, wiki: Path, q: str, limit: int, verbatim: bool) -> list[dict]:
+    """Raises QueryError on CLI failure.
+
+    Returning [] on a crash would score infrastructure failures as retrieval
+    misses — precisely the conflation that hid an 84%-zero-retrieval bug in the
+    earlier LoCoMo run. A miss and a crash must never look the same.
+    """
     args = ["node", str(cli), "--root", str(wiki), "query", q, "--limit", str(limit), "--chunks"]
     if verbatim:
         args.append("--verbatim")
-    proc = subprocess.run(args, capture_output=True, text=True, timeout=120)
+    proc = subprocess.run(args, capture_output=True, text=True, timeout=180)
     if proc.returncode != 0:
-        return []
+        raise QueryError(proc.stderr.strip()[:300] or f"exit {proc.returncode}")
     try:
         data = json.loads(proc.stdout or "[]")
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        raise QueryError(f"unparseable output: {proc.stdout[:200]}") from exc
     return data if isinstance(data, list) else data.get("results", [])
 
 
@@ -70,8 +80,13 @@ def dedupe_pages(hits: list[dict]) -> list[str]:
 
 def evaluate(cli: Path, wiki: Path, questions: list[dict], limit: int, verbatim: bool) -> dict:
     results = []
+    errors: list[dict] = []
     for item in questions:
-        hits = run_query(cli, wiki, item["q"], limit, verbatim)
+        try:
+            hits = run_query(cli, wiki, item["q"], limit, verbatim)
+        except QueryError as exc:
+            errors.append({"q": item["q"], "error": str(exc)})
+            hits = []
         results.append(QuestionResult(item["q"], item["gold_page"], dedupe_pages(hits)))
 
     n = len(results)
@@ -82,6 +97,8 @@ def evaluate(cli: Path, wiki: Path, questions: list[dict], limit: int, verbatim:
 
     return {
         "n": n,
+        "query_errors": len(errors),
+        "errors": errors,
         "zero_retrieval": zero,
         "zero_retrieval_rate": zero / n if n else 0.0,
         "mrr": mrr,
@@ -111,6 +128,7 @@ def main() -> int:
         print(json.dumps(m, indent=2))
     else:
         print(f"questions      : {m['n']}")
+        print(f"query errors   : {m['query_errors']}")
         print(f"zero-retrieval : {m['zero_retrieval']} ({m['zero_retrieval_rate']*100:.0f}%)")
         print(f"MRR            : {m['mrr']:.3f}")
         for k in CUTOFFS:

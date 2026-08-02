@@ -71,22 +71,45 @@ export async function runQuery(i: QueryInput): Promise<string> {
 
   if (i.verbatim) return exec(i.q);
 
-  const terms = extractTerms(i.q).split(/\s+/).filter(Boolean);
+  // Concurrent qmd processes contend on its shared index and intermittently
+  // exit non-zero (measured: 1 in 10 parallel probes). Every speculative call
+  // below is therefore SEQUENTIAL and failure-tolerant — one flaky probe must
+  // never take down the whole query. A real fault (qmd missing) still surfaces:
+  // we keep the first error and rethrow it if nothing was ever retrieved.
+  let firstError: unknown = null;
+  const tryExec = async (q: string): Promise<string> => {
+    try {
+      return await exec(q);
+    } catch (err) {
+      firstError ??= err;
+      return "";
+    }
+  };
+
+  const terms = [...new Set(extractTerms(i.q).split(/\s+/).filter(Boolean))];
   if (terms.length <= 1) return exec(terms[0] ?? i.q);
 
-  const full = await exec(terms.join(" "));
-  if (hitCount(full) > 0 || terms.length > MAX_PROBED_TERMS) return full;
+  const full = await tryExec(terms.join(" "));
+  if (hitCount(full) > 0) return full;
+  if (terms.length > MAX_PROBED_TERMS) {
+    if (firstError) throw firstError;
+    return full;
+  }
 
   // Which terms does the index actually contain? A zero-hit term can only ever
   // zero the conjunction, so it is pure noise.
-  const counts = await Promise.all(
-    terms.map(async (t) => [t, hitCount(await exec(t))] as const),
-  );
-  const present = counts.filter(([, n]) => n > 0);
-  if (present.length === 0) return full;
+  const present: [string, number][] = [];
+  for (const t of terms) {
+    const n = hitCount(await tryExec(t));
+    if (n > 0) present.push([t, n]);
+  }
+  if (present.length === 0) {
+    if (firstError) throw firstError;
+    return full;
+  }
 
   if (present.length < terms.length) {
-    const out = await exec(present.map(([t]) => t).join(" "));
+    const out = await tryExec(present.map(([t]) => t).join(" "));
     if (hitCount(out) > 0) return out;
   }
 
@@ -94,7 +117,7 @@ export async function runQuery(i: QueryInput): Promise<string> {
   // selective (highest document frequency) first — rare terms carry the signal.
   const rarestFirst = [...present].sort((a, b) => a[1] - b[1]);
   for (let n = rarestFirst.length - 1; n >= 1; n--) {
-    const out = await exec(rarestFirst.slice(0, n).map(([t]) => t).join(" "));
+    const out = await tryExec(rarestFirst.slice(0, n).map(([t]) => t).join(" "));
     if (hitCount(out) > 0) return out;
   }
 

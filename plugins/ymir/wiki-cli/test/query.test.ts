@@ -162,3 +162,58 @@ describe("runQuery conjunctive backoff", () => {
     expect(calls).toEqual(["What happens to the hook?"]);
   });
 });
+
+describe("runQuery resilience", () => {
+  it("survives a flaky probe instead of failing the whole query", async () => {
+    const { wikiRoot } = tempWiki();
+    // qmd intermittently exits non-zero under concurrent access; one bad probe
+    // must not take down a query that would otherwise succeed.
+    const runner = async (_cmd: string, args: string[]) => {
+      const q = args[1]!;
+      if (q === "flaky") throw new Error("qmd exited 1");
+      if (q.includes(" ")) return "[]";
+      return JSON.stringify([{ docid: "#1", score: 1, file: "sources/a.md" }]);
+    };
+
+    const out = await runQuery({ root: wikiRoot, q: "What about the flaky hook?", runner });
+    expect(hitCount(out)).toBeGreaterThan(0);
+  });
+
+  it("probes sequentially, never concurrently", async () => {
+    const { wikiRoot } = tempWiki();
+    let inFlight = 0;
+    let maxInFlight = 0;
+    const runner = async (_cmd: string, args: string[]) => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((r) => setTimeout(r, 1));
+      inFlight -= 1;
+      return args[1]!.includes(" ") ? "[]" : JSON.stringify([{ docid: "#1", file: "sources/a.md" }]);
+    };
+
+    await runQuery({ root: wikiRoot, q: "alpha beta gamma delta", runner });
+    expect(maxInFlight).toBe(1);
+  });
+
+  it("still raises when qmd is genuinely unavailable", async () => {
+    const { wikiRoot } = tempWiki();
+    const runner = async () => {
+      throw new Error("qmd not found");
+    };
+    await expect(runQuery({ root: wikiRoot, q: "alpha beta gamma", runner })).rejects.toThrow(
+      "qmd not found",
+    );
+  });
+
+  it("de-duplicates repeated terms", async () => {
+    const { wikiRoot } = tempWiki();
+    const calls: string[] = [];
+    const runner = async (_cmd: string, args: string[]) => {
+      calls.push(args[1]!);
+      return "[]";
+    };
+    // "index.md ... log.md" yields "md" twice before de-duplication.
+    await runQuery({ root: wikiRoot, q: "edits to index.md and log.md", runner });
+    expect(calls[0]!.split(" ").filter((t) => t === "md")).toHaveLength(1);
+  });
+});
