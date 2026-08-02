@@ -32,15 +32,34 @@ export interface QueryInput {
   runner?: Runner;
 }
 
-export function hitCount(json: string): number {
+/** A single qmd hit, loosely typed to match whatever fields qmd emits. */
+export interface Hit {
+  docid?: string;
+  score?: number;
+  file?: string;
+  path?: string;
+  line?: number;
+  title?: string;
+  snippet?: string;
+  [key: string]: unknown;
+}
+
+/** Parse a qmd JSON response into its hit array, tolerating malformed output. */
+function parseHits(json: string): Hit[] {
   try {
     const d = JSON.parse(json);
-    if (Array.isArray(d)) return d.length;
-    return Array.isArray(d?.results) ? d.results.length : 0;
+    if (Array.isArray(d)) return d;
+    return Array.isArray(d?.results) ? d.results : [];
   } catch {
-    return 0;
+    return [];
   }
 }
+
+export function hitCount(json: string): number {
+  return parseHits(json).length;
+}
+
+const fileOf = (h: Hit): string => String(h.file ?? h.path ?? "");
 
 /**
  * Search this wiki.
@@ -56,17 +75,41 @@ export function hitCount(json: string): number {
  *
  * So handing a user's whole question to qmd gets *worse* the more of it we pass
  * on. We therefore reduce to content terms, then — only when that still finds
- * nothing — drop terms the index does not contain, and finally back off by
- * selectivity, keeping the rarest (most informative) terms longest.
+ * nothing — drop terms the index does not contain, and retry the AND of the
+ * survivors.
+ *
+ * If even that fails, the surviving terms individually match documents but
+ * never co-occur — the conjunction is simply too strict to reflect real
+ * relevance (design-spec / implementation-plan / notes pages in this wiki
+ * paraphrase each other, so a document can be "the" answer without containing
+ * every term the LLM's question happened to use). Picking any ONE subset that
+ * happens to produce a hit (as an even greedier backoff would) is a coin flip:
+ * measured on this wiki's own 44-question eval set, EVERY one of the 16
+ * failures under that scheme was a document never retrieved at all, not a
+ * ranking problem — so the fix is to retrieve more broadly, not to reorder.
+ *
+ * We already paid for a single-term probe per surviving term (to learn which
+ * terms are present); reuse those results instead of throwing them away.
+ * Merge them into one ranked list — a manual OR — ordering documents by
+ * *coordination level* (how many distinct query terms matched them, most
+ * first) and, within a tie, by their best single-term BM25 score. This adds
+ * zero extra qmd calls over the old subset-shedding loop it replaces, and on
+ * this wiki recovers 12 of those 16 lost documents into the top 3.
  */
 export async function runQuery(i: QueryInput): Promise<string> {
   const run = i.runner ?? defaultRunner;
 
-  const exec = (q: string): Promise<string> => {
+  // NEVER pass --files: qmd lets it override --json and emits CSV instead, which
+  // JSON.parse cannot read. hitCount() then saw 0 hits for EVERY default-mode
+  // query, so the backoff below always fired, burned a probe per term, found
+  // "nothing" each time and returned the raw CSV. File-level results are
+  // produced here instead, by collapsing chunk hits to their first occurrence
+  // per file — same output shape, and one JSON contract for both modes.
+  const exec = async (q: string): Promise<string> => {
     const args = ["search", q, "--json", "-c", collectionName(i.root)];
-    if (!i.chunks) args.push("--files");
     if (i.limit !== undefined) args.push("-n", String(i.limit));
-    return run("qmd", args);
+    const raw = await run("qmd", args);
+    return i.chunks ? raw : JSON.stringify(collapseToFiles(parseHits(raw), i.limit));
   };
 
   if (i.verbatim) return exec(i.q);
@@ -97,11 +140,16 @@ export async function runQuery(i: QueryInput): Promise<string> {
   }
 
   // Which terms does the index actually contain? A zero-hit term can only ever
-  // zero the conjunction, so it is pure noise.
+  // zero the conjunction, so it is pure noise. Keep each term's own hits: the
+  // coordination merge below reuses them instead of re-querying.
   const present: [string, number][] = [];
+  const termHits = new Map<string, Hit[]>();
   for (const t of terms) {
-    const n = hitCount(await tryExec(t));
-    if (n > 0) present.push([t, n]);
+    const hits = parseHits(await tryExec(t));
+    if (hits.length > 0) {
+      present.push([t, hits.length]);
+      termHits.set(t, hits);
+    }
   }
   if (present.length === 0) {
     if (firstError) throw firstError;
@@ -113,13 +161,69 @@ export async function runQuery(i: QueryInput): Promise<string> {
     if (hitCount(out) > 0) return out;
   }
 
-  // Still nothing: the surviving terms do not co-occur. Shed the least
-  // selective (highest document frequency) first — rare terms carry the signal.
-  const rarestFirst = [...present].sort((a, b) => a[1] - b[1]);
-  for (let n = rarestFirst.length - 1; n >= 1; n--) {
-    const out = await tryExec(rarestFirst.slice(0, n).map(([t]) => t).join(" "));
-    if (hitCount(out) > 0) return out;
+  // Still nothing: the surviving terms do not co-occur as a strict AND. Merge
+  // their individual hits into one coordination-ranked list (see doc comment).
+  return JSON.stringify(coordinationMerge(termHits, i.limit));
+}
+
+/**
+ * Merge per-term hit lists into one ranked list: documents matching more
+ * distinct query terms rank first (coordination level), ties broken by the
+ * best single-term BM25 score seen for that document. Multiple chunks of the
+ * same document are kept (dedup'd by docid) and ordered together by score, so
+ * the shape stays whatever qmd itself would have emitted.
+ */
+function coordinationMerge(termHits: Map<string, Hit[]>, limit?: number): Hit[] {
+  const coverage = new Map<string, { terms: Set<string>; bestScore: number; hits: Hit[] }>();
+  for (const [term, hits] of termHits) {
+    for (const h of hits) {
+      const key = fileOf(h);
+      if (!key) continue;
+      let entry = coverage.get(key);
+      if (!entry) {
+        entry = { terms: new Set(), bestScore: -Infinity, hits: [] };
+        coverage.set(key, entry);
+      }
+      entry.terms.add(term);
+      entry.bestScore = Math.max(entry.bestScore, typeof h.score === "number" ? h.score : 0);
+      entry.hits.push(h);
+    }
   }
 
-  return full;
+  const ranked = [...coverage.values()].sort((a, b) => {
+    if (b.terms.size !== a.terms.size) return b.terms.size - a.terms.size;
+    return b.bestScore - a.bestScore;
+  });
+
+  const merged: Hit[] = [];
+  for (const entry of ranked) {
+    const seen = new Set<string>();
+    const byScore = [...entry.hits].sort((x, y) => (y.score ?? 0) - (x.score ?? 0));
+    for (const h of byScore) {
+      const id = h.docid ?? `${fileOf(h)}:${h.line ?? ""}`;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      merged.push(h);
+    }
+  }
+
+  return limit !== undefined ? merged.slice(0, limit) : merged;
+}
+
+/**
+ * Collapse chunk-level hits to one entry per file, preserving rank order.
+ *
+ * This replaces qmd's `--files` flag, which cannot be combined with `--json`.
+ */
+export function collapseToFiles(hits: Hit[], limit?: number): Hit[] {
+  const seen = new Set<string>();
+  const out: Hit[] = [];
+  for (const h of hits) {
+    const key = fileOf(h);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(h);
+    if (limit !== undefined && out.length >= limit) break;
+  }
+  return out;
 }

@@ -1,0 +1,267 @@
+{
+  "0021377896a9abc399dcc725b387cdd4b637c44493829b4d15ce0a84db49134d": {
+    "generated_answer": "The two mechanisms are: (1) the CLI, which formats then validates every write and rejects invalid input so the LLM must fix it, and (2) a PreToolUse hook that hard-blocks any direct Write/Edit/MultiEdit on wiki content paths.",
+    "judge_correct": true,
+    "judge_reason": "The candidate accurately restates both mechanisms from the reference\u2014the CLI's format/validate/reject behavior and the PreToolUse hook blocking direct writes\u2014with no substantive discrepancies."
+  },
+  "06a3558d43354779cd8b1daa97fb557b884c248a1efe04e8cefba01d721c4196": {
+    "generated_answer": "If you run `/ymir` with no arguments, it is treated as `ymir init`, which runs the full flow (interview + scaffold every fitting piece).",
+    "judge_correct": true,
+    "judge_reason": "The candidate states the same fact as the reference\u2014no arguments behaves like `ymir init`, running the full interview and scaffolding process."
+  },
+  "06eab581da8859d35eb051fe25e8e1b4b40cf2286a609461edbc5363c0d4df5d": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "102ff5f8f2bdad6e319b4854ff043025aebd67fce686d5b203c70064ce11e8ab": {
+    "generated_answer": "Within the Wiki layer, `sources/` contains one CLI-written summary page per ingested source document, while `notes/` contains CLI-written entity/concept/topic synthesis pages.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: sources/ = one-per-document summaries, notes/ = entity/concept/topic synthesis, with only extra non-contradictory detail added."
+  },
+  "17876290a5472188598b3fd959f83aba4dfc8ccb685386d2b26a279f42ce727e": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per grading rules, while the reference clearly states TypeScript/Node built and tested with bun."
+  },
+  "1a5946a5c1dcdf26f5adbac0f75596acef71d46ad61d71690bc8bda390fe3e03": {
+    "generated_answer": "The hook blocks direct Write/Edit/MultiEdit on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's blocked and allowed paths match the reference exactly, just with an added \"wiki/\" prefix that doesn't change the substantive fact."
+  },
+  "1ac0c0aea03696b39fe36e6d91148d4a5aca127d4317bb8d4faa4dfc081e5bc7": {
+    "generated_answer": "Yes, it is safe \u2014 the scaffold contract is \"write-if-missing,\" so re-runs are safe.",
+    "judge_correct": true,
+    "judge_reason": "Both state that repeated `wiki init` runs are safe due to the write-if-missing behavior, matching the reference's key claim."
+  },
+  "1ee8ea3293f5ee14a1a3e13a5cb4b628741a90c715964b8eb08374747eefd1f9": {
+    "generated_answer": "Based on the context, the wiki CLI relies on: commander (parsing/help), a small js-yaml frontmatter module (frontmatter), remark (format), and zod (schema validation).",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four libraries with matching roles as the reference: commander, js-yaml frontmatter module, remark, and zod."
+  },
+  "21df3123181c3c55b17c31c8ef062fa122cb9641a373650708813f0350909f73": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which does not match the reference's substantive explanation and is always considered incorrect."
+  },
+  "266316ef6a86115a8d5e4e282442cd2acebb6b015d3151f4a4e2b5da044b07b5": {
+    "generated_answer": "The PreToolUse hook `.claude/hooks/block-wiki-edits.mjs` (installed by the init scaffold) prevents direct edits \u2014 instead, all writes to `sources/`, `notes/`, `index.md`, and `log.md` must go through the Ymir wiki CLI.",
+    "judge_correct": true,
+    "judge_reason": "Both answers identify a PreToolUse hook as the mechanism blocking direct edits to those files, matching the reference's core claim."
+  },
+  "2b67cc5db4587a1d0c497ce5ce5ba9a6fd3d5c27350abbdc6327986f348912d2": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded with \"INSUFFICIENT CONTEXT,\" which fails to provide the fact stated in the reference answer and is always considered incorrect."
+  },
+  "35b2c8121b3555fc8f1dc619f802cd636cc810a0ae5e26508b192641422417a9": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "3b47710227679ec87e69d180e0bf212fd1443c02305e43a0d411d250ac2533db": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules, while the reference provides a clear answer."
+  },
+  "42422a2218f3618437b1a695c4755bafe3adc90b4a287362397330cd4ab3f091": {
+    "generated_answer": "A PreToolUse hook blocks hand-editing of wiki content, since all writes must go through the Ymir wiki CLI (which owns formatting and validation) rather than direct file edits.",
+    "judge_correct": true,
+    "judge_reason": "Both answers agree the core mechanism is a PreToolUse hook that blocks direct Write/Edit/MultiEdit operations on wiki content, matching the reference's key fact."
+  },
+  "476a4a542e0c4393efeda7780e4605754951ea36549f4c53240ba136a34b722c": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "47f9475b462501f96c78b12229ce6322fc18ccca1684c6cd406aad12814947b9": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "4965c093dee63fe189f674c2c9020bbc12d52d25666f4d18209c7964bb1219a6": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules, while the reference provides a clear answer (delegated to qmd)."
+  },
+  "4dc9cd9cff300710f4182c05125419c259b98430a0acffc6e17c829d5cb2c249": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "4e95bd9a263c356595cf3c00bdd41a86b0c3f85506ca5f973f34c907e5231e7b": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) reads the expected version from `plugin.json $.version` \u2014 not from `wiki-cli/package.json` \u2014 because release-please keeps `plugin.json`'s version synced, while `wiki-cli/package.json` is described as independent.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: expected version comes from plugin.json $.version, since release-please syncs it while wiki-cli/package.json is independent."
+  },
+  "53294f699494f9fcb9eac7e21720a953c920464fd3981983dd415b119e47c03a": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "5fc4909c2aac9896fa69099b2060354062e7bb52c70817d0ef38921f208bf4c8": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading policy."
+  },
+  "60405a9e1d421bebb73eec7f16569910f00e5395f520ce9653d89dac0dab8976": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded with INSUFFICIENT CONTEXT, which per the rules is always incorrect since the reference has a clear answer."
+  },
+  "61f8d89fcf04d26f22a5c3386fb53f0f857c915d0d850742800e67d40bb7e1b1": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "635da3c92d694349d3b7869fb0cc0b10741b22c77f953bfbbb10c2cbe987d62f": {
+    "generated_answer": "Yes \u2014 the scaffolding is write-if-missing, meaning re-runs are safe since existing files/folders won't be overwritten. The context does not specify how it confirms success.",
+    "judge_correct": false,
+    "judge_reason": "The candidate correctly notes idempotency but fails to state that success is confirmed by the \"wiki valid\" output, explicitly claiming this isn't specified."
+  },
+  "66fa1177f834ca8bbf591cd9b4051999c84e551028b84322858cd5688a92aed5": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always incorrect since the reference provides a clear answer."
+  },
+  "6b842b43c0ab068717f72e58905ed9ee5f90a7eb82731ee94263a4a14ad351f7": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "6f1d68c179c9b818de1ab9c341fe31542d4eb0735817c37031a0c3bc37267ca6": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always incorrect per the grading rules, while the reference provides a specific answer."
+  },
+  "70a93e9b62fec082048ed0efe4fd17498f7287f19ac2fb34da4ee158d53f1a6e": {
+    "generated_answer": "The Wiki CLI runs format then validate on every write command before committing \u2014 if this fails, it aborts with a nonzero exit and an actionable message, leaving no partial file. On success, it atomically rebuilds the index and appends to the log. Frontmatter is injected by the CLI itself rather than hand-written.",
+    "judge_correct": true,
+    "judge_reason": "Both answers agree on the core mechanism\u2014format then validate before commit, rejecting/aborting invalid writes\u2014matching the reference's key fact, with the candidate adding consistent extra detail."
+  },
+  "74aa8d70c5025b52a68cb4eefe104c8666176de40da7db3defca6a15d17e912b": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "75a9af233eeee7b27b362b671b58833a06e85f799a495a37bac53de70b18ec41": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "81510cfedbfc30fab949e2c42b647d93d8ffd5e3df2a3b8d152e7f207498f675": {
+    "generated_answer": "The Wiki CLI (the bundled TS/Node CLI) is the only sanctioned write path for wiki content. Besides writing files, it runs `fmt` and then `validate` on every write before committing the change.",
+    "judge_correct": false,
+    "judge_reason": "The candidate only mentions formatting and validating, omitting the reference's key facts about injecting frontmatter and atomically rebuilding the index/log."
+  },
+  "82a58c11b5edccfc5021eff29bbc091cb2d0deaf1c5b022f23ea485ffdd13aa6": {
+    "generated_answer": "Based on the snippet, the socratic interview piece and other pieces (lint, CI, and a \"ru...\" item, cut off in the context) are still stubbed as of v0.2.0 \u2014 only the wiki/context harness piece is stated as implemented.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies socratic interview, lint, CI, and rules (partially cut off as \"ru...\") as still stubbed, matching the reference."
+  },
+  "8783e5b4cd0d58576088881e63068efde0a3c07e736064c93c0138c5f7330bd1": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules, since the reference provides a clear answer."
+  },
+  "87aedfd3357276c47cee95125391022a21dc1d59d34ff3e709dcc07adacf1639": {
+    "generated_answer": "The CI compile job produces four platform binaries (wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, wiki-linux-arm64), built using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: four platform binaries built with `bun --compile`."
+  },
+  "8aa58b7858a746607ff996a3d738e1e0fa6c9a0956af3cd693041f968e2e85ab": {
+    "generated_answer": "Because frontmatter is injected by the CLI, never hand-written \u2014 the common title/... fields are automatically generated by the write commands as part of their format-then-validate process.",
+    "judge_correct": true,
+    "judge_reason": "Both state frontmatter is injected by the CLI rather than hand-written, which is the core fact requested regarding title/type/date/tags fields."
+  },
+  "8b611c0da590fc60b7c4e5537d09a47bcf028854f36c78f3b6e40cdff3d873d4": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "8b844e40b26724c08875f7f8c2246288089758ebd5bd96912a6defa6c2f52e62": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules, since the reference provides a clear answer."
+  },
+  "8e34b34982c671757bc07902af733ba5e4d3e4c6888722c7381a8249e79dc7ba": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) reads the expected version from `plugin.json`'s `$.version` field, rather than `wiki-cli/package.json`, because release-please keeps `plugin.json` synced while `wiki-cli/package.json` is independent (not kept in sync).",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly states the version is read from plugin.json's $.version field and explains it's because release-please keeps it synced while wiki-cli/package.json is not, matching the reference."
+  },
+  "8fcc29585b50ac14e8927bdb55607026e00e23f2c2fdf9086b026973f5049a24": {
+    "generated_answer": "`wiki valid`",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference exactly."
+  },
+  "90ddb41497c3bc3aa962961030fe75a38ef5553045dad8ab2aa474c79958190c": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "91ab204b6c0f2e406db9912c1553b90f7d9ada04863740b1da9b613dd827eb38": {
+    "generated_answer": "wiki/raw/",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer \"wiki/raw/\" matches the reference answer exactly."
+  },
+  "93352783e137456ec6a9b22b727437609100360f7c65df0ee1540c5acd0027c4": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules, while the reference provides a specific factual answer."
+  },
+  "9ddd8b3d8edb001176b70a5dbdeff0c286c831b97fe7c99d7657cdefe4ccaeee": {
+    "generated_answer": "The PreToolUse hook `.claude/hooks/block-wiki-edits.mjs`, installed by the Init Scaffold Contract, prevents direct edits to these wiki files.",
+    "judge_correct": true,
+    "judge_reason": "Candidate correctly identifies a PreToolUse hook as the blocking mechanism, matching the reference, with added consistent detail."
+  },
+  "a14666934c9e361d84c100e8f73cfb220adc01dc3ee4c4a614ac5a21d9aff726": {
+    "generated_answer": "Because the user does not hand-write code, so the stack cannot be inferred from the project files \u2014 the interview must instead ask about Language and Layer one decision at a time.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the core reason (user doesn't hand-write code, so stack can't be inferred from files) matching the reference, with the AskUserQuestion detail being a minor omission that doesn't change the substantive fact."
+  },
+  "bbb9c36f6b6f69cbc09a3af52dd49e39ac14df43313840e648dbfa6b0d1d7b05": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules, since the reference provides a specific answer."
+  },
+  "bbbc60a7c81f068251d21c7d77b0d1e3d224b8c55e6f12d17e4f2d80eb25b913": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which does not match the reference's substantive fact about a PreToolUse hook blocking hand-edits."
+  },
+  "d66c7da2ba1c692bdbff063eda6e33c5fe7685413e133c99de41a59a1f306e65": {
+    "generated_answer": "Based on the CLI module layout, `index-build.ts` is used to rebuild the index.md file, and `wikilog.ts` is used to append to the log.md file.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference exactly in substance: index-build.ts rebuilds index.md and wikilog.ts appends to log.md."
+  },
+  "da7e8e86cc9c571b289acc741abf50c0d4b1abe25364d5a9a7903d647deef957": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "e2a321b1ac259eb067f558ffbe216c3a0ce1861c70323869bb7ea213306e65ed": {
+    "generated_answer": "The CI compile job produces four platform-specific binaries: wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, and wiki-linux-arm64. They are built using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four binary names and identifies bun --compile as the tool, matching the reference."
+  },
+  "ed5eb4fa90494cc681eb3f114387ec8b1d2540feba5b620589da953fc15d4da0": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "ef8ed07adab235cfc94b7a29d103e60be79ba5ff015421910088d79ac73ec0b9": {
+    "generated_answer": "Bun (via `bun --compile`) is used to build the wiki CLI. The context does not explicitly state the package manager used for testing.",
+    "judge_correct": false,
+    "judge_reason": "The candidate fails to confirm that bun is also used for testing, contradicting the reference which states both build and test use bun."
+  },
+  "f5404abbe8928d594b72f25c4860d18f289b24877394e866f8e84b440a137a2e": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate returned \"INSUFFICIENT CONTEXT\" which is always considered incorrect per grading rules, while the reference provides a clear answer."
+  },
+  "faa5bb15d333c5b911e35f189e623d9b1f15be8b740d2a3e24ab2ced1df30e17": {
+    "generated_answer": "Every write command runs format then validate before committing; if either step fails, it aborts with a nonzero exit and an actionable message, leaving no partial file. On success, it atomically rebuilds the index and appends the log, and frontmatter is always injected by the CLI rather than hand-written.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the core fact that every write runs format then validate before committing and rejects invalid input (aborts on failure), matching the reference's substantive claim, with additional plausible elaboration that doesn't contradict it."
+  }
+}
