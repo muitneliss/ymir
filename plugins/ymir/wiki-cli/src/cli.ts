@@ -122,8 +122,10 @@ program
   .option("--limit <n>", "max results", (v: string) => Number.parseInt(v, 10))
   .option("--chunks", "return matching chunks instead of whole files", false)
   .option("--verbatim", "search the query exactly as typed (skip keyword extraction)", false)
-  .option("--full", "return each hit's whole page instead of a snippet", false)
-  .action(async (q: string, opts: { limit?: number; chunks: boolean; verbatim: boolean; full: boolean }) => {
+  .option("--full", "return each hit's whole page instead of a passage", false)
+  .option("--snippet", "return qmd's raw fixed-width snippet (no expansion)", false)
+  .option("--context <chars>", "passage size budget", (v: string) => Number.parseInt(v, 10))
+  .action(async (q: string, opts: { limit?: number; chunks: boolean; verbatim: boolean; full: boolean; snippet: boolean; context?: number }) => {
     const root = program.opts<{ root: string }>().root;
     if (opts.limit !== undefined && (!Number.isInteger(opts.limit) || opts.limit < 1)) {
       process.stderr.write("error: --limit must be a positive integer\n");
@@ -137,6 +139,8 @@ program
         chunks: opts.chunks,
         verbatim: opts.verbatim,
         full: opts.full,
+        snippet: opts.snippet,
+        context: opts.context,
       }),
     );
   });

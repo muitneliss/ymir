@@ -1,4 +1,7 @@
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { expandContext, DEFAULT_BUDGET } from "../context.js";
 import { collectionName } from "../paths.js";
 import { extractTerms } from "../query-terms.js";
 
@@ -29,6 +32,10 @@ export interface QueryInput {
   chunks?: boolean;
   /** Search the query exactly as given, skipping term extraction and backoff. */
   verbatim?: boolean;
+  /** Return qmd's raw fixed-width snippet instead of an expanded passage. */
+  snippet?: boolean;
+  /** Character budget for the expanded passage. */
+  context?: number;
   /**
    * Return each hit's whole page body instead of a snippet.
    *
@@ -106,7 +113,7 @@ const fileOf = (h: Hit): string => String(h.file ?? h.path ?? "");
  * zero extra qmd calls over the old subset-shedding loop it replaces, and on
  * this wiki recovers 12 of those 16 lost documents into the top 3.
  */
-export async function runQuery(i: QueryInput): Promise<string> {
+async function runSearch(i: QueryInput): Promise<string> {
   const run = i.runner ?? defaultRunner;
 
   // NEVER pass --files: qmd lets it override --json and emits CSV instead, which
@@ -237,4 +244,43 @@ export function collapseToFiles(hits: Hit[], limit?: number): Hit[] {
     if (limit !== undefined && out.length >= limit) break;
   }
   return out;
+}
+
+
+/** `qmd://<collection>/<relpath>` -> the page's path inside this wiki. */
+function localPath(root: string, file: string): string | null {
+  const m = file.match(/^qmd:\/\/[^/]+\/(.+)$/);
+  return m ? join(root, m[1]!) : null;
+}
+
+/**
+ * Replace each hit's fixed-width snippet with the passage around the match.
+ *
+ * Falls back to whatever qmd returned whenever the page cannot be read, so a
+ * missing or moved file degrades to the old behaviour rather than failing.
+ */
+export function enrichHits(hits: Hit[], root: string, budget: number): Hit[] {
+  return hits.map((h) => {
+    const file = fileOf(h);
+    const path = file ? localPath(root, file) : null;
+    if (!path || typeof h.line !== "number") return h;
+    try {
+      const passage = expandContext(readFileSync(path, "utf8"), h.line, budget);
+      return passage ? { ...h, snippet: passage } : h;
+    } catch {
+      return h;
+    }
+  });
+}
+
+/**
+ * Search this wiki, returning each hit with enough surrounding text to answer
+ * from. See context.ts for why the raw snippet is not enough.
+ */
+export async function runQuery(i: QueryInput): Promise<string> {
+  const raw = await runSearch(i);
+  if (i.snippet || i.full) return raw;
+  const hits = parseHits(raw);
+  if (hits.length === 0) return raw;
+  return JSON.stringify(enrichHits(hits, i.root, i.context ?? DEFAULT_BUDGET));
 }

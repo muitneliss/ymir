@@ -199,10 +199,45 @@ benchmark passes. The benchmark was exercising a path its own users do not take.
   perfectly deterministic — three paired rounds, byte-identical. Running lanes
   concurrently bought throughput and cost measurement precision.
 
+## Round 3 — smart context instead of whole pages
+
+Returning whole pages fixes accuracy but does not scale: on a large wiki a
+handful of full pages is an enormous amount of mostly-irrelevant context. So
+`wiki query` now expands each hit along *semantic* boundaries — paragraphs,
+bounded by the enclosing markdown section — up to a character budget, and
+returns a page whole only when it already fits.
+
+| context mode | k=1 | k=5 |
+| --- | ---: | ---: |
+| raw qmd snippet (~333 chars) | – | 43.2% |
+| smart passage, fixed 1200 budget | 68.2% | 81.8% |
+| **smart passage, adaptive** | **86.4%** | **93.2%** |
+| whole page | 90.9% | 100.0% *(degenerate)* |
+
+The fixed-budget attempt is worth recording as a failure: trimming pages to
+1200 chars scored *worse* than sending them whole, because these pages are
+1.5–2KB and the cut removed the answering third. Worse, `full` at k=1 beat
+`smart` at k=5 on **less total context** (1631 vs 2925 chars). A page that fits
+the budget IS the relevant context; only larger pages need narrowing.
+
+At k=1 the 2×2 now reads **100% accuracy whenever the right page is
+retrieved** — context has stopped being the bottleneck, and the remaining gap
+is purely retrieval misses.
+
+**Honest limitation:** on this corpus every page fits the 3000-char budget, so
+smart context and whole-page are nearly identical here. Its scaling benefit —
+narrowing a long page to the section around the match — is covered by unit
+tests but is *not* demonstrated by this eval, because no page in this wiki is
+big enough. That needs a larger corpus to verify.
+
+Answer-stage numbers also carry LLM variance: `claude -p` exposes no
+temperature control, so the answerer and judge are not deterministic (the
+retrieval metrics are — three paired rounds byte-identical).
+
 ## Recommended next
 
-1. Make `--full` the default for `wiki query`, or have `SCHEMA.md` instruct the
-   LLM to pass it. The accuracy difference is 43.2% → 90.9%.
+1. Verify smart context on a wiki with pages large enough to exceed the budget;
+   that is the case it exists for and the one this corpus cannot test.
 2. Re-measure on a larger wiki before trusting any of this at scale; 11 pages is
    too small for the k=5 result to mean anything.
 3. DKR-7: why does one query cost ~3s? Suspects are node startup, qmd startup,
