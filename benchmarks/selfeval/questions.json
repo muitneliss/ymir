@@ -1,0 +1,268 @@
+{
+  "questions": [
+    {
+      "q": "Where does the SessionStart hook read the expected CLI version from, and why not from wiki-cli/package.json?",
+      "gold_answer": "It reads the expected version from plugin.json's $.version field, because release-please keeps that synced whereas wiki-cli/package.json drifts.",
+      "gold_page": "sources/wiki-cli-publish-design-spec.md",
+      "gold_title": "Wiki CLI Publish Design Spec"
+    },
+    {
+      "q": "What happens if the SessionStart hook fails to download or verify the binary?",
+      "gold_answer": "It writes a loud stderr error and exits non-zero, with no fallback to a node dist/cli.js path.",
+      "gold_page": "sources/wiki-cli-publish-design-spec.md",
+      "gold_title": "Wiki CLI Publish Design Spec"
+    },
+    {
+      "q": "How does the SessionStart hook determine which platform binary to fetch?",
+      "gold_answer": "It detects the platform (via detectAssetLabel, based on uname -sm) and selects the matching GitHub Release asset such as wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, or wiki-linux-arm64.",
+      "gold_page": "sources/wiki-cli-publish-design-spec.md",
+      "gold_title": "Wiki CLI Publish Design Spec"
+    },
+    {
+      "q": "What integrity check is performed before installing the downloaded binary, and what permissions does the installed file get?",
+      "gold_answer": "The hook sha256-verifies the binary against SHA256SUMS.txt, then installs it to bin/wiki with chmod 0755 and stamps bin/.version.",
+      "gold_page": "sources/wiki-cli-publish-design-spec.md",
+      "gold_title": "Wiki CLI Publish Design Spec"
+    },
+    {
+      "q": "What action does the SessionStart hook take if the binary download or checksum verification fails?",
+      "gold_answer": "It exits non-zero on any failure, with no fallback (fail loud).",
+      "gold_page": "sources/wiki-cli-publish-implementation-plan.md",
+      "gold_title": "Wiki CLI Publish Implementation Plan"
+    },
+    {
+      "q": "Which pure function determines the platform-specific asset label, and what argument does it take?",
+      "gold_answer": "`detectAssetLabel(unameSM)` in `src/platform.ts`, which takes the `uname -s -m` output as its argument.",
+      "gold_page": "sources/wiki-cli-publish-implementation-plan.md",
+      "gold_title": "Wiki CLI Publish Implementation Plan"
+    },
+    {
+      "q": "How many platform binaries does the CI compile job produce, and what tool is used to build them?",
+      "gold_answer": "Four platform binaries, cross-compiled using `bun --compile`.",
+      "gold_page": "sources/wiki-cli-publish-implementation-plan.md",
+      "gold_title": "Wiki CLI Publish Implementation Plan"
+    },
+    {
+      "q": "What is the required merge order for the CI-related PRs in this plan?",
+      "gold_answer": "The CI test-job PR must land first so the pipeline chains test \u2192 release-please \u2192 compile.",
+      "gold_page": "sources/wiki-cli-publish-implementation-plan.md",
+      "gold_title": "Wiki CLI Publish Implementation Plan"
+    },
+    {
+      "q": "How does the Wiki CLI guarantee that every write to the wiki is well-formed before it's committed?",
+      "gold_answer": "Every write runs `fmt` then `validate` before committing, and invalid input is rejected so the LLM must fix it.",
+      "gold_page": "sources/wiki-harness-design-spec.md",
+      "gold_title": "Wiki Harness Design Spec"
+    },
+    {
+      "q": "What search technique powers the read side of the harness via qmd?",
+      "gold_answer": "qmd uses hybrid search combining BM25, vector search, and LLM-rerank.",
+      "gold_page": "sources/wiki-harness-design-spec.md",
+      "gold_title": "Wiki Harness Design Spec"
+    },
+    {
+      "q": "Why doesn't Ymir itself implement ingest/query/lint logic for the wiki?",
+      "gold_answer": "That's an explicit non-goal \u2014 Ymir only scaffolds the generic skeleton, while ingest/query/lint logic lives in SCHEMA.md and the CLI.",
+      "gold_page": "sources/wiki-harness-design-spec.md",
+      "gold_title": "Wiki Harness Design Spec"
+    },
+    {
+      "q": "Which paths does the scaffolded PreToolUse hook block versus allow for direct Write/Edit/MultiEdit calls?",
+      "gold_answer": "It denies direct edits to sources/, notes/, index.md, and log.md while allowing edits under raw/** and to SCHEMA.md.",
+      "gold_page": "sources/wiki-harness-design-spec.md",
+      "gold_title": "Wiki Harness Design Spec"
+    },
+    {
+      "q": "Which component is the only sanctioned write path for wiki content, and what does it do besides writing files?",
+      "gold_answer": "The bundled TS/Node CLI at plugins/ymir/wiki-cli is the only sanctioned write path, and it injects frontmatter, places files, formats, validates, and rebuilds index/log atomically.",
+      "gold_page": "sources/wiki-harness-implementation-plan.md",
+      "gold_title": "Wiki Harness Implementation Plan"
+    },
+    {
+      "q": "How is hand-editing of wiki content prevented?",
+      "gold_answer": "A PreToolUse hook scaffolded into the target project denies Write/Edit/MultiEdit on wiki content paths.",
+      "gold_page": "sources/wiki-harness-implementation-plan.md",
+      "gold_title": "Wiki Harness Implementation Plan"
+    },
+    {
+      "q": "What is the purpose of the index-build.ts and wikilog.ts modules in the CLI?",
+      "gold_answer": "index-build.ts rebuilds index.md and wikilog.ts appends to log.md.",
+      "gold_page": "sources/wiki-harness-implementation-plan.md",
+      "gold_title": "Wiki Harness Implementation Plan"
+    },
+    {
+      "q": "Where do the wiki templates such as SCHEMA.md and the hook script live in the plugin?",
+      "gold_answer": "They live under plugins/ymir/templates/, including the wiki SCHEMA.md, index/log seeds, gitkeep, the hook script, and settings snippet.",
+      "gold_page": "sources/wiki-harness-implementation-plan.md",
+      "gold_title": "Wiki Harness Implementation Plan"
+    },
+    {
+      "q": "Which wiki file is the LLM allowed to hand-edit directly?",
+      "gold_answer": "wiki/SCHEMA.md, since it is the rules document rather than content.",
+      "gold_page": "sources/wiki-schema.md",
+      "gold_title": "Wiki Schema"
+    },
+    {
+      "q": "What mechanism prevents direct edits to sources/, notes/, index.md, and log.md?",
+      "gold_answer": "A PreToolUse hook blocks direct edits to those files.",
+      "gold_page": "sources/wiki-schema.md",
+      "gold_title": "Wiki Schema"
+    },
+    {
+      "q": "How does the wiki CLI implement the `query` command under the hood?",
+      "gold_answer": "`wiki query` shells out to `qmd search --json --files`.",
+      "gold_page": "sources/wiki-schema.md",
+      "gold_title": "Wiki Schema"
+    },
+    {
+      "q": "What one-time setup step is required before search will work, and what indexing technique does it use?",
+      "gold_answer": "Running `qmd collection add ./wiki --name <project>-wiki` once builds a keyword-only BM25 index, with no embeddings or local LLM involved.",
+      "gold_page": "sources/wiki-schema.md",
+      "gold_title": "Wiki Schema"
+    },
+    {
+      "q": "What four commands are used to try Ymir out locally before it's published?",
+      "gold_answer": "Run `/plugin marketplace add ./`, `/plugin install ymir@ymir`, `/reload-plugins`, then `/ymir init for this project`.",
+      "gold_page": "sources/ymir-readme.md",
+      "gold_title": "Ymir README"
+    },
+    {
+      "q": "Which harness pieces are still stubbed as of v0.2.0?",
+      "gold_answer": "The socratic interview and other pieces \u2014 lint, CI, and rules \u2014 are still stubbed.",
+      "gold_page": "sources/ymir-readme.md",
+      "gold_title": "Ymir README"
+    },
+    {
+      "q": "How does Ymir prevent users from manually editing the generated wiki docs?",
+      "gold_answer": "It installs a PreToolUse hook that blocks hand-edits of wiki docs.",
+      "gold_page": "sources/ymir-readme.md",
+      "gold_title": "Ymir README"
+    },
+    {
+      "q": "Why doesn't Ymir generate application code itself?",
+      "gold_answer": "Because it only interviews the user about their techstack and builds the skeleton harness, leaving the user to drive real development through Claude Code steered by that harness.",
+      "gold_page": "sources/ymir-readme.md",
+      "gold_title": "Ymir README"
+    },
+    {
+      "q": "What happens if I run `/ymir` with no arguments?",
+      "gold_answer": "Empty arguments mean the same as `ymir init`, running the full interview and scaffolding every fitting piece.",
+      "gold_page": "sources/ymir-skill-dispatcher.md",
+      "gold_title": "Ymir SKILL Dispatcher"
+    },
+    {
+      "q": "Which single CLI call scaffolds the wiki/context concern?",
+      "gold_answer": "`wiki --root ./wiki init`, which owns the tree, the hook, the `.claude/settings.json` entry, the CLAUDE.md block, and validation.",
+      "gold_page": "sources/ymir-skill-dispatcher.md",
+      "gold_title": "Ymir SKILL Dispatcher"
+    },
+    {
+      "q": "Why does the interview step ask about language and layer instead of inferring them from the project files?",
+      "gold_answer": "Because the user does not hand-write code, so the stack cannot be inferred from files, requiring a socratic interview via AskUserQuestion.",
+      "gold_page": "sources/ymir-skill-dispatcher.md",
+      "gold_title": "Ymir SKILL Dispatcher"
+    },
+    {
+      "q": "Is the wiki scaffolding step safe to run multiple times, and how does it confirm success?",
+      "gold_answer": "Yes, it is idempotent, and success ends with `wiki valid`.",
+      "gold_page": "sources/ymir-skill-dispatcher.md",
+      "gold_title": "Ymir SKILL Dispatcher"
+    },
+    {
+      "q": "What is the last line printed when `wiki init` succeeds?",
+      "gold_answer": "On success its last line is `wiki valid`.",
+      "gold_page": "notes/init-scaffold-contract.md",
+      "gold_title": "Init Scaffold Contract"
+    },
+    {
+      "q": "Is it safe to run `wiki init` multiple times on the same project?",
+      "gold_answer": "Yes, it is idempotent and write-if-missing, so re-runs are safe.",
+      "gold_page": "notes/init-scaffold-contract.md",
+      "gold_title": "Init Scaffold Contract"
+    },
+    {
+      "q": "Which wiki paths does the PreToolUse hook block direct Write/Edit/MultiEdit on, and which does it allow?",
+      "gold_answer": "It denies direct writes to `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+      "gold_page": "notes/init-scaffold-contract.md",
+      "gold_title": "Init Scaffold Contract"
+    },
+    {
+      "q": "How does `wiki init` modify `.claude/settings.json` and `CLAUDE.md`?",
+      "gold_answer": "It merges a hook entry into `.claude/settings.json` (never clobbering it) and appends the wiki pointer block to `CLAUDE.md`.",
+      "gold_page": "notes/init-scaffold-contract.md",
+      "gold_title": "Init Scaffold Contract"
+    },
+    {
+      "q": "Where does the SessionStart hook read the expected CLI version from, and why not from `wiki-cli/package.json`?",
+      "gold_answer": "It reads the expected version from `plugin.json $.version`, because release-please keeps that field synced while `wiki-cli/package.json` is independent.",
+      "gold_page": "notes/publish-and-auto-fetch-flow.md",
+      "gold_title": "Publish and Auto-Fetch Flow"
+    },
+    {
+      "q": "What check determines whether `ensure-wiki-binary.mjs` skips reinstalling the binary?",
+      "gold_answer": "It no-ops if `bin/wiki` exists and `bin/.version` matches the expected version.",
+      "gold_page": "notes/publish-and-auto-fetch-flow.md",
+      "gold_title": "Publish and Auto-Fetch Flow"
+    },
+    {
+      "q": "What happens if the sha256 verification of the downloaded asset fails or the network request fails?",
+      "gold_answer": "The hook errors and exits non-zero, since the design mandates fail fast with no fallback.",
+      "gold_page": "notes/publish-and-auto-fetch-flow.md",
+      "gold_title": "Publish and Auto-Fetch Flow"
+    },
+    {
+      "q": "Which four platform-specific binaries does the CI compile job produce, and what tool builds them?",
+      "gold_answer": "It cross-compiles `wiki-darwin-arm64`, `wiki-darwin-x64`, `wiki-linux-x64`, and `wiki-linux-arm64` using four `bun --compile` targets.",
+      "gold_page": "notes/publish-and-auto-fetch-flow.md",
+      "gold_title": "Publish and Auto-Fetch Flow"
+    },
+    {
+      "q": "What runtime and package manager are used to build and test the wiki CLI?",
+      "gold_answer": "It's a TypeScript/Node CLI built and tested with bun.",
+      "gold_page": "notes/wiki-cli-command-surface.md",
+      "gold_title": "Wiki CLI Command Surface"
+    },
+    {
+      "q": "What four libraries does the wiki CLI rely on for parsing, frontmatter, formatting, and schema validation?",
+      "gold_answer": "It's built on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).",
+      "gold_page": "notes/wiki-cli-command-surface.md",
+      "gold_title": "Wiki CLI Command Surface"
+    },
+    {
+      "q": "What happens if a write command fails validation partway through?",
+      "gold_answer": "It aborts with a nonzero exit and an actionable message, leaving no partial file.",
+      "gold_page": "notes/wiki-cli-command-surface.md",
+      "gold_title": "Wiki CLI Command Surface"
+    },
+    {
+      "q": "Why should you never hand-write frontmatter fields like title, type, date, or tags in a wiki page?",
+      "gold_answer": "Frontmatter is injected by the CLI (never hand-written), covering common fields plus source/ingested for source pages and source_count for notes.",
+      "gold_page": "notes/wiki-cli-command-surface.md",
+      "gold_title": "Wiki CLI Command Surface"
+    },
+    {
+      "q": "Which directory holds immutable source documents that the LLM can read but is never allowed to edit?",
+      "gold_answer": "wiki/raw/ holds immutable source documents the LLM reads but never edits.",
+      "gold_page": "notes/wiki-harness-model.md",
+      "gold_title": "Wiki Harness Model"
+    },
+    {
+      "q": "What are the two mechanisms that enforce deterministic writes to the wiki?",
+      "gold_answer": "The CLI formats and validates every write, rejecting invalid input, and a PreToolUse hook hard-blocks any direct Write/Edit/MultiEdit on wiki content paths.",
+      "gold_page": "notes/wiki-harness-model.md",
+      "gold_title": "Wiki Harness Model"
+    },
+    {
+      "q": "What is the difference in purpose between sources/ and notes/ within the Wiki layer?",
+      "gold_answer": "sources/ contains one-per-document summaries, while notes/ contains entity/concept/topic synthesis.",
+      "gold_page": "notes/wiki-harness-model.md",
+      "gold_title": "Wiki Harness Model"
+    },
+    {
+      "q": "How is read/search access to the wiki handled?",
+      "gold_answer": "Read/search is delegated to qmd.",
+      "gold_page": "notes/wiki-harness-model.md",
+      "gold_title": "Wiki Harness Model"
+    }
+  ]
+}

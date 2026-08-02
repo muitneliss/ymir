@@ -1,0 +1,1382 @@
+{
+  "0021377896a9abc399dcc725b387cdd4b637c44493829b4d15ce0a84db49134d": {
+    "generated_answer": "The two mechanisms are: (1) the CLI, which formats then validates every write and rejects invalid input so the LLM must fix it, and (2) a PreToolUse hook that hard-blocks any direct Write/Edit/MultiEdit on wiki content paths.",
+    "judge_correct": true,
+    "judge_reason": "The candidate accurately restates both mechanisms from the reference\u2014the CLI's format/validate/reject behavior and the PreToolUse hook blocking direct writes\u2014with no substantive discrepancies."
+  },
+  "003d5e0cfd7978637715630d737ec80e56f1d1064640383b3a5c4e87ddb9cc31": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent (write-if-missing, so re-runs are safe), and on success its last line is `wiki valid`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate confirms idempotency and states the success output ends with \"wiki valid\", matching the reference."
+  },
+  "00dca87f9c52137e8eb83e935d611c15c6ce34d8934be408e8c8e3e4bd36ecf8": {
+    "generated_answer": "It writes a loud stderr error and exits non-zero (there is no fallback).",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the key facts\u2014stderr error and non-zero exit with no fallback\u2014matching the reference's substance, just omitting the specific mention of \"node dist/cli.js\" which is a minor detail."
+  },
+  "016455c51fd676464477c2dd17b697de41f7972dfa39566ce12fb888cdd03f4d": {
+    "generated_answer": "The wiki CLI relies on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer's four libraries and their roles exactly."
+  },
+  "021e3b613907427ad7474ef63c343edd811ea089a2a4f9113ec72e0c1e191b1f": {
+    "generated_answer": "`wiki valid`",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference's key fact exactly."
+  },
+  "023385d7fd901338976f9e19b281200fe2cfbc06ebcbe662688c445d6ef7940c": {
+    "generated_answer": "wiki/raw/ holds the immutable source documents that the LLM reads but never edits.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer exactly in substance, identifying wiki/raw/ as the immutable directory."
+  },
+  "02d08f6ebe558285d27235677f8c01aceda510d17da9a3a9ec2d2b7e65a9debf": {
+    "generated_answer": "wiki/raw/ holds the immutable source documents, which the LLM can only read and is never allowed to edit.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer states the same directory (wiki/raw/) with the same read-only, immutable characteristic as the reference."
+  },
+  "0302966e1a05b0caa18f01500be2189e39c28a4e98fdccbced8dccca24b061fb": {
+    "generated_answer": "The `wiki/raw/` directory holds immutable source documents \u2014 the LLM reads them but never edits them; the user drops files here.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies wiki/raw/ as the immutable source directory the LLM reads but never edits, matching the reference."
+  },
+  "03243cbbac7d499a78c24519e3a2be571f1490d9bb5a4ba1ee169652264df462": {
+    "generated_answer": "Before installing, the downloaded binary is verified with a SHA256 hash check against SHA256SUMS.txt (sha256-verifies). It is then installed to `bin/wiki` with permissions set to chmod 0755.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's key facts (SHA256 verification against SHA256SUMS.txt, installed to bin/wiki with chmod 0755), only omitting the minor detail about stamping bin/.version."
+  },
+  "03c108e823ea794fe21d969a244ac3f2a809e982f2741fd7c47a838c4e23c58f": {
+    "generated_answer": "`detectAssetLabel`, located in `src/platform.ts`, takes the output of `uname -sm` as its argument.",
+    "judge_correct": true,
+    "judge_reason": "Candidate correctly identifies the function name, its location, and that it takes the `uname -s -m`/`uname -sm` output as its argument, matching the reference."
+  },
+  "04fb781127e8ac9a989644fb95d2303b86e6183984a9ea9b45f7aec065daa1e6": {
+    "generated_answer": "Based on the design's fail-fast policy: if the SessionStart hook cannot download/verify the binary, it writes a loud stderr error and exits non-zero \u2014 there is no fallback (e.g., no `node dist/cli.js` path).",
+    "judge_correct": true,
+    "judge_reason": "Candidate matches reference's core claim that the hook errors and exits non-zero with no fallback, adding consistent extra detail."
+  },
+  "06a3558d43354779cd8b1daa97fb557b884c248a1efe04e8cefba01d721c4196": {
+    "generated_answer": "If you run `/ymir` with no arguments, it is treated as `ymir init`, which runs the full flow (interview + scaffold every fitting piece).",
+    "judge_correct": true,
+    "judge_reason": "The candidate states the same fact as the reference\u2014no arguments behaves like `ymir init`, running the full interview and scaffolding process."
+  },
+  "06d234c9050d64c3998b83f2534b128af97c30a7f07b403f9ab1c7891fe3ecff": {
+    "generated_answer": "The hook checks if `bin/wiki` exists and `bin/.version` matches the expected version read from `plugin.json $.version` \u2014 if both conditions hold, it no-ops.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's core claim that the script skips reinstalling when bin/wiki exists and bin/.version matches the expected version, with extra consistent detail."
+  },
+  "06eab581da8859d35eb051fe25e8e1b4b40cf2286a609461edbc5363c0d4df5d": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "091ab1cc17edc6e75e9e0b89b58cfb8a898a50139d0084f633778ceb0a4e9de8": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent and write-if-missing, so re-runs are safe. It confirms success by ending with `wiki valid` on its last line (and reports created/skipped paths, plus whether settings were merged and the CLAUDE.md block appended); if it errors, the caller stops and reports.",
+    "judge_correct": true,
+    "judge_reason": "Candidate confirms idempotency and success indicated by \"wiki valid,\" matching the reference, with extra consistent detail."
+  },
+  "0c5744bcd8dc7052e275f815ab2cbfe06b4b85bfcfd76bd555a2c724a80ef436": {
+    "generated_answer": "The LLM is only allowed to hand-edit `wiki/SCHEMA.md` \u2014 it's treated as the rules document, not content. All other wiki files (sources/, notes/, index.md, log.md) must be written through the Ymir wiki CLI, and direct edits to them are blocked by a PreToolUse hook.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference, identifying wiki/SCHEMA.md as the rules document that can be hand-edited, with additional consistent detail."
+  },
+  "0c7a54dc600c97ce4f4672006e1628dba5f2e86c54903ec26cdbdbb51644c3b5": {
+    "generated_answer": "The Wiki CLI guarantees this by running format then validate on every write command before committing \u2014 if validation fails, it aborts with a nonzero exit and an actionable message, leaving no partial file, and only on success does it atomically rebuild the index and append to the log.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the core fact\u2014every write runs format then validate before committing and rejects invalid input (nonzero exit forces correction)\u2014matching the reference's substance, with extra plausible details that don't contradict it."
+  },
+  "0c910732f657cd7aad113936e879ce4ee4c290482f7b84b24795da5e3ca6a8bc": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "0d7581673923a4b5e7449886022083e32e25dfba4dd8f150594214198cf3c592": {
+    "generated_answer": "`wiki --root ./wiki init`",
+    "judge_correct": true,
+    "judge_reason": "The candidate provides the exact CLI call requested, matching the core fact in the reference answer."
+  },
+  "0e170d1d08d452a7a05952c7065aaea7446d9db634540cf25552ccdb63855515": {
+    "generated_answer": "plugins/ymir/templates/",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies the directory plugins/ymir/templates/, matching the core location fact in the reference answer."
+  },
+  "0e75e24908a0d127caebd3b6d4488e8027890df7e4c4e71adeb99fbbbe84458b": {
+    "generated_answer": "Based on the context, `wiki init` merges a hook entry into `.claude/settings.json` (a merge, never a clobber) and appends the wiki pointer block to `CLAUDE.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference exactly in substance\u2014merging a hook entry without clobbering settings.json and appending the wiki pointer block to CLAUDE.md."
+  },
+  "0fe171f1ede390ecc7485365a4c9f29f710b44a1150b2127423efc863ea3c0fd": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "102ff5f8f2bdad6e319b4854ff043025aebd67fce686d5b203c70064ce11e8ab": {
+    "generated_answer": "Within the Wiki layer, `sources/` contains one CLI-written summary page per ingested source document, while `notes/` contains CLI-written entity/concept/topic synthesis pages.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: sources/ = one-per-document summaries, notes/ = entity/concept/topic synthesis, with only extra non-contradictory detail added."
+  },
+  "10dc8b752854486c65371bc082d47d6bcfa8fd729c7a5d2ea14b8100761bec1f": {
+    "generated_answer": "Because the user does not hand-write code, so the stack cannot be inferred from files \u2014 the interview must ask (Language, Layer, one decision at a time) instead.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the same core fact\u2014the user doesn't hand-write code so the stack can't be inferred from files, requiring the interview\u2014matching the reference."
+  },
+  "12387c048b3482629376710193570fd9f477579512537dadac6b350a0dc6a2ca": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect regardless of the reference answer."
+  },
+  "147c8d7cf7f3e0c445ff88682b5882655577a15bec8cf01009e2ed3e1d10977e": {
+    "generated_answer": "qmd handles read/search access to the wiki.",
+    "judge_correct": true,
+    "judge_reason": "Both answers state the same fact\u2014that qmd handles read/search access to the wiki."
+  },
+  "147f121e4f7bd266adc424f0e6d2760471140aab09e6b1c10864bfdd98c98921": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "15050c964a29634a8bbe9aa17763326a3c221937ba4bcbeaebd5fba44abd901a": {
+    "generated_answer": "The hook denies direct Write/Edit/MultiEdit on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "Candidate matches the reference's blocked (sources/, notes/, index.md, log.md) and allowed (raw/**, SCHEMA.md) paths, just with an added \"wiki/\" prefix that doesn't change the substantive fact."
+  },
+  "153ef5a23a48553890afcb55b6fac01d8e22e016ca01b8887ba6cb496d797e26": {
+    "generated_answer": "Yes. `wiki init` is idempotent \u2014 it writes files only if missing and re-runs are safe; on success its last line is `wiki valid`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's core claim that `wiki init` is idempotent, write-if-missing, and safe to re-run, with the extra detail not contradicting this."
+  },
+  "154683994e9cbc7a3522c31eb81080cb92cdf0c23ea5e4ee928f1d2c196a8528": {
+    "generated_answer": "The wiki CLI relies on commander (parsing/help), js-yaml (frontmatter), remark (format), and zod (frontmatter schema validation).",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four libraries with matching roles (commander, js-yaml, remark, zod) as the reference."
+  },
+  "1582bc536171bc6a3deadc9b771097b0795f39b70b1c2728a1935f1a34643168": {
+    "generated_answer": "A PreToolUse hook denies Write/Edit/MultiEdit operations on wiki content paths (sources/, notes/, index.md, log.md), blocking direct edits so all changes must go through the wiki CLI.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's core claim that a PreToolUse hook denies Write/Edit/MultiEdit on wiki content paths, with added consistent detail."
+  },
+  "174be0a822e79c6f4591bdd14760fd962bea958b8cc0f8ca15fcf98ae55f79d3": {
+    "generated_answer": "Because in the wiki system, frontmatter is injected by the CLI (never hand-written) \u2014 the LLM never hand-writes or hand-edits wiki documents, and all writes must go through the Ymir wiki CLI, which formats and validates every change (with direct edits blocked by a PreToolUse hook).",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly states the key fact from the reference\u2014that frontmatter is injected by the CLI and never hand-written\u2014matching the core substance of the reference answer."
+  },
+  "17876290a5472188598b3fd959f83aba4dfc8ccb685386d2b26a279f42ce727e": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per grading rules, while the reference clearly states TypeScript/Node built and tested with bun."
+  },
+  "18eb9daca2c2070eff9c2ba6ecdac995fc6484ae5f8afe1ca17ff0fc3e176533": {
+    "generated_answer": "It aborts with a nonzero exit code and an actionable message, leaving no partial file.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer exactly in substance, only using \"exit code\" instead of \"exit\"."
+  },
+  "18fb39f2a2f7f56279406f09a08788f8b5cc6a512855f9166f8e75e61dcc41b4": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "191679b3bf584530051080059495690db1c28daf18f038a9185685f2315788bb": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent and write-if-missing, so re-running it on the same project is safe.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance, confirming idempotent, write-if-missing behavior making re-runs safe."
+  },
+  "1a5946a5c1dcdf26f5adbac0f75596acef71d46ad61d71690bc8bda390fe3e03": {
+    "generated_answer": "The hook blocks direct Write/Edit/MultiEdit on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's blocked and allowed paths match the reference exactly, just with an added \"wiki/\" prefix that doesn't change the substantive fact."
+  },
+  "1aaaa0eb1f4c23da1c53ec127959d88b86115e75a902ba47e380b1a18142dd91": {
+    "generated_answer": "The hook exits non-zero on any failure \u2014 it fails loud, with no fallback.",
+    "judge_correct": true,
+    "judge_reason": "Candidate captures both key facts\u2014exits non-zero with a loud failure and no fallback\u2014matching the reference's substance despite less detail on the fallback path."
+  },
+  "1ac0c0aea03696b39fe36e6d91148d4a5aca127d4317bb8d4faa4dfc081e5bc7": {
+    "generated_answer": "Yes, it is safe \u2014 the scaffold contract is \"write-if-missing,\" so re-runs are safe.",
+    "judge_correct": true,
+    "judge_reason": "Both state that repeated `wiki init` runs are safe due to the write-if-missing behavior, matching the reference's key claim."
+  },
+  "1cf0abae6d57b58960cbf95eb147341cb1d0b92b0a9d1742ec39f4d851c99f89": {
+    "generated_answer": "The wiki CLI's `query <q>` command shells out to qmd, which handles the read/search side (hybrid BM25 + vector + LLM-rerank).",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies that `wiki query` shells out to `qmd` to perform the search, matching the reference's core claim, even though it omits the specific flags."
+  },
+  "1eac0d8200bde70653d8954492cca498583d1731a4ce622e6ebf578260fbaf53": {
+    "generated_answer": "The two enforcement mechanisms are: (1) the CLI, which formats then validates every write and rejects invalid input so the LLM must fix it, and (2) a PreToolUse hook that hard-blocks any direct Write/Edit/MultiEdit on wiki content paths.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches both mechanisms in the reference: CLI validation/rejection of invalid writes and the PreToolUse hook blocking direct writes/edits on wiki paths."
+  },
+  "1ee8ea3293f5ee14a1a3e13a5cb4b628741a90c715964b8eb08374747eefd1f9": {
+    "generated_answer": "Based on the context, the wiki CLI relies on: commander (parsing/help), a small js-yaml frontmatter module (frontmatter), remark (format), and zod (schema validation).",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four libraries with matching roles as the reference: commander, js-yaml frontmatter module, remark, and zod."
+  },
+  "20b4d09d3e5bf0be5ac47e6adfcc137acc69a6c16221c4fd3d5214d583f465aa": {
+    "generated_answer": "The interview asks rather than infers because the user does not hand-write code, so the stack cannot be inferred from files \u2014 the socratic interview step must ask (Language, Layer) one decision at a time instead of inspecting the project.",
+    "judge_correct": true,
+    "judge_reason": "The candidate states the same core fact as the reference\u2014since the user doesn't hand-write code, the stack can't be inferred from files, requiring the socratic interview to ask instead."
+  },
+  "20e683cb77e8b44fd2501ed66aabfb32a107e85dd58074866af7a2795458f007": {
+    "generated_answer": "Hybrid BM25 + vector + LLM-rerank.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference, both describing hybrid search combining BM25, vector search, and LLM-rerank."
+  },
+  "21df3123181c3c55b17c31c8ef062fa122cb9641a373650708813f0350909f73": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which does not match the reference's substantive explanation and is always considered incorrect."
+  },
+  "21ef404ed93e714f4aefdd1b3811642ee3a565407dce151b144b010ebeca99dc": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate failed to provide the answer that the reference gives, so it is incorrect per the grading rules."
+  },
+  "223380a7658da9a3cc30bd2fd54ea2bf2bba27b3408f7344cb8a5c01e03566dd": {
+    "generated_answer": "The Wiki CLI is the only sanctioned write path for wiki content. Besides writing files, every write runs `fmt` then `validate` before committing, and it also owns structure (filename, frontmatter, placement, cross-link validation, formatting) while updating the index and log atomically.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies the Wiki CLI as the sole write path and describes the same functions (formatting, validation, frontmatter/placement, atomic index/log updates) as the reference."
+  },
+  "223daf28fd7b596fa5090a6fcbaecb9c714034a67f78c9f3e38b62e94de7536e": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "22bf0110cf8cfe1ed48ba7e50f7004310eb7ac50f4f1ce2d33c5031161162671": {
+    "generated_answer": "Based on the plan: the SessionStart hook exits non-zero on any download or verification failure, with no fallback (\"fail loud\").",
+    "judge_correct": true,
+    "judge_reason": "Candidate captures the key facts\u2014non-zero exit and no fallback with \"fail loud\" behavior\u2014matching the reference's substance."
+  },
+  "2356aab830bb75fba96d4a462269da74d328b27ae7d08fc0d941c1ba660b64d4": {
+    "generated_answer": "The wiki CLI relies on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly, listing commander, js-yaml frontmatter module, remark, and zod for the same purposes."
+  },
+  "25e87bba827be8b943e29d5e01ea4691caf232fe9766b6f3bf43ede3e15908e0": {
+    "generated_answer": "It runs the full `init` flow \u2014 the socratic interview (asking Language, Layer, etc.) followed by scaffolding every fitting harness piece.",
+    "judge_correct": true,
+    "judge_reason": "The candidate states that running `/ymir` with no arguments triggers the same full init interview-and-scaffold process as `ymir init`, matching the reference."
+  },
+  "266316ef6a86115a8d5e4e282442cd2acebb6b015d3151f4a4e2b5da044b07b5": {
+    "generated_answer": "The PreToolUse hook `.claude/hooks/block-wiki-edits.mjs` (installed by the init scaffold) prevents direct edits \u2014 instead, all writes to `sources/`, `notes/`, `index.md`, and `log.md` must go through the Ymir wiki CLI.",
+    "judge_correct": true,
+    "judge_reason": "Both answers identify a PreToolUse hook as the mechanism blocking direct edits to those files, matching the reference's core claim."
+  },
+  "26bc43764f44e5fcd1b56c4ed6eab0fc4b9fd6889889fc72bae44b2246be497f": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) reads the expected version from `plugin.json $.version`, because release-please keeps that field synced \u2014 whereas `wiki-cli/package.json` (an independent package) drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: version comes from plugin.json's $.version field, kept in sync by release-please, while wiki-cli/package.json drifts."
+  },
+  "284ba0aa76baf57861a41f6d4e4e6e84cc2526bf803489c33947a8f1fe9b6c52": {
+    "generated_answer": "A PreToolUse hook is scaffolded into the target project to deny Write/Edit/MultiEdit operations on wiki content paths.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer's substantive claim almost verbatim."
+  },
+  "2a6efacbc31590a8040430bad61f4ee0330faa484692cc68d92453f96dc62656": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "2aa3852579f6e35be81579488636b1ebae9a072f2a833de573ec1c76b9d43e1a": {
+    "generated_answer": "`wiki init` merges a hook entry into `.claude/settings.json` (merge, never clobber) and appends the wiki pointer block to `CLAUDE.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference substantively, stating the same merge (not clobber) behavior for settings.json and appending the wiki pointer block to CLAUDE.md."
+  },
+  "2ae07edbeb7f8d3382c0861eafefceebc1b8936745dfe3779f51a1895cd73d95": {
+    "generated_answer": "It runs the full `ymir init` flow \u2014 a socratic interview (via AskUserQuestion) followed by scaffolding every fitting piece.",
+    "judge_correct": true,
+    "judge_reason": "The candidate conveys the same substantive fact as the reference\u2014no arguments defaults to the full `ymir init` interview-and-scaffold flow\u2014with only added detail (AskUserQuestion) that doesn't contradict it."
+  },
+  "2b67cc5db4587a1d0c497ce5ce5ba9a6fd3d5c27350abbdc6327986f348912d2": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded with \"INSUFFICIENT CONTEXT,\" which fails to provide the fact stated in the reference answer and is always considered incorrect."
+  },
+  "2d01d566789510026475e0fc2833b54eafae8fae820e4b6b0239a1863cb286d1": {
+    "generated_answer": "The CI compile job builds four platform-specific binaries \u2014 `wiki-darwin-arm64`, `wiki-darwin-x64`, `wiki-linux-x64`, and `wiki-linux-arm64` \u2014 using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four binaries and correctly identifies bun --compile as the build tool, matching the reference."
+  },
+  "2d24aa4ace27fed419bf0b63fc589cfed0f3400c13003024a511a8a0e07f48aa": {
+    "generated_answer": "It exits non-zero on any failure (i.e., it fails loud, with no fallback).",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer conveys the same fact as the reference: the hook exits non-zero on failure with no fallback (fail loud)."
+  },
+  "2db1b0928f2094022a96a18e5130a19656b3c68353ad2ab1e18526211f15d430": {
+    "generated_answer": "The Wiki CLI runs `fmt` (remark format) and then validates every write against a zod schema before committing, rejecting invalid input so the LLM must fix it.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's core claim\u2014fmt then validate run before commit, with invalid input rejected forcing the LLM to fix it\u2014adding plausible extra detail without contradicting the reference."
+  },
+  "3026650c4c381d2b3f2a263bb49eaedf0e2680a67d7c36e34eb1df38949bcdc9": {
+    "generated_answer": "qmd handles read/search access to the wiki.",
+    "judge_correct": true,
+    "judge_reason": "Both answers state that read/search access to the wiki is delegated to/handled by qmd."
+  },
+  "332278570962c67635ff4c8eb03044d089839f181dd5fc96264cba2a8faf3af2": {
+    "generated_answer": "Before installing, the downloaded binary is verified via sha256 (no signing beyond sha256). The design spec does not specify the exact file permissions set on the installed file.",
+    "judge_correct": false,
+    "judge_reason": "The candidate fails to state that the file is verified against SHA256SUMS.txt and installed with chmod 0755 (and version stamped), instead claiming the permissions are unspecified, which contradicts the reference."
+  },
+  "3384bc79172e5dc3b8fd09b780ebc52d29f988278e577fb90c63684bbd1f97dd": {
+    "generated_answer": "/plugin marketplace add ./, /plugin install ymir@ymir, /reload-plugins, and /ymir init for this project.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the identical four commands in the same order as the reference."
+  },
+  "3465025f2cdec9318082581e726b749b1b352384587ace91f47f80a1d1bb13cd": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "35b2c8121b3555fc8f1dc619f802cd636cc810a0ae5e26508b192641422417a9": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "363e6a03ba2a097c839ccd092e4a124af60b0eb8862f20c1b9b48a3fb1eb079c": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "379479ec9749847327a6b77d04a4887387af7432845273fb4b2bb99def09a2c8": {
+    "generated_answer": "The SessionStart hook `ensure-wiki-binary.mjs` reads the expected version from `plugin.json $.version`, because release-please keeps that field synced \u2014 whereas `wiki-cli/package.json` drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: it reads expected version from plugin.json $.version because release-please keeps it synced, unlike wiki-cli/package.json."
+  },
+  "38cc1f559478082624e727fb72f7d2e34b9289959b011b8ec72a02021eba74f3": {
+    "generated_answer": "It runs the full `init` flow \u2014 the Socratic interview (via AskUserQuestion) followed by scaffolding every fitting harness piece.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly states that no arguments triggers the full init flow (interview + scaffolding), matching the reference's meaning."
+  },
+  "38dd66f0720d7b1577418f37ea82dda0c8802d00ec3dfe36cc159a71b65b8ca1": {
+    "generated_answer": "The interview asks about language and layer instead of inferring from files because the user does not hand-write code, so the stack cannot be inferred from the project files.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer conveys the same core fact as the reference\u2014that the stack can't be inferred because the user doesn't hand-write code\u2014matching the substantive content."
+  },
+  "3a3a16f630c09f7da83074404be8a5e655f085f9bf40b294e1c083451ddf590b": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules, while the reference provides a specific merge order."
+  },
+  "3a7993013b0e45db1b5c989c1de1538c393877043cb350336d5b77b8ad63e3bb": {
+    "generated_answer": "The hook checks whether `bin/wiki` exists and whether `bin/.version` matches the expected version (read from `plugin.json $.version`); if both hold, it no-ops.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference, stating the script skips reinstalling when `bin/wiki` exists and `bin/.version` matches the expected version."
+  },
+  "3b47710227679ec87e69d180e0bf212fd1443c02305e43a0d411d250ac2533db": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules, while the reference provides a clear answer."
+  },
+  "3c835709a25ad784b394f865ee4e7b2c9d4366451e8964ad46835d09fb68f443": {
+    "generated_answer": "Based on the context, the PreToolUse hook (`.claude/hooks/block-wiki-edits.mjs`) blocks direct Write/Edit/MultiEdit on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while it allows `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's blocked and allowed paths exactly match the reference answer."
+  },
+  "3d52b2fb5b4824fa50e23a700c8b42a355279fd372b410b386946228ae94a7f9": {
+    "generated_answer": "The Wiki CLI (`plugins/ymir/wiki-cli`) is the only sanctioned write path for wiki content. Besides writing files, it also formats (fmt) and validates content \u2014 every write runs fmt then validate before committing.",
+    "judge_correct": false,
+    "judge_reason": "The candidate correctly identifies the CLI but omits key functions from the reference (injecting frontmatter, placing files, and rebuilding index/log atomically)."
+  },
+  "3d956ff4f06baf86ca61d7969faeb233f58b7bcbd55324592cf66c4da730c9df": {
+    "generated_answer": "A PreToolUse hook blocks direct Write/Edit/MultiEdit edits to wiki content paths (sources/, notes/, index.md, log.md); the LLM must instead go through the Ymir wiki CLI, which is the only sanctioned write path.",
+    "judge_correct": true,
+    "judge_reason": "Both answers state a PreToolUse hook blocks Write/Edit/MultiEdit on wiki content paths, matching the core fact; the candidate's extra detail doesn't contradict the reference."
+  },
+  "3de5e3db92cc429c15b739f7b9e4dcdf5fbf1d340fbbae0447d4057c6ef54263": {
+    "generated_answer": "The hook checks whether `bin/wiki` exists and `bin/.version` matches the expected version (read from `plugin.json $.version`); if both match, it no-ops.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's check (bin/wiki exists and bin/.version matches expected version, causing no-op), with extra detail that doesn't contradict it."
+  },
+  "3e0be0c6f10934559db7662ed1408d9da1937d51f67ea1ab3f5632be3d63ddf3": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "3e5a0a9d6d1aaea112d8c3b138d0dcb236653d3e451396b560031813f723b881": {
+    "generated_answer": "Ymir installs a PreToolUse hook that blocks hand-edits of the wiki docs, so changes must go through the bundled wiki CLI (the LLM-maintained workflow) instead of direct edits.",
+    "judge_correct": true,
+    "judge_reason": "The candidate states Ymir installs a PreToolUse hook blocking hand-edits of wiki docs, matching the reference exactly, with added consistent detail."
+  },
+  "3ed184b067323e29c9d29773cc03ea997946993bc9615877fd6a6db662ec858e": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered INSUFFICIENT CONTEXT, which does not match the reference's specific fact that the last line printed is `wiki valid`."
+  },
+  "3f189ce315642c1de0e38a6cf68452cfd09350f3fca4ec7657494c55b2ec6a9c": {
+    "generated_answer": "A PreToolUse hook (`block-wiki-edits.mjs` combined with a merged settings.json) scaffolded into the target project denies Write/Edit/MultiEdit operations on sources/, notes/, index.md, and log.md, while still allowing edits to raw/** and SCHEMA.md.",
+    "judge_correct": true,
+    "judge_reason": "Both answers identify a PreToolUse hook as the mechanism blocking direct edits to those files, with the candidate providing consistent additional detail."
+  },
+  "3f1a46af94f593d108ecc3962c4125abd5f6da212c0d0997d22fe6802e855604": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) reads the expected version from `plugin.json`'s `$.version` field, rather than `wiki-cli/package.json`, because release-please keeps `plugin.json` synced while `wiki-cli/package.json` drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly: expected version comes from plugin.json's $.version field, not wiki-cli/package.json, because release-please keeps plugin.json synced while wiki-cli/package.json drifts."
+  },
+  "3fcb4f1112a52d6f998be85e82f96b49a52d8b801f9942b81983630316b6001c": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "404b5d10ecaaa2ad2c3c7177a9bc858b85e8b632b2ddd573e83253e29fe38b99": {
+    "generated_answer": "Because the user does not hand-write code, so the tech stack cannot be inferred from files \u2014 the interview must ask Language (Go/TypeScript\u2026) and Layer (frontend/backend/both) one decision at a time, only what the action needs.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the core fact from the reference\u2014stack can't be inferred because the user doesn't hand-write code\u2014and adds consistent, non-contradictory detail."
+  },
+  "406d75f6e7f9c9341b29976de1113ebdb73faa9e4f57fb6f56e39a549c68a540": {
+    "generated_answer": "Ymir installs a PreToolUse hook that blocks hand-edits of the wiki docs.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance\u2014Ymir uses a PreToolUse hook to block manual edits to wiki docs."
+  },
+  "42422a2218f3618437b1a695c4755bafe3adc90b4a287362397330cd4ab3f091": {
+    "generated_answer": "A PreToolUse hook blocks hand-editing of wiki content, since all writes must go through the Ymir wiki CLI (which owns formatting and validation) rather than direct file edits.",
+    "judge_correct": true,
+    "judge_reason": "Both answers agree the core mechanism is a PreToolUse hook that blocks direct Write/Edit/MultiEdit operations on wiki content, matching the reference's key fact."
+  },
+  "473f463c626b7fe184fdaf9888a82d968d6b7bb32bc4dccd1faa5e5f1202d2a3": {
+    "generated_answer": "Before installing, the downloaded binary is SHA256-verified against SHA256SUMS; it's then installed to `bin/wiki` with chmod 0755, and `.version` is stamped.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's key facts: SHA256 verification against SHA256SUMS, installation to bin/wiki with chmod 0755, and stamping of the version file."
+  },
+  "476a4a542e0c4393efeda7780e4605754951ea36549f4c53240ba136a34b722c": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "47c09b684d47e42c6983c7745f13cc4d78ac5dca96d2d2291348ae09a8cec800": {
+    "generated_answer": "The hook determines the platform via a pure function `detectAssetLabel(unameSM)` in `src/platform.ts`, which takes `uname -s -m` output to identify the correct asset label; it then downloads and SHA256-verifies the matching binary on first use or version change.",
+    "judge_correct": true,
+    "judge_reason": "Candidate correctly identifies that detectAssetLabel uses uname -s -m output to select the matching platform binary, matching the core mechanism in the reference."
+  },
+  "47f9475b462501f96c78b12229ce6322fc18ccca1684c6cd406aad12814947b9": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "481d322d1e136f138919a1c90bc6de7d1335f067957e5ea888012c02309ddca0": {
+    "generated_answer": "The PreToolUse hook blocks direct Write/Edit/MultiEdit on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's blocked and allowed paths exactly match the reference answer."
+  },
+  "491076a15d12bb78e6e194c70f93c0529ef90d69483c8b7795c3c6a6d67deb38": {
+    "generated_answer": "Because the CLI injects frontmatter automatically (never hand-written) \u2014 the LLM writes only the body, and the CLI owns structure (filename, frontmatter, placement, cross-link validation, formatting) while formatting and validating every write before committing.",
+    "judge_correct": true,
+    "judge_reason": "Both answers state the core fact that the CLI automatically injects frontmatter and it should never be hand-written; the candidate omits minor field-specific detail but preserves the substantive answer."
+  },
+  "4965c093dee63fe189f674c2c9020bbc12d52d25666f4d18209c7964bb1219a6": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules, while the reference provides a clear answer (delegated to qmd)."
+  },
+  "4b4f904e7c4b8f5e67ffe331211d599add7f8bc5e4dae4e9b2b090bba9722f73": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate refused to answer while the reference clearly identifies `detectAssetLabel(unameSM)` in `src/platform.ts`, so it is factually incorrect."
+  },
+  "4dc9cd9cff300710f4182c05125419c259b98430a0acffc6e17c829d5cb2c249": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "4e95bd9a263c356595cf3c00bdd41a86b0c3f85506ca5f973f34c907e5231e7b": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) reads the expected version from `plugin.json $.version` \u2014 not from `wiki-cli/package.json` \u2014 because release-please keeps `plugin.json`'s version synced, while `wiki-cli/package.json` is described as independent.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: expected version comes from plugin.json $.version, since release-please syncs it while wiki-cli/package.json is independent."
+  },
+  "50ffd125461e2fe32f475ff9b513c01bb0c4719c1dfba48460c59424b4ebf3a6": {
+    "generated_answer": "The LLM is allowed to hand-edit only `wiki/SCHEMA.md` directly \u2014 it's the self-describing rules document, treated as rules rather than content. All other wiki files (sources/, notes/, index.md, log.md) must go through the Ymir wiki CLI, and direct edits to them are blocked by a PreToolUse hook.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies wiki/SCHEMA.md as the directly hand-editable file, matching the reference's reasoning that it's the rules document rather than content."
+  },
+  "53294f699494f9fcb9eac7e21720a953c920464fd3981983dd415b119e47c03a": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "542fc0a4cf697700520e90545f38125ce65bf85f3f90afc97565fb77c4643484": {
+    "generated_answer": "The SessionStart hook `ensure-wiki-binary.mjs` detects the platform by running `uname -sm`, which is fed into the pure, unit-tested `detectAssetLabel` function in `src/platform.ts` to determine which of the four platform assets (wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, wiki-linux-arm64) to fetch.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's substantive facts\u2014detection via uname -sm fed into detectAssetLabel to select the appropriate platform asset from the same four listed options."
+  },
+  "543ebff7aac9de308ef4bbf03347843095c64069d5e017920018b7156d956b68": {
+    "generated_answer": "The SessionStart hook reads the expected version from `plugin.json $.version`, because release-please keeps that field synced \u2014 whereas `wiki-cli/package.json` is independent and drifts out of sync.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly: expected version comes from plugin.json's $.version, kept synced by release-please, while wiki-cli/package.json drifts."
+  },
+  "5455c7c1e221840be27f2ff7e72d46ddeca6b7a5391568d142c5ee7c395b0834": {
+    "generated_answer": "wiki/SCHEMA.md is the only wiki file the LLM may hand-edit directly \u2014 it's the rules document, not content. All other wiki files (sources/, notes/, index.md, log.md) must go through the Ymir wiki CLI.",
+    "judge_correct": true,
+    "judge_reason": "The candidate identifies wiki/SCHEMA.md as the file allowed to be hand-edited, matching the reference's reasoning that it is the rules document rather than content."
+  },
+  "5478a6c67fce069e27a05772798c8adaf16e29d2ad6b31a7e1a5bfb52b711b85": {
+    "generated_answer": "The pure function is `detectAssetLabel`, defined in `src/platform.ts`, and it takes the output of `uname -sm` (referred to as `unameSM`) as its argument.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies `detectAssetLabel` in `src/platform.ts` taking the `uname -s -m` output (unameSM) as its argument, matching the reference."
+  },
+  "54e8c4049d740d448801b3cd31adb163018542ecc1a36de02f72f104a106312d": {
+    "generated_answer": "That logic lives in SCHEMA.md and the CLI instead \u2014 implementing domain ingest/query/lint logic in Ymir itself is explicitly listed as a non-goal.",
+    "judge_correct": true,
+    "judge_reason": "The candidate conveys the same substantive facts as the reference \u2014 it's an explicit non-goal for Ymir, with the logic living in SCHEMA.md and the CLI."
+  },
+  "5752f33aac571e717e2706243de0cd9052a3677813ab7c2108669898424605e9": {
+    "generated_answer": "The CLI formats then validates every write, rejecting invalid input so the LLM must fix it \u2014 this ensures index and log are updated atomically alongside the write. Additionally, a PreToolUse hook hard-blocks bypassing the CLI via direct edits, ensuring all writes go through this validation path.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the core fact from the reference (format then validate every write, rejecting invalid input so the LLM must fix it) and adds extra consistent details without omitting or contradicting the reference."
+  },
+  "5906037beb13452180697f903394809492f1380ab893ee2c1ceb5c1d2f338fa4": {
+    "generated_answer": "The pure function is `detectAssetLabel`, located in `src/platform.ts`, and it takes the output of `uname -sm` as its argument.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies the function `detectAssetLabel` in `src/platform.ts` taking the `uname -sm` output as its argument, matching the reference."
+  },
+  "590dcdd3c0df9b442711190176bff5deac86f995e938b9a6a8cc5ec3110f6433": {
+    "generated_answer": "`wiki valid`",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference's key fact that the last line printed is \"wiki valid\"."
+  },
+  "59bbfaff5e962ee79b741d6b26b36b90824e954428a57abdc98439021a9d389c": {
+    "generated_answer": "Bun \u2014 the design uses `bun --compile` to build standalone binaries for the wiki CLI.",
+    "judge_correct": true,
+    "judge_reason": "Both identify Bun as the runtime/package manager used for the CLI, matching the reference's core claim."
+  },
+  "5d47650761c63b3e717db6bd5e0b46b9e006b8c59c844213ab531e6a49e1d771": {
+    "generated_answer": "The read side of the harness uses qmd, which relies on hybrid BM25 + vector + LLM-rerank search.",
+    "judge_correct": true,
+    "judge_reason": "The candidate accurately restates the reference's claim that qmd uses hybrid BM25 + vector + LLM-rerank search."
+  },
+  "5fc4909c2aac9896fa69099b2060354062e7bb52c70817d0ef38921f208bf4c8": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading policy."
+  },
+  "60405a9e1d421bebb73eec7f16569910f00e5395f520ce9653d89dac0dab8976": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded with INSUFFICIENT CONTEXT, which per the rules is always incorrect since the reference has a clear answer."
+  },
+  "61726c2de6c14ab9cf5e35f65fafd12f601120685710fcdd5ba6c02a30a707c0": {
+    "generated_answer": "According to the Init Scaffold Contract, on success the last line printed by `wiki init` is `wiki valid`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate states the last line is `wiki valid`, matching the reference exactly."
+  },
+  "61f8d89fcf04d26f22a5c3386fb53f0f857c915d0d850742800e67d40bb7e1b1": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "6239bddb034a18afcb20dc0aa5adbcd1fc433bd64c111854bab148f6efdcedaf": {
+    "generated_answer": "`wiki init` merges a hook entry into `.claude/settings.json` (merge, never clobber) and appends the wiki pointer block to `CLAUDE.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer's key facts almost verbatim."
+  },
+  "635da3c92d694349d3b7869fb0cc0b10741b22c77f953bfbbb10c2cbe987d62f": {
+    "generated_answer": "Yes \u2014 the scaffolding is write-if-missing, meaning re-runs are safe since existing files/folders won't be overwritten. The context does not specify how it confirms success.",
+    "judge_correct": false,
+    "judge_reason": "The candidate correctly notes idempotency but fails to state that success is confirmed by the \"wiki valid\" output, explicitly claiming this isn't specified."
+  },
+  "63d4c63a3ac8c81651c409b17b9b593292d4d759a1b4dde8335646b58ddf5121": {
+    "generated_answer": "The CI `test`-job PR must land first, so the compile job chains: test \u2192 release-please \u2192 compile.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer's substantive claim about merge order (test PR first, then chain test \u2192 release-please \u2192 compile)."
+  },
+  "64415ab28f480cf3a0a8c44e2f1b259f1f06b5cfe8575bec910d1c057e1006cb": {
+    "generated_answer": "`wiki valid`",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer \"wiki valid\" matches the reference answer's key fact exactly."
+  },
+  "645f5f94f865e450c09f8f1b181d6de7bbe1f3dbfbf6970430b9941b38678aa7": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "64d946838456fedf39e7bcba27a09bca7c2e6caec35d86a5c342fbe76edfb5c3": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) reads the expected version from `plugin.json $.version`, not from `wiki-cli/package.json`, because release-please keeps `plugin.json`'s version synced while `wiki-cli/package.json` is independent and drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's core facts\u2014expected version comes from plugin.json $.version, not wiki-cli/package.json, because release-please syncs plugin.json while the other file is independent."
+  },
+  "6538a934e1087fc5faee794625db695e2147c798f54eddab02e64c1dc5d521bc": {
+    "generated_answer": "The wiki design places ingest/query/lint logic in SCHEMA.md and the CLI, not in Ymir itself, because that is explicitly stated as a non-goal: \"Ymir itself does not implement ingest/query/lint logic (that lives in SCHEMA.md + the CLI).\"",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference, stating it's an explicit non-goal for Ymir with logic residing in SCHEMA.md and the CLI."
+  },
+  "656f52c5a0b909da2e93c4cb822739f26402be90797d532444b4c4929cd681b9": {
+    "generated_answer": "The Wiki CLI (`plugins/ymir/wiki-cli`) is the only sanctioned write path for wiki content. Besides writing files, it formats and validates every write, injects frontmatter, rebuilds `index.md`, and appends to `log.md` atomically \u2014 aborting with a nonzero exit and no partial file if validation fails.",
+    "judge_correct": true,
+    "judge_reason": "The candidate identifies the same component and matches all key functions (frontmatter injection, formatting, validation, atomic index/log rebuild) from the reference, with extra consistent detail."
+  },
+  "66fa1177f834ca8bbf591cd9b4051999c84e551028b84322858cd5688a92aed5": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always incorrect since the reference provides a clear answer."
+  },
+  "6b842b43c0ab068717f72e58905ed9ee5f90a7eb82731ee94263a4a14ad351f7": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "6cc544032e80feda050645738b8c3d693689f80718f454f0603b49c33424fe69": {
+    "generated_answer": "Direct edits to sources/, notes/, index.md, and log.md are blocked by a PreToolUse hook \u2014 the LLM never hand-writes or hand-edits wiki documents; all writes must go through the Ymir wiki CLI, which formats and validates every change.",
+    "judge_correct": true,
+    "judge_reason": "Both answers agree that a PreToolUse hook blocks direct Write/Edit/MultiEdit on wiki content paths, matching the core fact in the reference."
+  },
+  "6cda40b4ceafbdc47f998cf422d83ffc890642687de1bce442ba36779989666b": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "6cf087c960ed059403079571a78bd40dca191301a3878a5ea53fd6d917d07b15": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which does not match the reference's clear affirmative answer."
+  },
+  "6d0e5913bae607d42f26cf548aa06be864d24e31535dd577491913ac39b017a1": {
+    "generated_answer": "Wiki templates such as SCHEMA.md, index/log seeds, gitkeep, the hook script, and settings snippet live under `plugins/ymir/templates/` in the plugin.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly, listing the same files under plugins/ymir/templates/."
+  },
+  "6dfc50ce78a2111914d0b94949af5a7608d9d101802e3138cde2923c1116f9a3": {
+    "generated_answer": "A PreToolUse hook hard-blocks direct edits to the wiki (sources/, notes/, index.md, log.md), forcing all writes to go through the Ymir wiki CLI, which owns structure and validates every write.",
+    "judge_correct": true,
+    "judge_reason": "Both answers state the core mechanism\u2014a PreToolUse hook that blocks manual/hand edits to the wiki docs\u2014matching the reference's key fact, with the candidate providing consistent additional detail."
+  },
+  "6f1d68c179c9b818de1ab9c341fe31542d4eb0735817c37031a0c3bc37267ca6": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always incorrect per the grading rules, while the reference provides a specific answer."
+  },
+  "6f5b3a9ae6c773f61ebd233546aed4b4747f9c2b4b26f0ffdadc04350fee84f6": {
+    "generated_answer": "A PreToolUse hook (`.claude/hooks/block-wiki-edits.mjs`) hard-blocks direct Write/Edit/MultiEdit operations on `sources/`, `notes/`, `index.md`, and `log.md`, while allowing `raw/**` and `SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate confirms the key fact\u2014a PreToolUse hook blocks direct edits to those files\u2014matching the reference, with additional consistent detail."
+  },
+  "706393878b3a5f74bcebb0d5ff64fbf6fd71ee18db83363d8445addf30113f0a": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which does not match the reference's substantive fact about a PreToolUse hook blocking edits."
+  },
+  "70a93e9b62fec082048ed0efe4fd17498f7287f19ac2fb34da4ee158d53f1a6e": {
+    "generated_answer": "The Wiki CLI runs format then validate on every write command before committing \u2014 if this fails, it aborts with a nonzero exit and an actionable message, leaving no partial file. On success, it atomically rebuilds the index and appends to the log. Frontmatter is injected by the CLI itself rather than hand-written.",
+    "judge_correct": true,
+    "judge_reason": "Both answers agree on the core mechanism\u2014format then validate before commit, rejecting/aborting invalid writes\u2014matching the reference's key fact, with the candidate adding consistent extra detail."
+  },
+  "70faa459b3bc84fad5a25afaa1e12b6df5dca6a920ab60d2e20c88dae6df7e43": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "74aa8d70c5025b52a68cb4eefe104c8666176de40da7db3defca6a15d17e912b": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "7573a4fb1cb7db87ccbe69e6d010f15ac0935f00d3f7f25bc128727338d4c9f6": {
+    "generated_answer": "Because the user does not hand-write code, so the stack cannot be inferred from files \u2014 the interview asks Language and Layer (one decision at a time, only what the action needs) instead.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the same core fact as the reference\u2014stack can't be inferred because the user doesn't hand-write code\u2014matching the substantive claim."
+  },
+  "75a9af233eeee7b27b362b671b58833a06e85f799a495a37bac53de70b18ec41": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "76a6abd8bf33d14ebba200d7e03800e4776d36161b86d30ee0c4d1e7871cbea6": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading policy."
+  },
+  "7a99d51d709f3765ff16310579ff6bfcf0b5b7400972b2c57c22773bc82b5ca7": {
+    "generated_answer": "The SessionStart hook reads the expected version from `plugin.json`'s `$.version` field, not from `wiki-cli/package.json`, because release-please keeps `plugin.json` synced while `wiki-cli/package.json` drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly on both the source field and the reason (release-please syncs plugin.json while wiki-cli/package.json drifts)."
+  },
+  "7abdbb78ba4aba88fd35e2e7e704e00ed49b4ffb3872f52ba50e5ebeeb70025c": {
+    "generated_answer": "Because frontmatter is injected by the CLI \u2014 never hand-written. All writes go through the Ymir wiki CLI, which formats and validates every change, and direct edits to these files are blocked by a PreToolUse hook.",
+    "judge_correct": true,
+    "judge_reason": "Both answers convey the core reason\u2014the CLI automatically injects frontmatter, so it should never be hand-written\u2014matching the reference's main claim."
+  },
+  "7aeb9d6f1b894e60570bad0c92c20b9c71da99709e7e3e889a3e1c626e537e34": {
+    "generated_answer": "The wiki CLI relies on commander (parsing/help), a js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four libraries (commander, js-yaml frontmatter module, remark, zod) matching the reference."
+  },
+  "7e1f61e06d388af9c6c1524277f306c86e3eafcbe655dba0d885768b6ebc56f7": {
+    "generated_answer": "The one-time setup step is running `qmd collection add ./wiki --name <project>-wiki` to build the BM25 index \u2014 search is lightweight and keyword-only (no `qmd embed`, no embeddings, no local LLM).",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly on the setup command and the BM25 keyword-only indexing technique with no embeddings/local LLM."
+  },
+  "7f01ec3ea58f378002bfd5ca123650ec6eb17d0875dc462740322f2dc05b97e4": {
+    "generated_answer": "The SessionStart hook (`hooks/ensure-wiki-binary.mjs`) uses `detectAssetLabel(unameSM)`, a pure function defined in `src/platform.ts`, to determine the platform asset label from `uname -s -m` output, then downloads and SHA256-verifies the matching binary on first use or version change.",
+    "judge_correct": true,
+    "judge_reason": "Candidate matches the reference's core claim that detectAssetLabel (based on uname -sm) determines the platform-specific binary asset to fetch."
+  },
+  "81510cfedbfc30fab949e2c42b647d93d8ffd5e3df2a3b8d152e7f207498f675": {
+    "generated_answer": "The Wiki CLI (the bundled TS/Node CLI) is the only sanctioned write path for wiki content. Besides writing files, it runs `fmt` and then `validate` on every write before committing the change.",
+    "judge_correct": false,
+    "judge_reason": "The candidate only mentions formatting and validating, omitting the reference's key facts about injecting frontmatter and atomically rebuilding the index/log."
+  },
+  "821c46f02ce77ca5f835ee2aeb326f1cd751cfd40cd9e3d440e8be8c0e84446f": {
+    "generated_answer": "`wiki --root ./wiki init`",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies the exact CLI call requested, matching the core fact in the reference answer."
+  },
+  "82a58c11b5edccfc5021eff29bbc091cb2d0deaf1c5b022f23ea485ffdd13aa6": {
+    "generated_answer": "Based on the snippet, the socratic interview piece and other pieces (lint, CI, and a \"ru...\" item, cut off in the context) are still stubbed as of v0.2.0 \u2014 only the wiki/context harness piece is stated as implemented.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies socratic interview, lint, CI, and rules (partially cut off as \"ru...\") as still stubbed, matching the reference."
+  },
+  "8358e068be3cd8d5c98a8d890610bbea4a02454c19504ac580e9a5728f296a50": {
+    "generated_answer": "A PreToolUse hook (`.claude/hooks/block-wiki-edits.mjs`, merged into `.claude/settings.json`) blocks direct Write/Edit/MultiEdit operations on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies the core mechanism (a PreToolUse hook blocking direct edits to those files), matching the reference, with additional consistent detail."
+  },
+  "83926754bb23df5958b52468101f7974128d6eac6f006dd31099c10d158023ba": {
+    "generated_answer": "The hook writes a loud stderr error and exits non-zero \u2014 there is no fallback (no `node dist/cli.js` path).",
+    "judge_correct": true,
+    "judge_reason": "The candidate states the same facts as the reference\u2014loud stderr error, non-zero exit, and no fallback to a node dist/cli.js path."
+  },
+  "83ae32d78163bea79e2aa4d5c023ea525136378aab1533244ba022d2f1995f9d": {
+    "generated_answer": "The `wiki/raw/` directory holds immutable source documents that the LLM reads but never edits; the user drops files here.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies wiki/raw/ as the immutable source directory, matching the reference, with an added consistent detail."
+  },
+  "84879abfb4ec916e66d134ac9a4c95b34f01df62a1cb68ce3eb0788e62a5c226": {
+    "generated_answer": "The Wiki CLI guarantees this by running format (`fmt`) then validate on every write command before committing \u2014 on failure it aborts with a nonzero exit and an actionable message, leaving no partial file; on success it rebuilds the index and appends the log atomically.",
+    "judge_correct": true,
+    "judge_reason": "Candidate captures the core fact from the reference (fmt then validate run before commit, invalid input rejected/aborted) with additional plausible detail that doesn't contradict it."
+  },
+  "85ceff5865c0609638757b49de539ead6ed0c1fe358af7a37a6dd2fe23709faa": {
+    "generated_answer": "It merges a hook entry into `.claude/settings.json` (merge, never clobber) and appends the wiki pointer block to `CLAUDE.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer nearly verbatim in substance."
+  },
+  "872c9ba3a076bffcf0c189a59c2c0cde1808dc7376cbb391821d31fa1dbd3376": {
+    "generated_answer": "index-build.ts rebuilds index.md, and wikilog.ts appends to log.md.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance."
+  },
+  "8783e5b4cd0d58576088881e63068efde0a3c07e736064c93c0138c5f7330bd1": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules, since the reference provides a clear answer."
+  },
+  "87aedfd3357276c47cee95125391022a21dc1d59d34ff3e709dcc07adacf1639": {
+    "generated_answer": "The CI compile job produces four platform binaries (wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, wiki-linux-arm64), built using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: four platform binaries built with `bun --compile`."
+  },
+  "8870cf47b6d79d8e9bac784f7cb646a1b8d4d531715bf13d5678f745ca2176d6": {
+    "generated_answer": "Based on the context, `wiki/SCHEMA.md` is the only wiki file the LLM may hand-edit directly \u2014 it is treated as rules, not content, and is exempt from the PreToolUse hook that blocks direct edits to `sources/`, `notes/`, `index.md`, and `log.md`.",
+    "judge_correct": true,
+    "judge_reason": "Candidate matches the reference, identifying wiki/SCHEMA.md as the file allowed for direct hand-editing since it's rules rather than content."
+  },
+  "88c084ec6622733174e365693a7949852885ea2e7269914b80eae910517c4611": {
+    "generated_answer": "The wiki templates (SCHEMA.md, index/log seeds, gitkeep, hook script, and settings snippet) live under `plugins/ymir/templates/`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly, listing the same files located under plugins/ymir/templates/."
+  },
+  "8a5f1eaa82929fe6e2d55762f4467fd81822d9012dc87085b3d826bb1c06aef1": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent (write-if-missing, so re-runs are safe). On success its last line is `wiki valid`, confirming success; if it errors, the caller stops and reports.",
+    "judge_correct": true,
+    "judge_reason": "The candidate confirms idempotency and that success is indicated by the final output line \"wiki valid,\" matching the reference."
+  },
+  "8aa58b7858a746607ff996a3d738e1e0fa6c9a0956af3cd693041f968e2e85ab": {
+    "generated_answer": "Because frontmatter is injected by the CLI, never hand-written \u2014 the common title/... fields are automatically generated by the write commands as part of their format-then-validate process.",
+    "judge_correct": true,
+    "judge_reason": "Both state frontmatter is injected by the CLI rather than hand-written, which is the core fact requested regarding title/type/date/tags fields."
+  },
+  "8b339c45635a063f8d9197a267825f9ab497511924c316cf76b7e8f76fb494fc": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules, while the reference provides a specific answer."
+  },
+  "8b487a7856adeaf17a8b6a1921581ea7432f5909373c2fae568367665fb742f3": {
+    "generated_answer": "wiki/raw/ holds the immutable source documents that the LLM reads but never edits.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer exactly in substance, identifying wiki/raw/ as the directory."
+  },
+  "8b611c0da590fc60b7c4e5537d09a47bcf028854f36c78f3b6e40cdff3d873d4": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "8b844e40b26724c08875f7f8c2246288089758ebd5bd96912a6defa6c2f52e62": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules, since the reference provides a clear answer."
+  },
+  "8d058ccf0777b7e4221c4a138c84ffd7ecdc76d4ce25dcb5e6cb2097b0c76cac": {
+    "generated_answer": "Yes, `wiki init` is idempotent and write-if-missing, so re-runs are safe. It confirms success because its last line of output is `wiki valid`; if it errors instead, the caller stops and reports the error.",
+    "judge_correct": true,
+    "judge_reason": "Candidate confirms idempotency (safe to rerun) and states success is confirmed by final output \"wiki valid\", matching the reference."
+  },
+  "8dbdd73735540c5c92bbb403e9bd44f2164ad444621295d23c380c3bbe06d461": {
+    "generated_answer": "Based on the plan, the SessionStart hook (`hooks/ensure-wiki-binary.mjs`) exits non-zero on any failure \u2014 it fails loud with no fallback, rather than proceeding without a verified binary.",
+    "judge_correct": true,
+    "judge_reason": "The candidate states the hook exits non-zero on any failure with no fallback, matching the reference exactly."
+  },
+  "8e34b34982c671757bc07902af733ba5e4d3e4c6888722c7381a8249e79dc7ba": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) reads the expected version from `plugin.json`'s `$.version` field, rather than `wiki-cli/package.json`, because release-please keeps `plugin.json` synced while `wiki-cli/package.json` is independent (not kept in sync).",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly states the version is read from plugin.json's $.version field and explains it's because release-please keeps it synced while wiki-cli/package.json is not, matching the reference."
+  },
+  "8fcc29585b50ac14e8927bdb55607026e00e23f2c2fdf9086b026973f5049a24": {
+    "generated_answer": "`wiki valid`",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference exactly."
+  },
+  "90ddb41497c3bc3aa962961030fe75a38ef5553045dad8ab2aa474c79958190c": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "91ab204b6c0f2e406db9912c1553b90f7d9ada04863740b1da9b613dd827eb38": {
+    "generated_answer": "wiki/raw/",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer \"wiki/raw/\" matches the reference answer exactly."
+  },
+  "93352783e137456ec6a9b22b727437609100360f7c65df0ee1540c5acd0027c4": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules, while the reference provides a specific factual answer."
+  },
+  "93b748ab83ff1ddb0ab5178e651bc998bc0eff5280a01f325fc7fcbff85b621c": {
+    "generated_answer": "The two enforcement layers are: (1) the CLI, which formats then validates every write and rejects invalid input so the LLM must fix it, and (2) a PreToolUse hook that hard-blocks any direct Write/Edit/MultiEdit on wiki content paths.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference's two mechanisms (CLI validation/rejection and PreToolUse hook blocking direct writes) with identical substance."
+  },
+  "93e194501e8d55c9a387ebf8cfc53b634254118435fae4820c1c19b0c9625c07": {
+    "generated_answer": "The four commands to try Ymir locally are: `/plugin marketplace add ./`, `/plugin install ymir@ymir`, `/reload-plugins`, and `/ymir init for this project`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the exact same four commands in the same order as the reference answer."
+  },
+  "93e23d1857b657fd9751b9a5fe11b32ce5b8c95e610944327f87208d7b08c69e": {
+    "generated_answer": "As of v0.2.0, the still-stubbed pieces are: the socratic interview, lint, CI, and rules (only the wiki/context harness piece via `/ymir add context` is implemented).",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same stubbed pieces (socratic interview, lint, CI, rules) as the reference, matching the substantive fact."
+  },
+  "97bfca30006c9c208e128bec916ab26adcb538cfe4513ee2c01b8229256cc216": {
+    "generated_answer": "A PreToolUse hook (`.claude/hooks/block-wiki-edits.mjs`) hard-blocks direct Write/Edit/MultiEdit operations on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "Candidate confirms the same core mechanism (a PreToolUse hook blocking direct edits to those files) with additional consistent detail."
+  },
+  "989eb0f050de7028fe322cbd1358f1d826a86327d1220000dd70a436766dda5f": {
+    "generated_answer": "Ymir installs a PreToolUse hook (`block-wiki-edits.mjs`, merged into settings.json) that hard-blocks any direct Write/Edit/MultiEdit on wiki content paths \u2014 specifically `sources/`, `notes/`, `index.md`, and `log.md` \u2014 while still allowing edits to `raw/**` and `SCHEMA.md`. This forces all wiki writes to go through the wiki CLI, which formats and validates changes before committing them.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly states Ymir installs a PreToolUse hook blocking manual edits to wiki docs, matching the reference, with additional consistent detail."
+  },
+  "98b9d6e62e8300373919cafb1d4581364f2aef2983452d98024699a5db3bb4d4": {
+    "generated_answer": "The wiki CLI relies on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four libraries with matching roles as the reference answer."
+  },
+  "9a49d5e2c3ca6df5ab01bc7e29f8b91f4a3a883db596c58ef53d97e827a13ca3": {
+    "generated_answer": "Based on the Ymir README: `/plugin marketplace add ./`, `/plugin install ymir@ymir`, `/reload-plugins`, then `/ymir init for this project`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the exact same four commands in the same order as the reference."
+  },
+  "9b1c090a96e261ea84e42133c42ea495b5a4878d295930ac41897aa7e594868c": {
+    "generated_answer": "If the SessionStart hook cannot download/verify the binary, it writes a loud stderr error and exits non-zero (fail fast, no fallback).",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: loud stderr error, exit non-zero, no fallback."
+  },
+  "9be40ef7a6df74cceb936de13b345da3c0a60b1e81d6804df1f8f5aab389ac42": {
+    "generated_answer": "qmd handles read/search access to the wiki.",
+    "judge_correct": true,
+    "judge_reason": "Both answers state that read/search access to the wiki is delegated to/handled by qmd, matching in substance."
+  },
+  "9ddd8b3d8edb001176b70a5dbdeff0c286c831b97fe7c99d7657cdefe4ccaeee": {
+    "generated_answer": "The PreToolUse hook `.claude/hooks/block-wiki-edits.mjs`, installed by the Init Scaffold Contract, prevents direct edits to these wiki files.",
+    "judge_correct": true,
+    "judge_reason": "Candidate correctly identifies a PreToolUse hook as the blocking mechanism, matching the reference, with added consistent detail."
+  },
+  "9e4c31e7a1c4e6e96f887a8a657a742f96dac0308e1370cbd2b352d2d6b75f6f": {
+    "generated_answer": "As of v0.2.0, the still-stubbed pieces are: the Socratic interview, lint, CI, and rules. Only the wiki/context harness piece has been implemented.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same stubbed pieces (Socratic interview, lint, CI, rules) matching the reference, with an added detail about wiki/context that doesn't contradict it."
+  },
+  "a11df9e34e29ce6d2597c07ccea2c65e360ad62bdb8ecc7206dc2ec7c53f4d12": {
+    "generated_answer": "A PreToolUse hook (`block-wiki-edits.mjs`, merged into settings.json) hard-blocks direct edits by denying Write/Edit/MultiEdit on sources/, notes/, index.md, and log.md, while allowing raw/** and SCHEMA.md.",
+    "judge_correct": true,
+    "judge_reason": "The candidate confirms a PreToolUse hook blocks direct edits to those files, matching the reference, with extra consistent detail."
+  },
+  "a14666934c9e361d84c100e8f73cfb220adc01dc3ee4c4a614ac5a21d9aff726": {
+    "generated_answer": "Because the user does not hand-write code, so the stack cannot be inferred from the project files \u2014 the interview must instead ask about Language and Layer one decision at a time.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the core reason (user doesn't hand-write code, so stack can't be inferred from files) matching the reference, with the AskUserQuestion detail being a minor omission that doesn't change the substantive fact."
+  },
+  "a271007482081af6776302bd57995739a34abaa10acac8d981d5fae0225ddc53": {
+    "generated_answer": "Based on the context, the SessionStart hook (`hooks/ensure-wiki-binary.mjs`) exits non-zero on any failure \u2014 the architecture is described as \"fail loud\" with no fallback.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly: exits non-zero on failure, fail loud, no fallback."
+  },
+  "a5e4f4e55c698ae37081bb467f8f331b592dff8e57773924c6f7c6bb7386799e": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent and write-if-missing, so re-runs are safe.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance, stating that `wiki init` is idempotent and write-if-missing, making re-runs safe."
+  },
+  "a6a3e44a16d61c7736a3cf82c83aa5af9459ea674e1207251ae62b352a11a18f": {
+    "generated_answer": "The CI compile job produces four bun --compile targets: wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, and wiki-linux-arm64. They are built using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four binaries and correctly identifies bun --compile as the build tool, matching the reference."
+  },
+  "a97ca73223dabf4050fdb11228692e2a4303b2d7b1237d2d733552e259df98ce": {
+    "generated_answer": "The SessionStart hook `ensure-wiki-binary.mjs` reads the expected version from `plugin.json $.version`, because release-please keeps that field synced \u2014 whereas the independent `wiki-cli/package.json` version drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: it reads from plugin.json's version field because release-please syncs that field, unlike the independent wiki-cli/package.json."
+  },
+  "aba1e28d85215b8b4e9c4f2a3fe064f92daafee90c1daa277839884094406ef2": {
+    "generated_answer": "The hook denies direct Write/Edit/MultiEdit on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same blocked paths (sources/, notes/, index.md, log.md) and allowed paths (raw/**, SCHEMA.md) as the reference, just with an added \"wiki/\" prefix that doesn't change the substantive match."
+  },
+  "ac6d9018465304eae062c5753f998716bc3048afda6a0c65efbe19bdca0243ee": {
+    "generated_answer": "`wiki --root ./wiki init`",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies the exact CLI call (`wiki --root ./wiki init`) requested by the question, matching the core fact in the reference."
+  },
+  "add5155b515c8694020534baf98842f1dda88e6fee25e84b0d365f6737b0ff0e": {
+    "generated_answer": "Try Ymir locally via: `/plugin marketplace add ./`, `/plugin install ymir@ymir`, `/reload-plugins`, then `/ymir init for this project`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the exact same four commands as the reference answer."
+  },
+  "af1173865ce4e0c930984c6560161de8a533d02750071a013aff9f5d987b01eb": {
+    "generated_answer": "The SessionStart hook reads the expected version from `plugin.json $.version`, not from `wiki-cli/package.json`, because release-please keeps `plugin.json`'s version synced while `wiki-cli/package.json` drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly, stating plugin.json's $.version is used because release-please keeps it synced while wiki-cli/package.json drifts."
+  },
+  "af921cdc5434a46b7ee81871f8cbc33f5db26bdbe7a3e8815b30a48e9c352423": {
+    "generated_answer": "The two enforcement mechanisms are: (1) the CLI, which formats then validates every write and rejects invalid input so the LLM must fix it, and (2) a PreToolUse hook that hard-blocks any direct Write/Edit/MultiEdit on wiki content paths.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches both mechanisms in the reference: the validating/rejecting CLI and the PreToolUse hook blocking direct Write/Edit/MultiEdit on wiki paths."
+  },
+  "b2ee026924ec67c326a2ff178549892eaccc18e8b8fb77969b013fe662cfd906": {
+    "generated_answer": "The CLI injects frontmatter automatically (never hand-written) \u2014 this is a core invariant: the LLM never hand-writes or hand-edits wiki documents, and all writes go through the Ymir wiki CLI, which formats and validates every change before committing.",
+    "judge_correct": true,
+    "judge_reason": "Both answers state the core fact that frontmatter is injected by the CLI and never hand-written, matching the reference's key claim."
+  },
+  "b878d3c5256379c3f89e163f92b60a8deef931e7a86a34af0c6434a99f7e6fc5": {
+    "generated_answer": "To try Ymir out locally: `/plugin marketplace add ./`, `/plugin install ymir@ymir`, `/reload-plugins`, then `/ymir init for this project`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the exact same four commands in the same order as the reference."
+  },
+  "ba71433b4950c73197686698ff875d72dd1a0b6fc2dc4a203143f02986bff2e7": {
+    "generated_answer": "The SessionStart hook `ensure-wiki-binary.mjs` reads the expected version from `plugin.json $.version`, not `wiki-cli/package.json`, because release-please keeps `plugin.json` synced while `wiki-cli/package.json` is independent and drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: expected version comes from plugin.json's version field, avoided package.json because release-please keeps plugin.json synced while package.json drifts."
+  },
+  "bbb6a0234a4338c867d565fb20b4e3290321913f6eeb8cdbc070bbd7b38619a5": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always incorrect since the reference provides a clear answer."
+  },
+  "bbb9c36f6b6f69cbc09a3af52dd49e39ac14df43313840e648dbfa6b0d1d7b05": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules, since the reference provides a specific answer."
+  },
+  "bbbc60a7c81f068251d21c7d77b0d1e3d224b8c55e6f12d17e4f2d80eb25b913": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which does not match the reference's substantive fact about a PreToolUse hook blocking hand-edits."
+  },
+  "bd54d314a0f7387294a8c74379b404682176c187f43b1c6ddd0db5dd1427aa5d": {
+    "generated_answer": "Ymir doesn't generate application code because it only scaffolds the project harness (rules, lint, CI lint, wiki/context, CLAUDE.md/AGENT.md) \u2014 it interviews the user about their techstack and builds the skeleton, then the user drives real development through Claude Code, steered by that harness.",
+    "judge_correct": true,
+    "judge_reason": "The candidate conveys the same key facts as the reference \u2014 Ymir only interviews about techstack and builds the skeleton harness, leaving actual development to the user via Claude Code steered by that harness."
+  },
+  "bf1932b664865a2226fd4018d8b00c6ce7b31b95506ec55dfefffd453cceda23": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) reads the expected version from `plugin.json`'s `$.version` field, not from `wiki-cli/package.json`, because release-please keeps `plugin.json` in sync while `wiki-cli/package.json` drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly states the hook reads the version from plugin.json's $.version field (kept in sync by release-please) instead of wiki-cli/package.json, matching the reference."
+  },
+  "bf93fde6a38d9fda630879d8692facd09bc38da31616d671caf56226dfa2ef72": {
+    "generated_answer": "A PreToolUse hook (`block-wiki-edits.mjs` merged into settings.json) hard-blocks Write/Edit/MultiEdit on sources/, notes/, index.md, and log.md, while allowing raw/** and SCHEMA.md.",
+    "judge_correct": true,
+    "judge_reason": "Both answers identify a PreToolUse hook as the mechanism blocking direct edits to those files, matching the reference's core claim."
+  },
+  "c00cfcab4c870216a18359a33bd16525522123d873f09031f293afdf7425ecad": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules, while the reference provides a specific merge order."
+  },
+  "c3a3446bd823307e99a1319c02c450176223506be5fb6564026cb95b127e7053": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent and write-if-missing, so re-runs are safe. It confirms success by ending its output with `wiki valid` on success (and stopping/reporting if it errors), and it also reports created/skipped paths plus whether settings were merged and the CLAUDE.md block appended.",
+    "judge_correct": true,
+    "judge_reason": "Candidate matches the reference's key facts (idempotent, ends with \"wiki valid\") and adds extra plausible detail without contradicting the reference."
+  },
+  "c3c07c7aa83c93173a6e44c813ac45112f9b5f7ba8083a6ba147de2d435c3176": {
+    "generated_answer": "wiki/SCHEMA.md is the only wiki file the LLM may hand-edit directly (it is treated as rules/instructions, not content). All other wiki content \u2014 sources/, notes/, index.md, and log.md \u2014 must go through the Ymir wiki CLI and is blocked from direct edits by a PreToolUse hook.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies wiki/SCHEMA.md as the sole hand-editable file, matching the reference's core claim, with consistent reasoning."
+  },
+  "c51464032469bba9b719d08606b7336206171768df82bd458fc35c2ff5489ee7": {
+    "generated_answer": "Based on the context: `sources/` contains one-per-document summaries (one CLI-written summary page per ingested source), while `notes/` contains entity/concept/topic synthesis pages \u2014 i.e., synthesized knowledge across sources rather than a per-document summary.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference's key distinction\u2014sources/ for one-per-document summaries and notes/ for entity/concept/topic synthesis."
+  },
+  "c6255903b10dcd48b3825ac67f30df58c9689ecb35df3735086f8293a28778ba": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "c75fce7ad94e749b3e8ac3d8922bc37414401738183ff946ed3cf08721463d86": {
+    "generated_answer": "`wiki/raw/` holds the immutable source documents that the LLM reads but never edits; the user drops files there.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly (wiki/raw/) with an added consistent detail about the user dropping files there."
+  },
+  "c7a5948be8d570354dd261d8c792eb41b22c152ddef78cf671a71de3dbc8220b": {
+    "generated_answer": "Ymir doesn't generate application code because its purpose is only to scaffold the mandatory project harness (rules, lint, CI lint, wiki/context, CLAUDE.md/AGENT.md). Instead, it interviews the user about their techstack and builds the skeleton, after which the user drives real development through Claude Code, steered by that harness.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the reference's core claim\u2014Ymir interviews the user about techstack and builds the skeleton harness, leaving development to the user via Claude Code\u2014with added consistent detail."
+  },
+  "c8422e726e647a429ba4b82be8dc4c9ccf896816810f1fd5ceef244bd142aae6": {
+    "generated_answer": "index-build.ts rebuilds the index.md, and wikilog.ts appends to the log.md.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance."
+  },
+  "c884fbedbcbbf9ebb966c7e8ccb0957429ea7e235e9ef708a620a491dd4bb808": {
+    "generated_answer": "The Wiki CLI (`plugins/ymir/wiki-cli`) is the only sanctioned write path for wiki content. Besides writing files, it injects frontmatter, formats (via remark) and validates (frontmatter schema, broken links, orphan notes) every write before committing, aborting with a nonzero exit and no partial file on failure, and rebuilds `index.md` and appends to `log.md` atomically on success.",
+    "judge_correct": true,
+    "judge_reason": "The candidate identifies the same component and matches all key functions described in the reference (frontmatter injection, formatting, validation, atomic index/log rebuild), with additional consistent detail."
+  },
+  "c88f8fe76648849f544bbcd339af08aecf3a28fc84b9dad54cc9ac4969f0751c": {
+    "generated_answer": "Because the user does not hand-write code, so the stack cannot be inferred from files.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the key fact (user doesn't hand-write code, so stack can't be inferred from files), only omitting the additional detail about the AskUserQuestion mechanism, which is not a core substantive claim."
+  },
+  "c8f83f20d03a5f2c80bb8b69eff4c7cc4b62880e4b6459ecb024bc942b024ead": {
+    "generated_answer": "Based on the Init Scaffold Contract, `wiki init` merges a hook entry into `.claude/settings.json` (merge, never clobber) and appends the wiki pointer block to `CLAUDE.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly, stating it merges (never clobbers) a hook entry into settings.json and appends the wiki pointer block to CLAUDE.md."
+  },
+  "ca21925d0fc836b136f781547b455942aa482de859b3af7b3ff5ebdbe5ea6cbb": {
+    "generated_answer": "Within the Wiki layer, `sources/` are one-per-document summaries (one CLI-written summary page per ingested source), while `notes/` are entity/concept/topic synthesis pages that combine/synthesize information rather than summarizing a single source.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: sources/ = one-per-document summaries, notes/ = entity/concept/topic synthesis, with only elaborative additions."
+  },
+  "ca835cffffb594ce2e8ef1d5a3d41076f328f236b06231005471ff0163fba70b": {
+    "generated_answer": "Based on the design spec: the SessionStart hook is designed to \"fail fast, no fallback\" \u2014 if the sha256 verification fails or the network request/download fails, the hook writes a loud stderr error and exits non-zero. There is no fallback path (e.g., to `node dist/cli.js`).",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's key facts: fail-fast design, error output, and non-zero exit with no fallback."
+  },
+  "cc59d8abef7e9536a5cb44018a9015eab0ea33d6d6dfbf7f789e248ec399c5cf": {
+    "generated_answer": "Direct edits to sources/, notes/, index.md, and log.md are blocked by a PreToolUse hook, since the LLM must never hand-write or hand-edit wiki documents \u2014 all writes must go through the Ymir wiki CLI, which formats and validates every change.",
+    "judge_correct": true,
+    "judge_reason": "Both state a PreToolUse hook blocks direct Write/Edit/MultiEdit on wiki content paths, which matches the core mechanism described in the reference."
+  },
+  "cc7d53a69d751a7bbcf0f0888e8560e7450e7cd6461f5946981689a7e742eb30": {
+    "generated_answer": "The Wiki CLI guarantees well-formed writes because every write command runs format (`fmt`) then validate before committing \u2014 on failure it aborts with a nonzero exit and an actionable message, leaving no partial file, and only rebuilds the index and appends the log atomically on success.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the core fact\u2014every write runs fmt then validate before committing, rejecting invalid input\u2014matching the reference, with extra consistent detail."
+  },
+  "cdd5d3d7b15677b84ae429f452794a60f0ee6c3a17bb2e286f44ffd185c1ce9c": {
+    "generated_answer": "Direct edits to sources/, notes/, index.md, and log.md are blocked by a PreToolUse hook. The LLM never hand-writes or hand-edits wiki documents; all writes must go through the Ymir wiki CLI, which formats and validates every change.",
+    "judge_correct": true,
+    "judge_reason": "Both answers state that a PreToolUse hook blocks direct Write/Edit operations on wiki content paths, matching the core mechanism described in the reference."
+  },
+  "d0f881ebe095dc88cde56cfd390d2a2c6febd8dfaed1551bec7030fac4271089": {
+    "generated_answer": "The SessionStart hook (`ensure-wiki-binary.mjs`) detects the platform by running `uname -sm`, which is processed through a pure, unit-tested function called `detectAssetLabel` in `src/platform.ts`.",
+    "judge_correct": false,
+    "judge_reason": "The candidate explains platform detection via uname -sm and detectAssetLabel but omits the key fact that it selects a matching GitHub Release asset (e.g., wiki-darwin-arm64, wiki-linux-x64, etc.), which is central to how the binary to fetch is determined."
+  },
+  "d10993bf58017410292b500ba17a599a744c59cec090089c75cc9068534f4c45": {
+    "generated_answer": "index-build.ts rebuilds index.md, and wikilog.ts appends to log.md.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance, just with a comma added."
+  },
+  "d14e2e3e361db664bedd96b11483a01c8a2eba897c42b40646df863d19cfbcb7": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which per the rules is always considered incorrect since the reference provides a definite answer."
+  },
+  "d2076696eed6940bf674c37892f75d3ae4959eaf066a1cb64217422b4fe7501d": {
+    "generated_answer": "Because frontmatter is injected by the CLI \u2014 it is never hand-written; all writes go through the Ymir wiki CLI, which formats and validates every change (and direct edits are blocked by a PreToolUse hook).",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly captures the core fact that frontmatter is CLI-injected and never hand-written, matching the reference's key claim, with additional plausible detail not contradicting it."
+  },
+  "d24d25def11dd8ce9b67022bf660822ca0de50e741c2d6c77461badcde799fb2": {
+    "generated_answer": "Based on the wiki schema: **sources/** contains one CLI-written summary page per ingested source document (a 1:1 mapping to raw files), while **notes/** contains CLI-written entity/concept/topic synthesis pages \u2014 i.e., higher-level synthesis that draws across multiple sources rather than summarizing a single one.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the same core distinction as the reference\u2014sources/ holds one-per-document summaries, notes/ holds entity/concept/topic synthesis\u2014with added consistent detail."
+  },
+  "d2dff3553548ef48f0f9bf86912f6f0d02d8a5594e72552ce1a894a2215f04c1": {
+    "generated_answer": "The wiki CLI relies on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer exactly, listing the same four libraries with the same purposes."
+  },
+  "d31caa5fb430128c3bef43f8f4046beadc19d10fb87ebd380c3444c6ffec4e34": {
+    "generated_answer": "The CI compile job builds four `bun --compile` targets: wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, and wiki-linux-arm64.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four binaries and correctly identifies bun --compile as the tool, matching the reference."
+  },
+  "d3c573cb1ea4ecdc17864152c9cfeec0772a53afc0e13a4bffb13579efd2a3c4": {
+    "generated_answer": "The hook denies direct Write/Edit/MultiEdit on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same blocked (sources/, notes/, index.md, log.md) and allowed (raw/**, SCHEMA.md) paths as the reference, just with a \"wiki/\" prefix that doesn't contradict the substance."
+  },
+  "d4bd41dfaa7d227671fa41d3e7d52de501c1bdad798044bb6c119774fb05d990": {
+    "generated_answer": "The `wiki/raw/` directory holds immutable source documents that the LLM can read but is never allowed to edit \u2014 the user drops files here.",
+    "judge_correct": true,
+    "judge_reason": "The candidate identifies wiki/raw/ as the immutable, read-only source directory, matching the reference exactly, with an added plausible detail not contradicting it."
+  },
+  "d4d435cc4c87b4ed55802f17302cbe29fe803eb21af41df896dec0e83d073e4c": {
+    "generated_answer": "The CI compile job produces four platform binaries (wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, wiki-linux-arm64), built using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "Candidate matches the reference: four platform binaries built with `bun --compile`, with additional consistent detail."
+  },
+  "d561a80aff6e98540c26b700a3fb1b3c7cb6847e72192377b56028f70003baf3": {
+    "generated_answer": "sources/ contains one-per-document summaries, while notes/ contains entity/concept/topic synthesis.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer is identical to the reference answer."
+  },
+  "d62f4708b838bad78d88b79968b0ba6db9548ec5a1a1b6e2eadb46672afc3603": {
+    "generated_answer": "The bundled TS/Node Wiki CLI is the only sanctioned write path for wiki content. Besides writing files, it runs `fmt` then `validate` before committing every write.",
+    "judge_correct": false,
+    "judge_reason": "The candidate omits key facts from the reference\u2014frontmatter injection, file placement, and atomic index/log rebuilding\u2014mentioning only fmt and validate."
+  },
+  "d66c7da2ba1c692bdbff063eda6e33c5fe7685413e133c99de41a59a1f306e65": {
+    "generated_answer": "Based on the CLI module layout, `index-build.ts` is used to rebuild the index.md file, and `wikilog.ts` is used to append to the log.md file.",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference exactly in substance: index-build.ts rebuilds index.md and wikilog.ts appends to log.md."
+  },
+  "d881784ca1fe4ac56db9793a0ed2d4d227e2e2f93cab825835b9fa174c769723": {
+    "generated_answer": "Based on the context, `ensure-wiki-binary.mjs` skips reinstalling only if the binary already exists and matches the current version\u2014it re-downloads and sha256-verifies on first use or when the version changes.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the same core check\u2014binary exists and version matches expected/current version\u2014consistent with the reference."
+  },
+  "da4be2ca228c7dc0ef7a5ad830dec529706b19f997e65e31b638760b67e1deba": {
+    "generated_answer": "The hook checks whether `bin/wiki` exists and `bin/.version` matches the expected version (read from `plugin.json $.version`); if both match, it no-ops instead of reinstalling.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's key fact\u2014checking existence of bin/wiki and matching bin/.version to skip reinstalling\u2014with an added consistent detail about the version source."
+  },
+  "da7e8e86cc9c571b289acc741abf50c0d4b1abe25364d5a9a7903d647deef957": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "da88a0df7d74aac98062010832f46774956e58d5c92d544e8bcff157a00af243": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the instructions."
+  },
+  "db69dbe4421badb5bef8745c4d91ac6b0c16a04a9deb232c5dd3fe9a0d62d8f8": {
+    "generated_answer": "The PreToolUse hook blocks direct Write/Edit/MultiEdit on `wiki/sources/`, `wiki/notes/`, `wiki/index.md`, and `wiki/log.md`, while allowing `wiki/raw/**` and `wiki/SCHEMA.md`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly on both blocked and allowed paths."
+  },
+  "dba0db1228bf385b66fb8d159f7c4f4362930f44f910ea13bf86a10d0f89a069": {
+    "generated_answer": "The four commands are: `/plugin marketplace add ./`, `/plugin install ymir@ymir`, `/reload-plugins`, and `/ymir init for this project`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the exact same four commands in the same order as the reference answer."
+  },
+  "dc651354feced48d06e5fa35d6148c73b9287e858adc65a683cfe26675b63dda": {
+    "generated_answer": "`detectAssetLabel(unameSM)` is the pure function that determines the platform-specific asset label; it takes the argument `unameSM`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies the function `detectAssetLabel(unameSM)` and its argument, matching the reference (omitting the file location is not a substantive fact)."
+  },
+  "de1714c196ed7dcd64268e75190df323efb7a63fac37b4324d1ef6054f928211": {
+    "generated_answer": "The CI `test`-job PR must land first, so that the workflow chains: test \u2192 release-please \u2192 compile.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance, stating the CI test-job PR merges first, chaining test \u2192 release-please \u2192 compile."
+  },
+  "dfc0d70d797a0035d0cab3869ec5f30a88f3491c3dd05edc91ced53d62e2b08a": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded with INSUFFICIENT CONTEXT, which is always considered incorrect per the grading rules."
+  },
+  "dfdf8ec1f67d45ecb05b5dc46d934043ba33efd9cfa56b6bb789b70336d1c900": {
+    "generated_answer": "Because that logic lives in SCHEMA.md and the bundled Wiki CLI, not in Ymir itself \u2014 implementing domain-specific ingest/query/lint logic is explicitly listed as a non-goal for Ymir.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the same key facts as the reference: it's an explicit non-goal for Ymir, with ingest/query/lint logic residing in SCHEMA.md and the CLI."
+  },
+  "e2a321b1ac259eb067f558ffbe216c3a0ce1861c70323869bb7ea213306e65ed": {
+    "generated_answer": "The CI compile job produces four platform-specific binaries: wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, and wiki-linux-arm64. They are built using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four binary names and identifies bun --compile as the tool, matching the reference."
+  },
+  "e3b2f42a2211bddd796cafed1051238f24cdc8b9a9bf4472c7080dd0a2bd86af": {
+    "generated_answer": "`wiki valid`",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference's key fact that the last line printed is `wiki valid`."
+  },
+  "e3e5954bf39e23022a2182b7e6170e5593227adcbf886a8368f47e4ccb39668d": {
+    "generated_answer": "Land the CI `test`-job PR first, so that the chain flows test \u2192 release-please \u2192 compile.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference's substantive claim that the CI test-job PR must merge first to establish the test \u2192 release-please \u2192 compile chain."
+  },
+  "e76cf53ddd3ff1e68ac3699e3eca8ab4297abba80657a21ecae1a3f277af6a51": {
+    "generated_answer": "According to the spec, the wiki CLI is built with **Bun**, using `bun --compile` to produce standalone binaries for each target platform (darwin-arm64/x64, linux-x64/arm64). The context does not specify a package manager used for the wiki CLI.",
+    "judge_correct": false,
+    "judge_reason": "The reference identifies Bun as both runtime and package manager, but the candidate explicitly denies knowing the package manager, omitting a key fact."
+  },
+  "e7c8818b6160f788139abfde24447fdf5b13d2d6dba26c2018369377c87788fe": {
+    "generated_answer": "One-time setup: run `qmd collection add ./wiki --name <project>-wiki` to build the index. It uses a lightweight, keyword-only BM25 index \u2014 no embeddings and no local LLM.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly on the setup command and the BM25 keyword-only indexing without embeddings or local LLM."
+  },
+  "e81798730f8a269d42840d477b8ea73ac869d8aeaba6bf57f78b824cde91b118": {
+    "generated_answer": "`wiki valid`",
+    "judge_correct": true,
+    "judge_reason": "The candidate's answer matches the reference's substantive fact exactly."
+  },
+  "e83d3e7eb752abdbb66711f98b6ab9c753d456cc3a9596f4f6fd6e67f6fdb13a": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent (write-if-missing, so re-runs are safe), and on success its last line is `wiki valid`; if it errors, the caller stops and reports.",
+    "judge_correct": true,
+    "judge_reason": "The candidate confirms idempotency and states success ends with the last line \"wiki valid,\" matching the reference's key facts."
+  },
+  "e92a452d9618b548bb18c96f7d9970d77f381e7ac5c6b96d52b60616cc847099": {
+    "generated_answer": "A PreToolUse hook (`block-wiki-edits.mjs`, merged into settings.json) hard-blocks any direct Write/Edit/MultiEdit on wiki content paths (sources/, notes/, index.md, log.md), while allowing raw/** and SCHEMA.md. This forces all wiki writes to go through the Wiki CLI, which formats and validates every change before committing it.",
+    "judge_correct": true,
+    "judge_reason": "Both state Ymir uses a PreToolUse hook to block direct/manual edits to the wiki docs, matching the core fact; candidate adds extra plausible detail without contradicting the reference."
+  },
+  "e9a98e2a0a1f22e0120175b71cddf50b281a13ee047d43ba31c32e4c025a104f": {
+    "generated_answer": "SCHEMA.md (`wiki/SCHEMA.md`) \u2014 it is the rules document, not content, and is the only wiki file the LLM may read as instructions and hand-edit directly.",
+    "judge_correct": true,
+    "judge_reason": "The candidate identifies wiki/SCHEMA.md as the hand-editable file, matching the reference's answer and rationale."
+  },
+  "e9bc353fd020ca3c5fbb11f0f50b3de4b20fa93693fbe2b54b12a85e0aec6343": {
+    "generated_answer": "Within the Wiki layer, `sources/` contains one-per-document summaries, while `notes/` contains entity/concept/topic synthesis.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance."
+  },
+  "ea163c09d502bfac2452f524de63def036213b569cafd908f1e6798007c0d199": {
+    "generated_answer": "The CI compile job produces four platform binaries, built using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly on both the number (four) and the tool (bun --compile)."
+  },
+  "ea9a555bc022cbdcb8ef504b62364d72eb22bce39bc8b6d25eff272baf503470": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always incorrect since the reference provides a clear answer."
+  },
+  "ed5eb4fa90494cc681eb3f114387ec8b1d2540feba5b620589da953fc15d4da0": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules."
+  },
+  "ee6dda2f2a81b3c3c5e79ab304b40712ef937789b527a876dfb3f6651c041670": {
+    "generated_answer": "The Wiki CLI (`plugins/ymir/wiki-cli`) is the only sanctioned write path for wiki content. Besides writing files, it formats (via remark) and validates (frontmatter schema, links, orphans via zod) every write before committing it.",
+    "judge_correct": false,
+    "judge_reason": "The candidate omits key functions from the reference\u2014injecting frontmatter, placing files, and rebuilding the index/log atomically\u2014covering only formatting and validation."
+  },
+  "ef273d40872804041eb32455f669747551123aae7da40ae79001bfc75cc1ec15": {
+    "generated_answer": "Every write command in the Wiki CLI runs `fmt` (remark format) and then `validate` (zod schema check) before committing, rejecting invalid input so the LLM must fix it.",
+    "judge_correct": true,
+    "judge_reason": "Candidate matches the reference's core claim that writes run fmt then validate before committing, with invalid input rejected so the LLM must fix it, adding only extra non-contradictory detail."
+  },
+  "ef3d85410566434ba5e56448174e6cfd2a44c8ce22c692cd60661a531dc7c6ef": {
+    "generated_answer": "The wiki CLI relies on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema validation).",
+    "judge_correct": true,
+    "judge_reason": "The candidate lists the same four libraries with matching roles as the reference answer."
+  },
+  "ef4d5a1e4b184b851f0ee6cb43f552bcdaa4835628a6ca516f50f03b4faf60f4": {
+    "generated_answer": "SCHEMA.md \u2014 the LLM may read and hand-edit `wiki/SCHEMA.md` as the rules document, but must never hand-write or hand-edit any other wiki document; all other writes go through the Ymir wiki CLI.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies wiki/SCHEMA.md as the rules document that the LLM may hand-edit, matching the reference."
+  },
+  "ef8ed07adab235cfc94b7a29d103e60be79ba5ff015421910088d79ac73ec0b9": {
+    "generated_answer": "Bun (via `bun --compile`) is used to build the wiki CLI. The context does not explicitly state the package manager used for testing.",
+    "judge_correct": false,
+    "judge_reason": "The candidate fails to confirm that bun is also used for testing, contradicting the reference which states both build and test use bun."
+  },
+  "f0632283e28667f1c6aea03c50cae7d9f08ee2fdb04603b295ef3d5e1fc88b83": {
+    "generated_answer": "The CI compile job produces four platform binaries (wiki-darwin-arm64, wiki-darwin-x64, wiki-linux-x64, wiki-linux-arm64), built using `bun --compile`.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference, stating four platform binaries built with `bun --compile`."
+  },
+  "f08e25ad8a5384ef413d98b7c51afca6a0cc0ee8abfde1572ec17b210f08a07c": {
+    "generated_answer": "The Wiki CLI is the only sanctioned write path for wiki content. Besides writing files, it owns structure (filename, frontmatter, placement, cross-link validation, formatting), updates the index and log atomically, and runs `fmt` then `validate` on every write, rejecting invalid input so the LLM must fix it.",
+    "judge_correct": true,
+    "judge_reason": "The candidate correctly identifies the Wiki CLI as the sole sanctioned write path and describes the same core functions (frontmatter injection, placement, formatting, validation, atomic index/log updates) matching the reference."
+  },
+  "f19050a2a5eb64caa33cbb8bb001db0db5946068bb2303bee2760174d649082c": {
+    "generated_answer": "Because the user does not hand-write code, so the stack cannot be inferred from files \u2014 the interview must ask (Language, Layer, one decision at a time) instead.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the key fact\u2014user doesn't hand-write code so stack can't be inferred from files, requiring an interview\u2014matching the reference's substance."
+  },
+  "f1ae99b9d7e313ef04999460b4d5399f71434a7760fb41e43f2f70d47dfd52cf": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent and write-if-missing, so re-running it is safe; it skips existing files and only creates what's missing, merging (never clobbering) the settings.json hook entry.",
+    "judge_correct": true,
+    "judge_reason": "The candidate affirms idempotent, write-if-missing safety matching the reference, with additional consistent detail that doesn't contradict it."
+  },
+  "f1e1da033a4b6b38a6185d8a31fdc840ee12e0ed8b96885528e6fadbb9b1bd57": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded with INSUFFICIENT CONTEXT, which per the grading rules is always incorrect since the reference provides a definite answer."
+  },
+  "f2bde9d7286c2da364275ec958c0780448852ef88195bc2d5ff18d2786d2f811": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate answered \"INSUFFICIENT CONTEXT\" which is always considered incorrect per the grading rules, while the reference provides a clear answer."
+  },
+  "f39945a3163e7a2c07d82a0f6fbc71d5c513b6c24bfd73bd3d8bf644cf40a410": {
+    "generated_answer": "The `query` command shells out to qmd (which handles hybrid BM25 + vector + LLM-rerank search).",
+    "judge_correct": true,
+    "judge_reason": "Both indicate the query command works by shelling out to the external qmd tool to perform the search, matching the core fact in the reference."
+  },
+  "f5404abbe8928d594b72f25c4860d18f289b24877394e866f8e84b440a137a2e": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate returned \"INSUFFICIENT CONTEXT\" which is always considered incorrect per grading rules, while the reference provides a clear answer."
+  },
+  "f776babb53211016aeb0e306af1faf35990bd957e424e2bb573025ee04b2b5a1": {
+    "generated_answer": "The wiki CLI's `query` command shells out to qmd.",
+    "judge_correct": false,
+    "judge_reason": "The candidate omits the specific subcommand and flags (`search --json --files`) that the reference identifies as the key implementation detail."
+  },
+  "f792143b9da6dbbefb606068317098842b4393ae773f2ff6f0de463a847eef45": {
+    "generated_answer": "The SessionStart hook exits non-zero on any failure \u2014 the plan follows a \"no fallback, fail loud\" approach.",
+    "judge_correct": true,
+    "judge_reason": "Candidate captures the core facts\u2014non-zero exit and no fallback, fail-loud approach\u2014matching the reference's substance despite less specific wording."
+  },
+  "f9377c73eaefd8f2c0d60f380950c20acca7745f8f68400fe495f50172664434": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent and write-if-missing, so re-runs are safe.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance, confirming idempotent and write-if-missing behavior making re-runs safe."
+  },
+  "f964245d03d9231011509d228350fba73a920e18d28beb27fce6434e7b4f737a": {
+    "generated_answer": "The SessionStart hook reads the expected version from `plugin.json`'s `$.version` field, not from `wiki-cli/package.json`, because release-please keeps `plugin.json` synced while `wiki-cli/package.json` drifts.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference: expected version comes from plugin.json's $.version field, kept in sync by release-please, unlike the independent wiki-cli/package.json."
+  },
+  "fa0c98cec4cb283ef98072ad83e897c7a0023ca2c55da82e8f4a80e9e31d21da": {
+    "generated_answer": "For `.claude/settings.json`, `wiki init` merges a hook entry into the file (merge, never clobber). For `CLAUDE.md`, it appends the wiki pointer block to the file.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer conveys the same substantive facts as the reference\u2014merging (not clobbering) a hook entry into settings.json and appending the wiki pointer block to CLAUDE.md."
+  },
+  "fa956f90609482781e12daed418bda9c13f45285d83cd5bf10065cf23b85fb8d": {
+    "generated_answer": "INSUFFICIENT CONTEXT",
+    "judge_correct": false,
+    "judge_reason": "The candidate responded \"INSUFFICIENT CONTEXT,\" which is always considered incorrect per the grading rules."
+  },
+  "faa5bb15d333c5b911e35f189e623d9b1f15be8b740d2a3e24ab2ced1df30e17": {
+    "generated_answer": "Every write command runs format then validate before committing; if either step fails, it aborts with a nonzero exit and an actionable message, leaving no partial file. On success, it atomically rebuilds the index and appends the log, and frontmatter is always injected by the CLI rather than hand-written.",
+    "judge_correct": true,
+    "judge_reason": "The candidate captures the core fact that every write runs format then validate before committing and rejects invalid input (aborts on failure), matching the reference's substantive claim, with additional plausible elaboration that doesn't contradict it."
+  },
+  "fab3110987d5d5d2ee9aa7838a0d411cfa610a12778e7980838818361aea3aac": {
+    "generated_answer": "The SessionStart hook `ensure-wiki-binary.mjs` reads the expected version from `plugin.json $.version`, because release-please keeps that field synced, whereas `wiki-cli/package.json` is independent and drifts out of sync.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference's core claim that the hook reads the expected version from plugin.json (kept in sync by release-please) rather than wiki-cli/package.json, adding only extra non-contradictory detail."
+  },
+  "fc1f3aa8bc597de255ffd70e472167ed740401463d28f7af15c13b60fd172f73": {
+    "generated_answer": "Because frontmatter is injected by the Wiki CLI, not hand-written \u2014 the CLI handles fields like title/type/date/tags itself as part of its write commands (which run format then validate before committing).",
+    "judge_correct": true,
+    "judge_reason": "Both answers convey the same core fact \u2014 frontmatter is auto-injected by the CLI rather than hand-written \u2014 which is the substantive reason asked about."
+  },
+  "fdab338cf0f47becae8ebd834af243230f90c9063d64d773032aa995ccd68371": {
+    "generated_answer": "Within the Wiki layer, `sources/` contains one-per-document summaries, while `notes/` contains entity/concept/topic synthesis.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference answer exactly in substance."
+  },
+  "fdbd1131b7ac3df58594e1aa57927ad1a8af11457e0ef10d1561c4b2b20d4b85": {
+    "generated_answer": "Based on the invariant described: if a write command fails validation, it aborts with a nonzero exit and an actionable message, leaving no partial file.",
+    "judge_correct": true,
+    "judge_reason": "The candidate matches the reference exactly in substance\u2014abort with nonzero exit, actionable message, no partial file."
+  },
+  "fec71b677c3f879d9f41020714e23552ed3b1f7b4a8a277115fa35bd41fd1d2c": {
+    "generated_answer": "Yes \u2014 `wiki init` is idempotent and write-if-missing, so re-runs are safe.",
+    "judge_correct": true,
+    "judge_reason": "The candidate answer matches the reference exactly in substance, stating that `wiki init` is idempotent and write-if-missing, making re-runs safe."
+  },
+  "ffba05bfbe3b717fa43c6c3417b6e7ad2811ec27aa06aa1b1daa6eb0115c0cf3": {
+    "generated_answer": "Based on the context, **Bun** is used to build the wiki CLI \u2014 the design uses `bun --compile` to produce four standalone binary targets (darwin-arm64/x64, linux-x64/arm64). The context does not specify a particular package manager used for testing.",
+    "judge_correct": false,
+    "judge_reason": "The reference states bun is used as both runtime and package manager for building and testing, but the candidate explicitly claims the package manager for testing is not specified, contradicting the reference."
+  }
+}

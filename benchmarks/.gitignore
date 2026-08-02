@@ -1,0 +1,10 @@
+# Upstream harness — cloned, never edited, so never committed.
+.vendor/
+# Per-tenant wikis generated during a run.
+.workspace/
+# Python venv for the shim + harness.
+.venv/
+# Raw run outputs; only curated reports under results/ are committed.
+results/raw/
+__pycache__/
+.env.local

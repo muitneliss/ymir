@@ -1,4 +1,13 @@
-import { join } from "node:path";
+import { basename, join, resolve } from "node:path";
+
+/**
+ * The qmd collection this wiki is registered under. `reindex` registers it and
+ * `query` searches it — both must derive the name here so a search can never
+ * leak into another project's collection.
+ */
+export function collectionName(root: string): string {
+  return `${basename(resolve(root, ".."))}-wiki`;
+}
 
 export function slugify(input: string): string {
   return input

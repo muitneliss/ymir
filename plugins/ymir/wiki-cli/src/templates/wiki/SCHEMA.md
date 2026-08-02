@@ -28,8 +28,8 @@ Run `... help` for the full command reference. Key commands:
 - `validate` — health check (frontmatter, `[[links]]`, orphans).
 - `status` — show drift between source pages and their tracked files.
   Use `--json` for machine-readable output (exit 1 if stale/missing).
-- `reindex` — re-run `qmd collection add` to refresh the search index.
-- `query <q>` — search via qmd.
+- `reindex` — refresh the search index (creates the collection, or `qmd update`s it).
+- `query <q> [--limit <n>] [--chunks] [--verbatim] [--full|--snippet] [--context <chars>]` — search this wiki via qmd.
 
 ## Page conventions
 - Cross-reference pages with `[[Exact Title]]`. The CLI validates every link target exists.
@@ -63,15 +63,33 @@ are "untracked" and never reported stale. You can ignore them or re-ingest with
 `--source` to opt them in to drift detection.
 
 ## Search (qmd) setup
-One-time, on this machine:
+Indexing is automatic: every `ingest`, `note`, and `index` calls `reindex`,
+which registers the collection on first use and `qmd update`s it thereafter. No
+manual setup step is needed; run `wiki reindex` yourself only to force a refresh.
 
-```
-qmd collection add ./wiki --name PROJECT_NAME-wiki
-```
+`wiki query "..."` shells out to `qmd search --json -c PROJECT_NAME-wiki`. The
+`-c` scope matters: without it qmd searches *every* collection registered on the
+machine, not just this project's wiki. Only `sources/` and `notes/` are indexed —
+`raw/` is deliberately excluded, since the raw originals outrank the curated
+summaries written from them. Use `--limit <n>` to cap results and `--chunks` to
+get every matching chunk rather than one entry per file.
 
-Then `wiki query "..."` (which shells out to `qmd search --json --files`).
 Search is keyword-only (BM25) — lightweight, no embeddings and no local LLM, so
-there is no `qmd embed` step. `ingest`, `note`, and `index` automatically call
+there is no `qmd embed` step. Because BM25 matches words rather than meaning,
+`query` first reduces your text to its content words: `"When did Melanie paint a
+sunrise?"` is searched as `melanie paint sunrise`. Asking a full question
+verbatim retrieves far worse (measured on a 19-page wiki: 0 hits vs 1, and 3
+hits vs 10). Pass `--verbatim` when you need the text exactly as typed.
+
+Each hit returns the passage around the match — whole paragraphs, bounded by the
+enclosing section — not a narrow window, so you can answer from the result
+without opening the file. A page smaller than the budget (`--context`, default
+3000 chars) comes back whole; longer pages are narrowed to the matching section.
+`--full` forces the entire page, `--snippet` gives qmd's raw window. Measured on
+this project's own wiki, answering from raw windows scored 43% where answering
+from expanded passages scored 93%.
+
+`ingest`, `note`, and `index` automatically call
 `wiki reindex` (best-effort) after each write; pass `--no-reindex` to skip.
 Run `wiki reindex` manually if the index is stale. Optional tighter integration:
 add a `qmd` MCP server (`qmd mcp`) to your client.
