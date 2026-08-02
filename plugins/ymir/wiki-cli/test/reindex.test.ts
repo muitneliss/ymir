@@ -28,7 +28,44 @@ describe("reindex", () => {
     expect(calls[0]?.args[4]).toBe(`${basename(projectDir)}-wiki`);
   });
 
-  it("returns skipped when runner returns non-zero", () => {
+  it("falls back to `qmd update` when the collection already exists", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "reindex-test-"));
+    const wikiRoot = join(projectDir, "wiki");
+    mkdirSync(wikiRoot, { recursive: true });
+
+    const calls: string[][] = [];
+    // `collection add` exits non-zero on an existing collection; `update` succeeds.
+    const runner: ReindexRunner = (_cmd, args) => {
+      calls.push(args);
+      return { status: args[0] === "update" ? 0 : 1 };
+    };
+
+    const result = reindex(wikiRoot, runner);
+    expect(result.ok).toBe(true);
+    expect(result.skipped).toBe(false);
+    expect(result.mode).toBe("updated");
+    expect(calls).toHaveLength(2);
+    expect(calls[1]).toEqual(["update"]);
+  });
+
+  it("reports mode=created when the collection is new", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "reindex-test-"));
+    const wikiRoot = join(projectDir, "wiki");
+    mkdirSync(wikiRoot, { recursive: true });
+
+    const calls: string[][] = [];
+    const runner: ReindexRunner = (_cmd, args) => {
+      calls.push(args);
+      return { status: 0 };
+    };
+
+    const result = reindex(wikiRoot, runner);
+    expect(result.mode).toBe("created");
+    // No pointless `update` when `collection add` already indexed the files.
+    expect(calls).toHaveLength(1);
+  });
+
+  it("returns skipped when both add and update fail", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "reindex-test-"));
     const wikiRoot = join(projectDir, "wiki");
     mkdirSync(wikiRoot, { recursive: true });
@@ -37,6 +74,23 @@ describe("reindex", () => {
     const result = reindex(wikiRoot, runner);
     expect(result.ok).toBe(false);
     expect(result.skipped).toBe(true);
+    expect(result.mode).toBe("skipped");
+  });
+
+  it("does not attempt update when qmd cannot be spawned", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "reindex-test-"));
+    const wikiRoot = join(projectDir, "wiki");
+    mkdirSync(wikiRoot, { recursive: true });
+
+    const calls: string[][] = [];
+    const runner: ReindexRunner = (_cmd, args) => {
+      calls.push(args);
+      return { status: null };
+    };
+
+    const result = reindex(wikiRoot, runner);
+    expect(result.skipped).toBe(true);
+    expect(calls).toHaveLength(1);
   });
 
   it("returns skipped when runner throws", () => {
