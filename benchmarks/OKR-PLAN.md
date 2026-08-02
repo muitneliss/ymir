@@ -57,7 +57,7 @@ reported as a measurement change, never as progress.
 | --- | --- | --- | --- | --- |
 | A1 | Stay embeddings-free | `new_runtime_dependency_count == 0` — `wiki query` must not require `qmd embed`, a local model, or a network call | tripwire | run `wiki query` with no embeddings present; must succeed |
 | A2 | Do not break the write path | `failing_test_count == 0` and `deleted_test_count == 0` (baseline 120) | tripwire | `bun test` |
-| A3 | Keep queries fast | `wiki_query_p95_seconds <= 2.0` on the 11-page wiki | drift gauge | time 44 eval queries, take p95 |
+| A3 | Keep queries fast | `wiki_query_p95_seconds <= 4.5` on the 11-page wiki | drift gauge | time 44 eval queries, take p95 |
 | A4 | Do not tune the labels to the output | `qrels_edited_after_seeing_results_count == 0` | tripwire | qrels file hash frozen before any retrieval change; diff on every read |
 | A5 | Do not silently redefine the metric | `metric_definition_changed_without_record == 0` | tripwire | both scores present in every report |
 | A6 | Integrity (always on) | `anti_goal_bypass_or_dishonesty_count == 0` | tripwire | review at each check-in |
@@ -68,6 +68,23 @@ hit the objective by discarding the thing being measured.
 
 **Anti-goal coverage:** A1 readable · A2 readable · A3 readable · A4 readable
 (hash diff) · A5 readable · A6 readable. `anti_goal_coverage_gap_count == 0`.
+
+### frame_version 2 — A3 re-baselined (human-authorised)
+
+A3 was written as `p95 <= 2.0s` without first reading the baseline. Measured
+afterwards on a quiet machine: baseline p95 **5.80s**, current p95 **4.00s**. The
+wall was therefore never met, and the `breaking` flag it raised described a
+pre-existing condition rather than a regression — the change under test improved
+latency by 31%.
+
+Threshold moved to **4.5s**: above current measured performance, so it guards
+against regression, and below baseline, so it cannot be met by going backwards.
+The original 2.0s is recorded as never-met rather than deleted.
+
+Opens **DKR-7**: why does one query cost seconds at all? Suspects are node
+process startup, qmd's own startup per invocation, and the per-term probes on the
+backoff path (up to 12 sequential qmd spawns). Stop rule: cost attributed across
+those three, with a measured number each.
 
 ### No-cascade read
 
