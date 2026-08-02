@@ -88,23 +88,26 @@ start_llm_proxy() {
 }
 
 # start_shim <arm: raw|synth>
+# LABEL names the *result set*; ARM names the ingest mode. They are separate so
+# the same ingest mode can be measured against different wiki-CLI builds
+# (e.g. raw-baseline vs raw-fixed) without results overwriting each other.
 start_shim() {
   local arm="$1"
-  local workspace="$BENCH/.workspace/$arm"
+  local workspace="$BENCH/.workspace/${LABEL:-$arm}"
   mkdir -p "$workspace"
 
   env "${LLM_ROUTE[@]}" \
   WIKI_SHIM_MODE="$arm" \
   WIKI_SHIM_WORKSPACE="$workspace" \
   "$VENV/bin/python" -m uvicorn app:app --app-dir "$BENCH/shim" \
-      --port "$PORT" --log-level warning > "$BENCH/.workspace/shim-$arm.log" 2>&1 &
+      --port "$PORT" --log-level warning > "$BENCH/.workspace/shim-${LABEL:-$arm}.log" 2>&1 &
   SHIM_PID=$!
 
   for _ in $(seq 1 60); do
     curl -sf "localhost:$PORT/health" >/dev/null 2>&1 && { echo "shim up (arm=$arm, pid=$SHIM_PID)"; return 0; }
     sleep 0.5
   done
-  echo "FATAL: shim did not become healthy; see $BENCH/.workspace/shim-$arm.log"
+  echo "FATAL: shim did not become healthy; see $BENCH/.workspace/shim-${LABEL:-$arm}.log"
   exit 1
 }
 
@@ -141,17 +144,18 @@ start_services() {
 # run_bench <module> <arm> [extra harness args...]
 run_bench() {
   local module="$1" arm="$2"; shift 2
+  local label="${LABEL:-$arm}"
   # Keep harness concurrency at or below the proxy's, so we don't queue up
   # hundreds of `claude -p` processes.
   local workers="${MAX_WORKERS:-${CLAUDE_PROXY_CONCURRENCY:-6}}"
   ( cd "$HARNESS" && env "${LLM_ROUTE[@]}" "$VENV/bin/python" -m "$module" \
-      --project-name "ymir-wiki-$arm" \
+      --project-name "ymir-wiki-$label" \
       --backend oss \
       --mem0-host "http://localhost:$PORT" \
       --provider "$PROVIDER" \
       --answerer-model "$ANSWERER_MODEL" \
       --judge-model "$JUDGE_MODEL" \
       --max-workers "$workers" \
-      --output-dir "$BENCH/results/raw/$module/$arm" \
+      --output-dir "$BENCH/results/raw/$module/$label" \
       "$@" )
 }
