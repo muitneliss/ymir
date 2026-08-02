@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { collectionName } from "../paths.js";
+import { extractTerms } from "../query-terms.js";
 
 export type Runner = (cmd: string, args: string[]) => Promise<string>;
 
@@ -23,12 +24,17 @@ export interface QueryInput {
   limit?: number;
   /** Return matching chunks instead of whole files (drops qmd `--files`). */
   chunks?: boolean;
+  /** Search the query exactly as given, skipping content-term extraction. */
+  verbatim?: boolean;
   runner?: Runner;
 }
 
 export async function runQuery(i: QueryInput): Promise<string> {
   const run = i.runner ?? defaultRunner;
-  const args = ["search", i.q, "--json", "-c", collectionName(i.root)];
+  // qmd search is BM25: a natural-language question is mostly stopwords and
+  // retrieves far worse than its content terms alone. See query-terms.ts.
+  const q = i.verbatim ? i.q : extractTerms(i.q);
+  const args = ["search", q, "--json", "-c", collectionName(i.root)];
   if (!i.chunks) args.push("--files");
   if (i.limit !== undefined) args.push("-n", String(i.limit));
   return run("qmd", args);

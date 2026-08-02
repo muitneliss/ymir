@@ -29,7 +29,7 @@ Run `... help` for the full command reference. Key commands:
 - `status` — show drift between source pages and their tracked files.
   Use `--json` for machine-readable output (exit 1 if stale/missing).
 - `reindex` — re-run `qmd collection add` to refresh the search index.
-- `query <q> [--limit <n>] [--chunks]` — search this wiki via qmd.
+- `query <q> [--limit <n>] [--chunks] [--verbatim]` — search this wiki via qmd.
 
 ## Page conventions
 - Cross-reference pages with `[[Exact Title]]`. The CLI validates every link target exists.
@@ -74,8 +74,15 @@ PROJECT_NAME-wiki`). The `-c` scope matters: without it qmd searches *every*
 collection registered on the machine, not just this project's wiki. Use
 `--limit <n>` to cap results and `--chunks` to get matching passages instead of
 whole files.
+
 Search is keyword-only (BM25) — lightweight, no embeddings and no local LLM, so
-there is no `qmd embed` step. `ingest`, `note`, and `index` automatically call
+there is no `qmd embed` step. Because BM25 matches words rather than meaning,
+`query` first reduces your text to its content words: `"When did Melanie paint a
+sunrise?"` is searched as `melanie paint sunrise`. Asking a full question
+verbatim retrieves far worse (measured on a 19-page wiki: 0 hits vs 1, and 3
+hits vs 10). Pass `--verbatim` when you need the text exactly as typed.
+
+`ingest`, `note`, and `index` automatically call
 `wiki reindex` (best-effort) after each write; pass `--no-reindex` to skip.
 Run `wiki reindex` manually if the index is stale. Optional tighter integration:
 add a `qmd` MCP server (`qmd mcp`) to your client.

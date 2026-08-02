@@ -72,6 +72,23 @@ describe("runQuery", () => {
     expect(calls[0]!.args).not.toContain("-n");
   });
 
+  it("searches content terms, not the raw question", async () => {
+    const { wikiRoot } = tempWiki();
+    const { calls, runner } = recorder();
+    await runQuery({ root: wikiRoot, q: "When did Melanie paint a sunrise?", runner });
+
+    expect(calls[0]!.args).toContain("melanie paint sunrise");
+    expect(calls[0]!.args).not.toContain("When did Melanie paint a sunrise?");
+  });
+
+  it("passes the query through untouched when verbatim is set", async () => {
+    const { wikiRoot } = tempWiki();
+    const { calls, runner } = recorder();
+    await runQuery({ root: wikiRoot, q: "When did Melanie paint a sunrise?", verbatim: true, runner });
+
+    expect(calls[0]!.args).toContain("When did Melanie paint a sunrise?");
+  });
+
   it("returns chunk-level results when chunks is set", async () => {
     const { wikiRoot } = tempWiki();
     const { calls, runner } = recorder();
