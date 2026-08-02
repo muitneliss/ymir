@@ -11,6 +11,10 @@ LLM_PORT="${CLAUDE_PROXY_PORT:-8898}"
 
 export PATH="${BUN_INSTALL:-$HOME/.bun}/bin:$HOME/.local/bin:$PATH"
 
+# Local secrets (CLAUDE_CODE_OAUTH_TOKEN). Gitignored; see README.
+# shellcheck source=/dev/null
+[ -f "$BENCH/.env.local" ] && . "$BENCH/.env.local"
+
 # Answering and judging run through Claude Code headless, not a metered API key.
 PROVIDER="${PROVIDER:-anthropic}"
 ANSWERER_MODEL="${ANSWERER_MODEL:-claude-sonnet-5}"
@@ -30,22 +34,31 @@ preflight() {
   [ -d "$HARNESS" ] || { echo "FATAL: harness not cloned — run scripts/setup.sh"; exit 1; }
 
   # Fail in seconds on an expired login rather than after hundreds of questions.
+  # `claude -p` occasionally hangs and aborts, so a single failure is not proof
+  # of a bad credential — retry before condemning it.
   echo "checking claude authentication..."
-  local probe
-  probe="$(cd /tmp && echo 'Reply with exactly: PONG' \
-    | timeout 90 claude -p --output-format json --model "$ANSWERER_MODEL" \
-        --system-prompt 'Reply with the answer only.' \
-        --tools --strict-mcp-config --mcp-config '{"mcpServers":{}}' 2>&1)" || true
-  if echo "$probe" | grep -qi "authenticate\|OAuth\|login"; then
-    echo "FATAL: claude CLI is not authenticated. Run 'claude login' in a terminal, then retry."
-    exit 1
-  fi
-  echo "$probe" | grep -qi "PONG" || {
-    echo "FATAL: claude auth probe did not return the expected text:"
-    echo "$probe" | head -c 500
-    exit 1
-  }
-  echo "claude authenticated"
+  local probe attempt
+  for attempt in 1 2 3; do
+    probe="$(cd /tmp && echo 'Reply with exactly: PONG' \
+      | timeout 120 claude -p --output-format json --model "$ANSWERER_MODEL" \
+          --system-prompt 'Reply with the answer only.' \
+          --tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}' 2>&1)" || true
+
+    if echo "$probe" | grep -qiE '"(is_error|error)":true.*(authenticate|oauth)|Failed to authenticate'; then
+      echo "FATAL: claude CLI is not authenticated."
+      echo "  Run 'claude login', or export CLAUDE_CODE_OAUTH_TOKEN in benchmarks/.env.local"
+      exit 1
+    fi
+    if echo "$probe" | grep -q "PONG"; then
+      echo "claude authenticated (attempt $attempt)"
+      return 0
+    fi
+    echo "  probe attempt $attempt did not return PONG; retrying..."
+  done
+
+  echo "FATAL: claude auth probe failed 3 times. Last output:"
+  echo "$probe" | tail -c 400
+  exit 1
 }
 
 start_llm_proxy() {

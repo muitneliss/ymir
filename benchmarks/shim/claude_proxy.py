@@ -30,7 +30,9 @@ from pydantic import BaseModel, Field
 
 CLAUDE_BIN = os.environ.get("CLAUDE_BIN", shutil.which("claude") or "claude")
 CONCURRENCY = int(os.environ.get("CLAUDE_PROXY_CONCURRENCY", "6"))
-CALL_TIMEOUT = float(os.environ.get("CLAUDE_PROXY_TIMEOUT", "300"))
+# `claude -p` normally answers in seconds but occasionally hangs; cap it so one
+# stall cannot pin a worker. The harness retries on our error responses.
+CALL_TIMEOUT = float(os.environ.get("CLAUDE_PROXY_TIMEOUT", "180"))
 DEFAULT_SYSTEM = (
     "You are a precise text completion assistant. Follow the user's instructions "
     "exactly and reply with the answer only — no preamble, no commentary."
@@ -146,7 +148,9 @@ async def _invoke(prompt: str, system: str, model: str) -> tuple[str, dict[str, 
         "--system-prompt", system or DEFAULT_SYSTEM,
         # Pure completion: no tools, no MCP servers, no project context. Also
         # removes seconds of per-call startup that plugin/MCP loading costs.
-        "--tools",
+        # `--tools` is variadic and REQUIRES a value — passing it bare silently
+        # swallows the following flags as tool names, leaving MCP servers loaded.
+        "--tools", "",
         "--strict-mcp-config",
         "--mcp-config", '{"mcpServers":{}}',
     ]

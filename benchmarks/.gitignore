@@ -7,3 +7,4 @@
 # Raw run outputs; only curated reports under results/ are committed.
 results/raw/
 __pycache__/
+.env.local
