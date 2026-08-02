@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/muitneliss/ymir/compare/ymir-v0.5.0...ymir-v0.5.1) (2026-08-02)
+
+
+### Bug Fixes
+
+* **wiki-cli:** six retrieval defects, and answer accuracy 43% -&gt; 93% ([#21](https://github.com/muitneliss/ymir/issues/21)) ([18e1a97](https://github.com/muitneliss/ymir/commit/18e1a9748e6c5f85dcda1e5e863d5aebc6eeca48))
+
 ## [0.5.0](https://github.com/muitneliss/ymir/compare/ymir-v0.4.0...ymir-v0.5.0) (2026-06-18)
 
 
