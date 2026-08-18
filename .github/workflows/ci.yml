@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: plugins/ymir/wiki-cli
+        working-directory: wiki-cli
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -81,5 +81,14 @@ jobs:
           [ "$count" -eq 0 ] || {
             echo "FAIL: ${count} file(s) in SKILL.md/templates/references use \${CLAUDE_PLUGIN_ROOT}"
             grep -rl '\${CLAUDE_PLUGIN_ROOT}' /tmp/skills-copy/$skill/SKILL.md /tmp/skills-copy/$skill/templates/ /tmp/skills-copy/$skill/references/ 2>/dev/null
+            exit 1
+          }
+
+      - name: Payload size — installed file count stays bounded (no dev tree in payload)
+        run: |
+          count=$(find /tmp/skills-copy/.claude/skills/ymir -type f | wc -l | tr -d ' ')
+          [ "$count" -le 20 ] || {
+            echo "FAIL: installed skill has ${count} files (limit 20) — wiki-cli dev tree may have crept back in"
+            find /tmp/skills-copy/.claude/skills/ymir -type f | sort
             exit 1
           }

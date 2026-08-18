@@ -2,7 +2,7 @@ import { describe, test, expect } from "bun:test";
 import { join, dirname } from "path";
 import { existsSync, readFileSync } from "fs";
 
-const repoRoot = join(import.meta.dir, "../../../..");
+const repoRoot = join(import.meta.dir, "../..");
 
 interface PluginManifest {
   metadata?: { pluginRoot?: string };

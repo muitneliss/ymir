@@ -4,10 +4,11 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { runInit } from "../src/commands/init.js";
 
-const skillRoot = join(import.meta.dir, "../..");
+const repoRoot = join(import.meta.dir, "../..");
+const skillRoot = join(repoRoot, "plugins/ymir");
 const hooksDir = join(skillRoot, "hooks");
 const templatesDir = join(skillRoot, "templates");
-const wikiCliTemplatesDir = join(skillRoot, "wiki-cli/src/templates");
+const wikiCliTemplatesDir = join(import.meta.dir, "../src/templates");
 
 function readText(path: string): string {
   return readFileSync(path, "utf-8");

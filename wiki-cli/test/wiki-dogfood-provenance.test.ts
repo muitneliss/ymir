@@ -4,7 +4,7 @@ import { existsSync } from "node:fs";
 import { computeStatus } from "../src/status.js";
 import { runCoverage } from "../src/commands/coverage.js";
 
-const projectRoot = resolve(import.meta.dir, "../../../../");
+const projectRoot = resolve(import.meta.dir, "../../");
 const wikiRoot = join(projectRoot, "wiki");
 
 describe("Ymir wiki dogfood provenance", () => {
