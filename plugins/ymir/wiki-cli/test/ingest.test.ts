@@ -44,4 +44,19 @@ describe("runIngest", () => {
 
     expect(readPage(join(root, "sources", "doc-a.md"))).toBe(original);
   });
+
+  it("rejects a title whose slug collides with an existing page of a different title", async () => {
+    await runIngest({
+      root, raw: "raw/a.pdf", title: "Hiệu trưởng",
+      body: "See [[Hiệu trưởng]].", today: "2026-06-17",
+    });
+    const original = readPage(join(root, "sources", "hi-u-tr-ng.md"));
+
+    await expect(runIngest({
+      root, raw: "raw/b.pdf", title: "Hiếu trường",
+      body: "See [[Hiệu trưởng]].", today: "2026-06-18",
+    })).rejects.toThrow(/collision/);
+
+    expect(readPage(join(root, "sources", "hi-u-tr-ng.md"))).toBe(original);
+  });
 });

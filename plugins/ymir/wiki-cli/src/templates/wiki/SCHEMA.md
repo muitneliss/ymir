@@ -25,7 +25,7 @@ Run `... help` for the full command reference. Key commands:
   Use `--raw <label>` (legacy) when ingesting from a non-tracked input.
 - `note --type entity|concept|topic --name <n>` (body on STDIN) — synthesis page.
 - `index` — rebuild the catalog.
-- `validate` — health check (frontmatter, `[[links]]`, orphans).
+- `validate` — health check (frontmatter, `[[links]]`, orphans, slug collisions, filename/title mismatches, nested pages).
 - `status` — show drift between source pages and their tracked files.
   Use `--json` for machine-readable output (exit 1 if stale/missing).
 - `reindex` — refresh the search index (creates the collection, or `qmd update`s it).

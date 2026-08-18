@@ -1,5 +1,6 @@
 import { existsSync, rmSync } from "node:fs";
 import { renderSourcePage } from "../pages.js";
+import { parseFrontmatter } from "../frontmatter.js";
 import { writePage, readPage } from "../store.js";
 import { sourcePath, wikiPaths } from "../paths.js";
 import { buildIndex } from "../index-build.js";
@@ -30,6 +31,14 @@ export async function runIngest(i: IngestInput): Promise<string> {
     sourceHash: i.sourceHash,
   });
   const path = sourcePath(i.root, i.title);
+  if (existsSync(path)) {
+    const existingTitle = (parseFrontmatter(readPage(path)).data as { title?: string }).title;
+    if (existingTitle !== i.title) {
+      throw new Error(
+        `ingest rejected: slug collision — "${path}" already holds "${existingTitle}", cannot overwrite with "${i.title}"`,
+      );
+    }
+  }
   const prev = existsSync(path) ? readPage(path) : null;
   writePage(path, page);
 

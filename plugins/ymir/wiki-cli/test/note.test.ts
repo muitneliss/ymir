@@ -40,4 +40,19 @@ describe("runNote", () => {
     expect(page).toContain("source_count: 3");
     expect(page).toContain("Updated body.");
   });
+
+  it("rejects a note name whose slug collides with an existing note of a different name", async () => {
+    await runNote({
+      root, type: "concept", name: "Hiệu trưởng",
+      body: "Original note.", today: "2026-06-17",
+    });
+    const original = readPage(join(root, "notes", "hi-u-tr-ng.md"));
+
+    await expect(runNote({
+      root, type: "concept", name: "Hiếu trường",
+      body: "Colliding note.", today: "2026-06-18",
+    })).rejects.toThrow(/collision/);
+
+    expect(readPage(join(root, "notes", "hi-u-tr-ng.md"))).toBe(original);
+  });
 });

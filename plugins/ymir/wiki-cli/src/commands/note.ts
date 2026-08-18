@@ -18,9 +18,17 @@ export interface NoteInput {
 export async function runNote(i: NoteInput): Promise<string> {
   const path = notePath(i.root, i.name);
   const existed = existsSync(path);
-  const prevSourceCount = existed
-    ? ((parseFrontmatter(readPage(path)).data as { source_count?: number }).source_count ?? 0)
-    : 0;
+  let prevSourceCount = 0;
+  if (existed) {
+    const existing = parseFrontmatter(readPage(path));
+    const data = existing.data as { title?: string; source_count?: number };
+    if (data.title !== i.name) {
+      throw new Error(
+        `note rejected: slug collision — "${path}" already holds "${data.title}", cannot overwrite with "${i.name}"`,
+      );
+    }
+    prevSourceCount = data.source_count ?? 0;
+  }
 
   const page = await renderNotePage({
     name: i.name, type: i.type, date: i.today,

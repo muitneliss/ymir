@@ -10,7 +10,9 @@ Commands:
                                       Create/update a synthesis note. Body from STDIN.
   index                               Rebuild index.md from all pages.
   log <op> <title>                    Append a dated entry to log.md.
-  validate                            Check frontmatter, [[links]], orphans. Exit !=0 on error.
+  validate                            Check frontmatter, [[links]], orphans, slug collisions,
+                                      filename/title mismatches, and nested pages.
+                                      Exit !=0 on error.
   fmt                                 Format all wiki markdown (remark).
   query <q> [--limit <n>] [--chunks] [--verbatim]
                                       Search this wiki via qmd (read side). Scoped to
