@@ -61,4 +61,25 @@ describe("validateWiki", () => {
     expect(r.ok).toBe(false);
     expect(r.errors.some((e) => e.includes("nested") && e.includes("subfolder"))).toBe(true);
   });
+
+  it("ignores [[links]] inside inline code spans", () => {
+    writePage(join(root, "sources", "a.md"), goodSource("A", "Use `[[Ghost]]` syntax for cross-references."));
+    const r = validateWiki(root);
+    expect(r.ok).toBe(true);
+    expect(r.errors).toEqual([]);
+  });
+
+  it("ignores [[links]] inside fenced code blocks", () => {
+    const body = "Example:\n\n```\necho 'see [[Ghost]]' | wiki ingest --title T\n```\n\nEnd.";
+    writePage(join(root, "sources", "a.md"), goodSource("A", body));
+    const r = validateWiki(root);
+    expect(r.ok).toBe(true);
+    expect(r.errors).toEqual([]);
+  });
+
+  it("still flags real broken [[links]] outside code", () => {
+    writePage(join(root, "sources", "a.md"), goodSource("A", "See [[Ghost]] for details."));
+    const r = validateWiki(root);
+    expect(r.errors.some((e) => e.includes("broken link") && e.includes("Ghost"))).toBe(true);
+  });
 });
