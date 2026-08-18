@@ -62,3 +62,8 @@
 ## [2026-08-18] ingest | Ymir SKILL Dispatcher
 ## [2026-08-18] ingest | Playbook Wiki
 ## [2026-08-18] ingest | Wiki Schema
+## [2026-08-18] ingest | Harness Profile Schema
+## [2026-08-18] ingest | Playbook Wiki
+## [2026-08-18] ingest | Playbook Claude MD
+## [2026-08-18] ingest | Playbook Rules
+## [2026-08-18] ingest | Socratic Interview Reference

@@ -16,6 +16,7 @@ export type InitSummary = {
   skipped: string[];
   settingsMerged: boolean;
   claudeBlockAppended: boolean;
+  hookSkipped: boolean;
   valid: boolean;
 };
 
@@ -24,6 +25,7 @@ export function runInit(opts: {
   root: string;
   name?: string;
   wikiBin?: string;
+  skipHook?: boolean;
 }): InitSummary {
   const projectRoot = resolve(opts.projectRoot);
   const wikiRoot = resolve(projectRoot, opts.root);
@@ -51,29 +53,33 @@ export function runInit(opts: {
   writeIfMissing(join(wikiRoot, "index.md"), INDEX_SEED);
   writeIfMissing(join(wikiRoot, "log.md"), LOG_SEED);
 
-  const hookPath = join(projectRoot, ".claude", "hooks", "block-wiki-edits.mjs");
-  const hookExisted = existsSync(hookPath);
-  mkdirSync(dirname(hookPath), { recursive: true });
-  writeFileSync(hookPath, BLOCK_HOOK);
-  (hookExisted ? skipped : created).push(hookPath);
+  const hookSkipped = opts.skipHook === true;
+  let settingsMerged = false;
+  let claudeBlockAppended = false;
 
-  const settingsPath = join(projectRoot, ".claude", "settings.json");
-  const existing: Settings = existsSync(settingsPath)
-    ? (JSON.parse(readFileSync(settingsPath, "utf8")) as Settings)
-    : {};
-  const beforeCount = existing.hooks?.PreToolUse?.length ?? 0;
-  const merged = mergeSettings(existing, SETTINGS_HOOK_ENTRY);
-  const afterCount = merged.hooks?.PreToolUse?.length ?? 0;
-  const settingsMerged = afterCount !== beforeCount;
-  mkdirSync(dirname(settingsPath), { recursive: true });
-  writeFileSync(settingsPath, `${JSON.stringify(merged, null, 2)}\n`);
+  if (!hookSkipped) {
+    const hookPath = join(projectRoot, ".claude", "hooks", "block-wiki-edits.mjs");
+    const hookExisted = existsSync(hookPath);
+    mkdirSync(dirname(hookPath), { recursive: true });
+    writeFileSync(hookPath, BLOCK_HOOK);
+    (hookExisted ? skipped : created).push(hookPath);
 
-  const claudePath = join(projectRoot, "CLAUDE.md");
-  const claudeContent = existsSync(claudePath)
-    ? readFileSync(claudePath, "utf8")
-    : "";
-  const claudeBlockAppended = !claudeBlockPresent(claudeContent);
-  writeFileSync(claudePath, appendClaudeBlock(claudeContent));
+    const settingsPath = join(projectRoot, ".claude", "settings.json");
+    const existing: Settings = existsSync(settingsPath)
+      ? (JSON.parse(readFileSync(settingsPath, "utf8")) as Settings)
+      : {};
+    const beforeCount = existing.hooks?.PreToolUse?.length ?? 0;
+    const merged = mergeSettings(existing, SETTINGS_HOOK_ENTRY);
+    const afterCount = merged.hooks?.PreToolUse?.length ?? 0;
+    settingsMerged = afterCount !== beforeCount;
+    mkdirSync(dirname(settingsPath), { recursive: true });
+    writeFileSync(settingsPath, `${JSON.stringify(merged, null, 2)}\n`);
+
+    const claudePath = join(projectRoot, "CLAUDE.md");
+    const claudeContent = existsSync(claudePath) ? readFileSync(claudePath, "utf8") : "";
+    claudeBlockAppended = !claudeBlockPresent(claudeContent);
+    writeFileSync(claudePath, appendClaudeBlock(claudeContent));
+  }
 
   const v = validateWiki(wikiRoot);
   return {
@@ -81,6 +87,7 @@ export function runInit(opts: {
     skipped,
     settingsMerged,
     claudeBlockAppended,
+    hookSkipped,
     valid: v.ok,
   };
 }
