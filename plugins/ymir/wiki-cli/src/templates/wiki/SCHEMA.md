@@ -28,6 +28,10 @@ Run `... help` for the full command reference. Key commands:
 - `validate` — health check (frontmatter, `[[links]]`, orphans, slug collisions, filename/title mismatches, nested pages).
 - `status` — show drift between source pages and their tracked files.
   Use `--json` for machine-readable output (exit 1 if stale/missing).
+- `coverage` — verify declarative source coverage defined in `wiki/tracked.yaml`.
+  Fails when an in-scope file has no source page, an exclusion is stale, a file is
+  excluded yet ingested, a source page is out of scope, or multiple pages claim the
+  same file. Use `--json` for machine-readable output (exit 1 on any violation).
 - `reindex` — refresh the search index (creates the collection, or `qmd update`s it).
 - `query <q> [--limit <n>] [--chunks] [--verbatim] [--full|--snippet] [--context <chars>]` — search this wiki via qmd.
 
@@ -45,6 +49,31 @@ Run `... help` for the full command reference. Key commands:
   optionally file the answer back as a `note`.
 - **Lint:** run `validate` → fix reported issues by issuing further CLI commands.
 - **Drift check:** run `status` → re-ingest stale pages with updated summaries.
+- **Coverage check:** run `coverage` → follow each violation's remedy to ingest missing files
+  or update `wiki/tracked.yaml`.
+
+## Source coverage (`wiki/tracked.yaml`)
+
+Create `wiki/tracked.yaml` to declare which project files the wiki must cover:
+
+```yaml
+include:
+  - "src/**/*.ts"
+  - "docs/**/*.md"
+exclude:
+  - pattern: "src/generated/**"
+    reason: "Auto-generated — not authored documentation"
+```
+
+- `include` — glob patterns relative to the project root. Every matching file that
+  is not excluded must have an ingested source page.
+- `exclude` — patterns with a mandatory `reason`. Each exclusion must match at least
+  one file (stale exclusions fail the check). A file that is excluded must not have
+  a source page.
+
+Run `wiki coverage` to verify. Each violation includes an actionable remedy.
+File discovery uses `git ls-files` so untracked scratch files in a worktree do not
+create false failures.
 
 ## Auto-Sync (drift detection)
 
