@@ -16,7 +16,7 @@ formats and validates every change. Direct edits to `sources/`, `notes/`,
 Invoke via the bundled binary:
 
 ```
-${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki --root ./wiki <command>
+{{WIKI_BIN}} --root ./wiki <command>
 ```
 
 Run `... help` for the full command reference. Key commands:

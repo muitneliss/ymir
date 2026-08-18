@@ -13,10 +13,11 @@ formats and validates every change. Direct edits to `sources/`, `notes/`,
 - `log.md` — CLI-appended timeline. Never edit by hand.
 
 ## The CLI
-Invoke via the bundled binary:
+Invoke via the bundled binary (`$SKILL_ROOT` is the Ymir skill root — the
+directory containing `SKILL.md`):
 
 ```
-${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki --root ./wiki <command>
+$SKILL_ROOT/wiki-cli/bin/wiki --root ./wiki <command>
 ```
 
 Run `... help` for the full command reference. Key commands:

@@ -9,12 +9,15 @@ harness is scaffolded by **a single CLI call** — never by hand-editing files. 
 CLI owns the tree, the PreToolUse hook, the `.claude/settings.json` entry, the
 `CLAUDE.md` block, and the validation step.
 
-1. **Scaffold + verify** — from the project root, run:
+1. **Scaffold + verify** — provision the wiki binary (idempotent), then from the
+   project root run:
 
    ```bash
-   "${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki" --root ./wiki init
+   node "$SKILL_ROOT/hooks/ensure-wiki-binary.mjs"
+   "$SKILL_ROOT/wiki-cli/bin/wiki" --root ./wiki init
    ```
 
+   `$SKILL_ROOT` is the Ymir skill's root directory (contains `SKILL.md`).
    It is idempotent (safe to re-run). On success the last line is `wiki valid`.
    If it errors, stop and report.
 
@@ -23,5 +26,5 @@ CLI owns the tree, the PreToolUse hook, the `.claude/settings.json` entry, the
    (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after adding
    pages.
 
-- **Verify:** `"${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki" --root ./wiki validate`
+- **Verify:** `"$SKILL_ROOT/wiki-cli/bin/wiki" --root ./wiki validate`
   prints `wiki valid`.

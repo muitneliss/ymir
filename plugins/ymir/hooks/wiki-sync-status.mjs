@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT;
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const SKILL_ROOT = process.env.CLAUDE_PLUGIN_ROOT ?? join(SCRIPT_DIR, "..");
 const wikiRoot = "./wiki";
 
-// If wiki dir or binary absent → silent exit
-if (!existsSync(wikiRoot) || !PLUGIN_ROOT) {
+if (!existsSync(wikiRoot)) {
   process.exit(0);
 }
 
-const wikiBin = join(PLUGIN_ROOT, "wiki-cli/bin/wiki");
+const wikiBin = join(SKILL_ROOT, "wiki-cli/bin/wiki");
 if (!existsSync(wikiBin)) {
   process.exit(0);
 }
@@ -42,7 +43,7 @@ try {
 
   process.stdout.write(formatSyncMessage(stale, missing, wikiRoot));
 } catch {
-  // Never block session
+  // never block session start
 }
 
 process.exit(0);

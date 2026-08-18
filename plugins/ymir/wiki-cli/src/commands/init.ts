@@ -1,5 +1,5 @@
 import {
-  existsSync, mkdirSync, readFileSync, writeFileSync,
+  existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync,
 } from "node:fs";
 import { dirname, join, basename, resolve } from "node:path";
 import { validateWiki } from "../validate.js";
@@ -23,10 +23,13 @@ export function runInit(opts: {
   projectRoot: string;
   root: string;
   name?: string;
+  wikiBin?: string;
 }): InitSummary {
   const projectRoot = resolve(opts.projectRoot);
   const wikiRoot = resolve(projectRoot, opts.root);
   const name = opts.name ?? basename(projectRoot);
+  const rawBin = process.argv[0];
+  const wikiBin = opts.wikiBin ?? (rawBin !== undefined ? realpathSync(rawBin) : "wiki");
 
   const created: string[] = [];
   const skipped: string[] = [];
@@ -43,7 +46,7 @@ export function runInit(opts: {
   }
   writeIfMissing(
     join(wikiRoot, "SCHEMA.md"),
-    SCHEMA_TPL.replaceAll("PROJECT_NAME", name),
+    SCHEMA_TPL.replaceAll("PROJECT_NAME", name).replaceAll("{{WIKI_BIN}}", wikiBin),
   );
   writeIfMissing(join(wikiRoot, "index.md"), INDEX_SEED);
   writeIfMissing(join(wikiRoot, "log.md"), LOG_SEED);
