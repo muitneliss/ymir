@@ -11,6 +11,7 @@
     {
       "name": "ymir",
       "source": "./plugins/ymir",
+      "skills": ["./"],
       "description": "Scaffolds the mandatory project harness (rules, lint, CI lint, wiki/context, CLAUDE.md) via a socratic techstack interview. Does not generate application code."
     }
   ]
