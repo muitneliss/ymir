@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0](https://github.com/muitneliss/ymir/compare/ymir-v0.5.1...ymir-v0.6.0) (2026-08-18)
+
+
+### Features
+
+* **wiki-cli:** add declarative source coverage with reasoned exclusions ([#33](https://github.com/muitneliss/ymir/issues/33)) ([46390aa](https://github.com/muitneliss/ymir/commit/46390aa8df7b4808f73cebadd3499b086059e46c)), closes [#24](https://github.com/muitneliss/ymir/issues/24)
+* **wiki-cli:** add first-class rename and delete lifecycle operations ([#34](https://github.com/muitneliss/ymir/issues/34)) ([c23c008](https://github.com/muitneliss/ymir/commit/c23c008c80870db62a8a9ac35b690c2592cf6b5d)), closes [#25](https://github.com/muitneliss/ymir/issues/25)
+* **wiki-cli:** add wiki check command as single policy-aware CI gate ([#35](https://github.com/muitneliss/ymir/issues/35)) ([d40c6bd](https://github.com/muitneliss/ymir/commit/d40c6bd1a9e79a9d6c7762f909f911e6eadcd97d))
+
+
+### Bug Fixes
+
+* **wiki-cli:** correct help text and add --raw warning for project files ([#37](https://github.com/muitneliss/ymir/issues/37)) ([c91a0b2](https://github.com/muitneliss/ymir/commit/c91a0b28113849c2d2cc4d91add6c638560ded99)), closes [#30](https://github.com/muitneliss/ymir/issues/30)
+* **wiki-cli:** make page identity collision-safe and prevent silent overwrites ([#27](https://github.com/muitneliss/ymir/issues/27)) ([edd42e5](https://github.com/muitneliss/ymir/commit/edd42e58c891c4ff5b55b79875e16f8cd098a6a8)), closes [#23](https://github.com/muitneliss/ymir/issues/23)
+* **wiki:** bind all source pages to living-doc provenance and fix code-block link validation ([#36](https://github.com/muitneliss/ymir/issues/36)) ([c1233ba](https://github.com/muitneliss/ymir/commit/c1233ba41f7a3b4ab81b968f9ec0b21a067eea43))
+* **wiki:** close source coverage gap and refresh stale notes ([#38](https://github.com/muitneliss/ymir/issues/38)) ([9c7f6d4](https://github.com/muitneliss/ymir/commit/9c7f6d4e7b0cb190216f584cea768750b47593cd)), closes [#31](https://github.com/muitneliss/ymir/issues/31)
+
 ## [0.5.1](https://github.com/muitneliss/ymir/compare/ymir-v0.5.0...ymir-v0.5.1) (2026-08-02)
 
 
