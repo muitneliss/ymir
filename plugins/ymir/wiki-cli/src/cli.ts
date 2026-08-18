@@ -10,6 +10,7 @@ import { appendLog, type LogOp } from "./wikilog.js";
 import { validateWiki } from "./validate.js";
 import { runStatus } from "./commands/status.js";
 import { runCoverage } from "./commands/coverage.js";
+import { runCheckCmd } from "./commands/check.js";
 import { runRemove } from "./commands/remove.js";
 import { runRename } from "./commands/rename.js";
 import { formatMarkdown } from "./format.js";
@@ -188,6 +189,23 @@ program
   .action((opts: { json: boolean }) => {
     const root = program.opts<{ root: string }>().root;
     const { text, exitCode } = runCoverage({ root, json: opts.json });
+    process.stdout.write(text);
+    if (exitCode !== 0) process.exit(exitCode);
+  });
+
+program
+  .command("check")
+  .option("--json", "emit JSON output", false)
+  .option("--error-on-orphan-notes", "treat orphan notes as hard failures", false)
+  .option("--error-on-untracked-sources", "treat untracked sources as hard failures", false)
+  .action((opts: { json: boolean; errorOnOrphanNotes: boolean; errorOnUntrackedSources: boolean }) => {
+    const root = program.opts<{ root: string }>().root;
+    const { text, exitCode } = runCheckCmd({
+      root,
+      json: opts.json,
+      errorOnOrphanNotes: opts.errorOnOrphanNotes,
+      errorOnUntrackedSources: opts.errorOnUntrackedSources,
+    });
     process.stdout.write(text);
     if (exitCode !== 0) process.exit(exitCode);
   });
