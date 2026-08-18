@@ -4,7 +4,8 @@ import {
   chmodSync, existsSync, mkdirSync,
   readFileSync, renameSync, unlinkSync, writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 
 // Keep in sync with wiki-cli/src/platform.ts (cannot import TS from this .mjs hook).
@@ -17,16 +18,13 @@ function detectAssetLabel(unameSM) {
   throw new Error(`Unsupported platform: "${s}". Supported: Darwin/Linux × arm64/x86_64.`);
 }
 
-const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT;
-if (!PLUGIN_ROOT) {
-  process.stderr.write("[ymir] CLAUDE_PLUGIN_ROOT not set — cannot ensure wiki binary\n");
-  process.exit(2);
-}
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const SKILL_ROOT = process.env.CLAUDE_PLUGIN_ROOT ?? join(SCRIPT_DIR, "..");
 
 let pluginVersion;
 try {
   const manifest = JSON.parse(
-    readFileSync(join(PLUGIN_ROOT, ".claude-plugin/plugin.json"), "utf8")
+    readFileSync(join(SKILL_ROOT, ".claude-plugin/plugin.json"), "utf8")
   );
   pluginVersion = manifest.version;
 } catch (e) {
@@ -39,16 +37,14 @@ if (typeof pluginVersion !== "string" || !/^\d+\.\d+\.\d+/.test(pluginVersion)) 
   process.exit(2);
 }
 
-const binDir    = join(PLUGIN_ROOT, "wiki-cli/bin");
+const binDir    = join(SKILL_ROOT, "wiki-cli/bin");
 const binPath   = join(binDir, "wiki");
 const stampPath = join(binDir, ".version");
 
-// Fast path: already installed and version matches
 if (existsSync(binPath) && existsSync(stampPath)) {
   if (readFileSync(stampPath, "utf8").trim() === pluginVersion) process.exit(0);
 }
 
-// Detect platform
 let label;
 try {
   const uname = execSync("uname -sm", { encoding: "utf8" });
@@ -72,7 +68,6 @@ const cleanupTmp = () => {
   try { unlinkSync(tmpSums); } catch {}
 };
 
-// Download binary
 const dlBin = spawnSync("curl", ["-fsSL", "--output", tmpBin, assetUrl], { stdio: "inherit" });
 if (dlBin.status !== 0) {
   cleanupTmp();
@@ -80,7 +75,6 @@ if (dlBin.status !== 0) {
   process.exit(2);
 }
 
-// Download checksum file
 const dlSums = spawnSync("curl", ["-fsSL", "--output", tmpSums, sumsUrl], { stdio: "inherit" });
 if (dlSums.status !== 0) {
   cleanupTmp();
@@ -88,7 +82,6 @@ if (dlSums.status !== 0) {
   process.exit(2);
 }
 
-// Verify sha256
 const sumsText     = readFileSync(tmpSums, "utf8");
 const expectedLine = sumsText.split("\n").find((l) => {
   const name = l.trim().split(/\s+/)[1];
@@ -109,7 +102,6 @@ if (actualHash !== expectedHash) {
   process.exit(2);
 }
 
-// Install
 renameSync(tmpBin, binPath);
 chmodSync(binPath, 0o755);
 writeFileSync(stampPath, pluginVersion);

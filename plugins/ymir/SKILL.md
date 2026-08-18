@@ -54,10 +54,19 @@ If — and only if — the intent is explicitly to create the wiki
 (`ymir add context`, `ymir add wiki`), Ymir **executes** the wiki scaffold
 immediately against the project via **a single CLI call** — never by hand-editing
 files. The CLI owns the tree, the PreToolUse hook, the `.claude/settings.json`
-entry, the `CLAUDE.md` block, and the validation step. From the project root:
+entry, the `CLAUDE.md` block, and the validation step.
+
+All asset paths below (`references/`, `templates/`, `wiki-cli/`, `hooks/`) are
+**relative to this skill's root directory** — the directory that contains this
+`SKILL.md`. Resolve `$SKILL_ROOT` as that directory before running any command
+(`CLAUDE_PLUGIN_ROOT` holds it in Claude Code plugin installs; derive it from this
+file's path for skills-CLI installs).
+
+Provision the wiki binary once (idempotent), then scaffold from the project root:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki" --root ./wiki init
+node "$SKILL_ROOT/hooks/ensure-wiki-binary.mjs"
+"$SKILL_ROOT/wiki-cli/bin/wiki" --root ./wiki init
 ```
 
 It is idempotent (safe to re-run); on success the last line is `wiki valid`. If it
@@ -109,7 +118,7 @@ in-scope concern. For each concern run the 4-move engine — **probe why → rec
 (2-3 trade-offs, recommendation first) → adaptive follow-up only when needed →
 confirm** — asking **one question per `AskUserQuestion` message**. The full engine,
 the per-concern probe bank, the rules scope-probing, and the greenfield phrasing
-live in `${CLAUDE_PLUGIN_ROOT}/references/socratic-interview.md` — read it before
+live in `references/socratic-interview.md` (relative to the skill root) — read it before
 interviewing.
 
 - For `ymir init`, sweep the whole checklist; for a narrow action (e.g. `add
@@ -117,7 +126,7 @@ interviewing.
 - The user may skip a concern → record `status: skipped` with a `reason`.
 - Write each answer into `.ymir/harness-profile.yaml` as you go, including
   `why`, `findings`, and `alternatives_considered`. Field shape:
-  `${CLAUDE_PLUGIN_ROOT}/templates/harness-profile.schema.md`.
+  `templates/harness-profile.schema.md` (relative to the skill root).
 
 ## Step 2 — Consistency + re-audit (gate)
 
@@ -143,9 +152,9 @@ Assemble the playbook from the bundled per-concern templates — do not free-for
 1. Ensure `.ymir/harness-profile.yaml` reflects the final audited decisions
    (`spec_version: 2`).
 2. Write `.ymir/harness-playbook.md`: start from
-   `${CLAUDE_PLUGIN_ROOT}/templates/playbook/header.md` (fill `{{PROJECT}}` and
+   `templates/playbook/header.md` (fill `{{PROJECT}}` and
    `{{DATE}}`), then append one section per `captured` concern from
-   `${CLAUDE_PLUGIN_ROOT}/templates/playbook/<concern>.md`, filling every `{{...}}`
+   `templates/playbook/<concern>.md`, filling every `{{...}}`
    placeholder (including the `Why / Findings` block) from the profile. Omit
    `skipped` concerns.
 3. Tell the user the spec is ready under `.ymir/`.

@@ -19,6 +19,7 @@ describe("runInit", () => {
     }
     const schema = readFileSync(join(wiki, "SCHEMA.md"), "utf8");
     expect(schema).not.toContain("PROJECT_NAME");
+    expect(schema).not.toContain("{{WIKI_BIN}}");
     expect(schema).toContain(basename(proj));
 
     expect(existsSync(join(proj, ".claude/hooks/block-wiki-edits.mjs"))).toBe(true);
