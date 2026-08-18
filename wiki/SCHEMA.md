@@ -25,6 +25,13 @@ Run `... help` for the full command reference. Key commands:
   Use `--raw <label>` (legacy) when ingesting from a non-tracked input.
 - `note --type entity|concept|topic --name <n>` (body on STDIN) — synthesis page.
 - `index` — rebuild the catalog.
+- `check [--json] [--error-on-orphan-notes] [--error-on-untracked-sources]` — single CI gate.
+  Evaluates schema validity, page identity, broken links, orphan policy, provenance drift,
+  untracked sources, declarative coverage, and index freshness in one read-only pass.
+  Exits non-zero on any hard failure; zero only when the wiki satisfies policy.
+  Orphan notes and untracked sources are warnings by default; promote to errors with the
+  respective flags. Use `--json` for machine-readable output with stable schema
+  `{ ok, errors[], warnings[] }`, each finding carrying `kind`, `message`, and `remedy`.
 - `validate` — health check (frontmatter, `[[links]]`, orphans, slug collisions, filename/title mismatches, nested pages).
 - `status` — show drift between source pages and their tracked files.
   Use `--json` for machine-readable output (exit 1 if stale/missing).
@@ -53,6 +60,8 @@ Run `... help` for the full command reference. Key commands:
   `ingest --raw <raw/path> --title <t>` (no drift tracking).
 - **Query:** call `query` → read returned pages → answer with citations →
   optionally file the answer back as a `note`.
+- **CI gate:** run `check` (or `check --json`) → exits non-zero on any hard failure.
+  Add `--error-on-orphan-notes` or `--error-on-untracked-sources` to promote warnings to errors.
 - **Lint:** run `validate` → fix reported issues by issuing further CLI commands.
 - **Drift check:** run `status` → re-ingest stale pages with updated summaries.
 - **Coverage check:** run `coverage` → follow each violation's remedy to ingest missing files
