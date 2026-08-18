@@ -23,7 +23,7 @@ Run `... help` for the full command reference. Key commands:
 - `ingest --raw <raw/path> --title <t>` (body on STDIN) — summarize a source.
 - `note --type entity|concept|topic --name <n>` (body on STDIN) — synthesis page.
 - `index` — rebuild the catalog.
-- `validate` — health check (frontmatter, `[[links]]`, orphans).
+- `validate` — health check (frontmatter, `[[links]]`, orphans, slug collisions, filename/title mismatches, nested pages).
 - `query <q>` — search via qmd.
 
 ## Page conventions
