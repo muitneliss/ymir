@@ -58,6 +58,14 @@ program
       ingestSourceHash = prov.sourceHash;
     } else {
       raw = opts.raw!;
+      const absRaw = resolve(opts.raw!);
+      const rawDir = resolve(root, "raw");
+      if (existsSync(absRaw) && !absRaw.startsWith(rawDir + "/") && absRaw !== rawDir) {
+        process.stderr.write(
+          `warning: "${opts.raw}" exists in the project; the resulting page will be untracked.\n` +
+          `  Use --source instead to record provenance and enable drift detection.\n`,
+        );
+      }
     }
 
     const path = await runIngest({
