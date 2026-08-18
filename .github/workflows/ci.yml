@@ -35,3 +35,42 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: Wiki health check
         run: wiki --root wiki check --error-on-untracked-sources
+
+  skills-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Discovery — lists ymir without --full-depth
+        run: npx --yes skills@1.5.22 add "$PWD/plugins/ymir" --list | grep -q "ymir"
+
+      - name: Discovery — lists ymir with a nested sibling SKILL.md present
+        run: |
+          mkdir -p plugins/ymir/_probe
+          printf -- '---\nname: probe\ndescription: probe\n---\n# Probe\n' > plugins/ymir/_probe/SKILL.md
+          npx --yes skills@1.5.22 add "$PWD/plugins/ymir" --list | grep -q "ymir"
+          rm -rf plugins/ymir/_probe
+
+      - name: Install via symlink — payload present
+        run: |
+          mkdir /tmp/skills-link && cd /tmp/skills-link
+          npx --yes skills@1.5.22 add "$GITHUB_WORKSPACE/plugins/ymir" -y --skill '*' --agent claude-code
+          test -f .claude/skills/ymir/SKILL.md
+          test -d .claude/skills/ymir/references
+          test -d .claude/skills/ymir/templates/playbook
+
+      - name: Install via --copy — payload present
+        run: |
+          mkdir /tmp/skills-copy && cd /tmp/skills-copy
+          npx --yes skills@1.5.22 add "$GITHUB_WORKSPACE/plugins/ymir" --copy -y --skill '*' --agent claude-code
+          test -f .claude/skills/ymir/SKILL.md
+          test -d .claude/skills/ymir/references
+          test -d .claude/skills/ymir/templates/playbook
+
+      - name: Portability — zero CLAUDE_PLUGIN_ROOT in installed copy
+        run: |
+          count=$(grep -rl 'CLAUDE_PLUGIN_ROOT' /tmp/skills-copy/.claude/skills/ymir/ | wc -l)
+          [ "$count" -eq 0 ] || { echo "FAIL: ${count} file(s) contain CLAUDE_PLUGIN_ROOT"; exit 1; }
