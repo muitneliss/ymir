@@ -32,6 +32,12 @@ Run `... help` for the full command reference. Key commands:
   Fails when an in-scope file has no source page, an exclusion is stale, a file is
   excluded yet ingested, a source page is out of scope, or multiple pages claim the
   same file. Use `--json` for machine-readable output (exit 1 on any violation).
+- `remove --title <t> [--preview]` — atomically delete a page and rebuild all generated state.
+  Refuses if any page holds an inbound `[[link]]` to the target — fix those first.
+  `--preview` reports what would be removed and lists inbound links without writing.
+- `rename --old-title <t> --new-title <t> [--preview]` — rename a page, rewrite all inbound
+  `[[links]]`, and rebuild generated state atomically. Fails on slug collision.
+  `--preview` reports the plan (link count, affected paths) without writing.
 - `reindex` — refresh the search index (creates the collection, or `qmd update`s it).
 - `query <q> [--limit <n>] [--chunks] [--verbatim] [--full|--snippet] [--context <chars>]` — search this wiki via qmd.
 
@@ -51,6 +57,12 @@ Run `... help` for the full command reference. Key commands:
 - **Drift check:** run `status` → re-ingest stale pages with updated summaries.
 - **Coverage check:** run `coverage` → follow each violation's remedy to ingest missing files
   or update `wiki/tracked.yaml`.
+- **Remove a page:** run `remove --title <t> --preview` to see inbound links and confirm no
+  breakage, then run `remove --title <t>` to delete the page and rebuild the index.
+  If inbound links exist, update or remove them first, then retry.
+- **Rename a page:** run `rename --old-title <t> --new-title <t> --preview` to see the scope
+  of link rewrites, then run `rename --old-title <t> --new-title <t>` to apply atomically.
+  All `[[old title]]` links in sources and notes are rewritten to `[[new title]]` in one step.
 
 ## Source coverage (`wiki/tracked.yaml`)
 
