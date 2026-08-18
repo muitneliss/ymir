@@ -67,3 +67,4 @@
 ## [2026-08-18] ingest | Playbook Claude MD
 ## [2026-08-18] ingest | Playbook Rules
 ## [2026-08-18] ingest | Socratic Interview Reference
+## [2026-08-18] ingest | Ymir README
