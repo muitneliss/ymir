@@ -10,6 +10,13 @@ Commands:
                                       Create/update a synthesis note. Body from STDIN.
   index                               Rebuild index.md from all pages.
   log <op> <title>                    Append a dated entry to log.md.
+  remove --title <t> [--preview]       Delete a source or note and rebuild all generated state.
+                                      Refuses if inbound [[links]] exist — fix those first.
+                                      --preview: report impact without writing.
+  rename --old-title <t> --new-title <t> [--preview]
+                                      Rename a page, rewrite all inbound [[links]], and
+                                      rebuild generated state atomically.
+                                      --preview: show link count and affected paths.
   validate                            Check frontmatter, [[links]], orphans, slug collisions,
                                       filename/title mismatches, and nested pages.
                                       Exit !=0 on error.

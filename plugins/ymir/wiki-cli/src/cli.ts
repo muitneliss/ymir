@@ -10,6 +10,8 @@ import { appendLog, type LogOp } from "./wikilog.js";
 import { validateWiki } from "./validate.js";
 import { runStatus } from "./commands/status.js";
 import { runCoverage } from "./commands/coverage.js";
+import { runRemove } from "./commands/remove.js";
+import { runRename } from "./commands/rename.js";
 import { formatMarkdown } from "./format.js";
 import { writePage, readPage, listPages } from "./store.js";
 import { wikiPaths } from "./paths.js";
@@ -196,5 +198,54 @@ program.command("reindex").action(() => {
   if (r.ok) process.stdout.write(`reindexed as "${r.name}"\n`);
   else process.stdout.write(`reindex skipped (qmd unavailable)\n`);
 });
+
+program
+  .command("remove")
+  .requiredOption("--title <title>")
+  .option("--preview", "show what would be removed without writing", false)
+  .option("--no-reindex", "skip qmd reindex after write")
+  .action((opts: { title: string; preview: boolean; reindex: boolean }) => {
+    const root = program.opts<{ root: string }>().root;
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      const result = runRemove({ root, title: opts.title, today, preview: opts.preview, noReindex: !opts.reindex });
+      if (result.inboundLinks.length > 0) {
+        for (const l of result.inboundLinks) process.stdout.write(`  inbound: ${l.from}: ${l.link}\n`);
+      }
+      if (opts.preview) {
+        process.stdout.write(`preview: would remove ${result.path}\n`);
+      } else {
+        process.stdout.write(`removed ${result.path}\n`);
+      }
+    } catch (e) {
+      process.stderr.write(`${(e as Error).message}\n`);
+      process.exit(1);
+    }
+  });
+
+program
+  .command("rename")
+  .requiredOption("--old-title <title>")
+  .requiredOption("--new-title <title>")
+  .option("--preview", "show what would change without writing", false)
+  .option("--no-reindex", "skip qmd reindex after write")
+  .action(async (opts: { oldTitle: string; newTitle: string; preview: boolean; reindex: boolean }) => {
+    const root = program.opts<{ root: string }>().root;
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      const result = await runRename({ root, oldTitle: opts.oldTitle, newTitle: opts.newTitle, today, preview: opts.preview, noReindex: !opts.reindex });
+      if (opts.preview) {
+        process.stdout.write(`preview: would rename "${opts.oldTitle}" → "${opts.newTitle}"\n`);
+        process.stdout.write(`  links to update: ${result.linksUpdated}\n`);
+        for (const p of result.affectedPaths) process.stdout.write(`  ${p}\n`);
+      } else {
+        process.stdout.write(`renamed "${opts.oldTitle}" → "${opts.newTitle}"\n`);
+        if (result.linksUpdated > 0) process.stdout.write(`  updated ${result.linksUpdated} link(s)\n`);
+      }
+    } catch (e) {
+      process.stderr.write(`${(e as Error).message}\n`);
+      process.exit(1);
+    }
+  });
 
 program.parseAsync();
