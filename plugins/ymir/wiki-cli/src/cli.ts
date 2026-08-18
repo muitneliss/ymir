@@ -163,17 +163,22 @@ program
   .command("init")
   .option("--project-root <dir>", "project root", process.cwd())
   .option("--name <name>", "project name (defaults to basename of project root)")
-  .action((opts: { projectRoot: string; name?: string }) => {
+  .option("--no-hook", "skip Claude-specific hook, settings, and CLAUDE.md (for non-Claude agent targets)")
+  .action((opts: { projectRoot: string; name?: string; hook: boolean }) => {
     const root = program.opts<{ root: string }>().root;
-    const s = runInit({ projectRoot: opts.projectRoot, root, name: opts.name });
+    const s = runInit({ projectRoot: opts.projectRoot, root, name: opts.name, skipHook: !opts.hook });
     for (const p of s.created) process.stdout.write(`created ${p}\n`);
     for (const p of s.skipped) process.stdout.write(`skipped ${p}\n`);
-    process.stdout.write(
-      s.settingsMerged ? "settings merged\n" : "settings unchanged\n",
-    );
-    process.stdout.write(
-      s.claudeBlockAppended ? "CLAUDE.md appended\n" : "CLAUDE.md unchanged\n",
-    );
+    if (s.hookSkipped) {
+      process.stdout.write("hook skipped (non-Claude target)\n");
+    } else {
+      process.stdout.write(
+        s.settingsMerged ? "settings merged\n" : "settings unchanged\n",
+      );
+      process.stdout.write(
+        s.claudeBlockAppended ? "CLAUDE.md appended\n" : "CLAUDE.md unchanged\n",
+      );
+    }
     if (!s.valid) {
       process.stderr.write("wiki invalid\n");
       process.exit(1);

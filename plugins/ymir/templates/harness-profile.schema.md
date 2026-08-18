@@ -16,7 +16,25 @@ spec (the LLM-facing half is `.ymir/harness-playbook.md`).
 | `project.layer` | yes | `frontend` \| `backend` \| `both` |
 | `project.runtime` | recommended | e.g. `bun`, `node`, or omit if none |
 | `project.host` | recommended | repo host → drives CI provider (e.g. `github`) |
+| `target_agent.value` | yes | `claude-code` or `any` (see below) |
+| `target_agent.why` | yes | rationale for the choice |
+| `target_agent.findings` | yes | what the scan saw; `claude-code` / `any` / `unknown` |
 | `concerns.<name>.status` | yes | one of the statuses below |
+
+## `target_agent` — which AI agent runs harness files
+
+Captured as an audited decision before any concern is generated. Shapes the
+entire harness:
+
+| Value | Steering file | Rules location | Wiki guard |
+|---|---|---|---|
+| `claude-code` | `CLAUDE.md` | `.claude/rules/*.md` | PreToolUse hook (`block-wiki-edits.mjs`) + `.claude/settings.json` |
+| `any` | `AGENT.md` | Inline in `AGENT.md` | CI gate (`wiki check --error-on-untracked-sources`) |
+
+`claude-code` produces today's harness unchanged.
+`any` skips all Claude Code–specific files (`.claude/` hooks, settings) and
+replaces the wiki PreToolUse guard with a CI gate using the existing
+`wiki check` command — enforcement that works regardless of which agent runs.
 
 ## Concern statuses
 
@@ -61,6 +79,10 @@ single always-on `files[]` entry named `project-conventions` (no `paths`). Absen
 ```yaml
 meta:    { project: acme-api, generated_by: ymir, generated_at: 2026-06-18, spec_version: 2 }
 project: { language: typescript, runtime: bun, layer: backend, host: github }
+target_agent:
+  value: claude-code
+  why: "team uses Claude Code exclusively"
+  findings: "claude-code — .claude/ directory present"
 concerns:
   rules:
     status: captured

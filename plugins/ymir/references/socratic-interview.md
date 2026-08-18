@@ -47,8 +47,22 @@ Run this for each in-scope concern, in checklist order:
 Mostly **confirm** what Step 0 detected: "Detected TypeScript on bun, backend,
 GitHub — right?" Only ask cold if detection was empty.
 
-### rules → `.claude/rules/*.md` (special: scope probing)
-Rules become native Claude Code path-scoped rule files. After the *why*:
+### target_agent (item 0b — ask immediately after techstack)
+Which AI agent(s) will read and act on this harness? The answer shapes every
+subsequent output: steering file name, rules location, and wiki enforcement.
+
+Probe: "Is this repo worked on exclusively with Claude Code, or might other
+agents (Cursor, Codex, Copilot, OpenCode) use the harness too?"
+- If Claude Code only → record `target_agent: { value: claude-code, why: ..., findings: "claude-code — .claude/ present" }` (or `findings: "unknown — inferred from context"`).
+- If multiple / agent-neutral → record `target_agent: { value: any, why: ..., findings: "any — no agent-specific tooling detected" }`.
+
+This is a **prerequisite**: record it before interviewing any concern. It does
+not go through the 4-move loop — a single confirm-and-record exchange suffices.
+
+### rules → rules files (special: scope probing + target_agent branch)
+For `claude-code` targets, rules become native `.claude/rules/*.md` path-scoped
+rule files. For `any` targets, rules will be embedded inline in `AGENT.md`
+(the `claude_md` concern handles this — no separate rule files). After the *why*:
 - Elicit the conventions to **obey** and patterns to **avoid**.
 - For each rule (group), ask its **scope**: project-wide (always-on, no `paths`)
   or scoped to files — "Does 'explicit return types' apply to all TS, or just
@@ -69,9 +83,11 @@ Why (shared project knowledge for Claude) → enabled? → collection name →
 record `enabled`, `collection`.
 
 ### claude_md → CLAUDE.md / AGENT.md
-Why (what should steer Claude here) → recommend steer points derived from
-concerns 2-4 (`lint-before-commit`, `point-to-wiki`). **Do NOT** add a
-`point-to-rules` steer — `.claude/rules/` auto-loads. Record `steer[]`.
+Why (what should steer the agent here) → recommend steer points derived from
+concerns 2-4 (`lint-before-commit`, `point-to-wiki`).
+- For `claude-code`: do NOT add `point-to-rules` — `.claude/rules/` auto-loads.
+- For `any`: rules content goes inline in `AGENT.md`; no separate rule files.
+Record `steer[]`.
 
 ## Greenfield fallback
 
@@ -85,15 +101,21 @@ special case rather than the default.
 After the sweep, check these enumerated couplings. On a conflict, surface it
 plainly and **go back** to re-ask the implicated concern:
 
+- `target_agent` ↔ `.claude/` presence: if `value: claude-code` but no `.claude/`
+  was found in Step 0 (or vice versa), surface the mismatch and confirm.
+- `target_agent` ↔ `wiki`: if `value: any` and wiki is captured+enabled, confirm
+  the user understands the wiki guard degrades to a CI job (no PreToolUse hook).
 - `lint.tool` ↔ `rules`: does a rule need enforcement the lint tool can't give? A
-  purely architectural rule is fine as a `.claude/rules/` file — but flag it if
-  the user expected lint to enforce it.
+  purely architectural rule is fine as a `.claude/rules/` file for `claude-code`,
+  or embedded in `AGENT.md` for `any` — but flag it if the user expected lint to
+  enforce it.
 - `rules` `paths` ↔ project layout: does each glob match real paths from Step 0?
   Flag a glob that matches nothing (likely a typo or a dead directory).
 - `ci.provider` ↔ `project.host`: provider matches the host?
 - `lint.strict` ↔ `project.layer`/`runtime`: strictness sensible for the stack?
-- `claude_md.steer` ↔ concerns 2-4: steers toward the wiki/lint actually set up,
-  and does **not** redundantly point at `.claude/rules/`.
+- `claude_md.steer` ↔ concerns 2-4: steers toward the wiki/lint actually set up;
+  for `claude-code`, does NOT redundantly point at `.claude/rules/`;
+  for `any`, rules are embedded inline, no `.claude/rules/` reference.
 
 ## Anti-patterns (do not do these)
 

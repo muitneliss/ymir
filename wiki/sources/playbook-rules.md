@@ -5,10 +5,40 @@ date: 2026-08-18
 tags: []
 source: plugins/ymir/templates/playbook/rules.md
 source_path: plugins/ymir/templates/playbook/rules.md
-source_hash: eb86ea207a2ce3f6a30f34a1615a19decf64c9ddef068837efa03421f3a5fc6b
+source_hash: b9e676acb8281eadbbdece64dffc6a287733ae594c658621fb43adf606bb7631
 ingested: 2026-08-18
 ---
 
 # Playbook Rules
 
-Playbook section template for the rules concern, targeting the .claude/rules/ directory (native path-scoped Claude Code rules) rather than a single docs/rules.md. Opens with a Why/Findings placeholder block, takes concerns.rules.files[] as Inputs (each entry {name, paths?, obey[], avoid[]}), and its Steps create one .claude/rules/<name>.md per entry, adding YAML paths: frontmatter when the entry is scoped (omitted for an always-on rule), a NEVER list from avoid[], and sections phrased from obey[]. Verify checks every files[] entry has a matching file, scoped entries' frontmatter matches the profile, and every avoid[] item appears in its file's NEVER list.
+## rules → native rules files (Claude Code) or `AGENT.md` sections (other agents)
+
+* **Why / Findings:** {{RULES\_WHY}} — repo scan: {{RULES\_FINDINGS}}. Considered: {{RULES\_ALTERNATIVES}}.
+* **Inputs:** `concerns.rules.files[]` (each `{name, paths?, obey[], avoid[]}`), `target_agent.value`
+
+Branch on `target_agent.value`:
+
+**`claude-code`** — write one `.claude/rules/<name>.md` per `files[]` entry.
+
+1. For each entry, create `.claude/rules/<name>.md`.
+2. If the entry has `paths`, add YAML frontmatter listing each glob:
+
+   ```markdown
+   ---
+   paths:
+     - "<glob>"
+   ---
+   ```
+
+   If it has no `paths`, write no frontmatter (always-on rule).
+3. Add a top **"NEVER"** list — one bullet per `avoid[]` item.
+4. Add sections (Naming, Error handling, Module boundaries) phrased from the
+   `obey[]` items.
+
+* **Verify:** every `files[]` entry has a matching `.claude/rules/<name>.md`; each
+  scoped entry's frontmatter `paths` matches the profile; every `avoid[]` item
+  appears in its file's NEVER list.
+
+**`any` (non-Claude target)** — do NOT write `.claude/rules/`. Rules are embedded
+directly in `AGENT.md` by the `claude_md` playbook section. This section has
+no independent output for non-Claude targets — skip it and proceed to `claude_md`.
