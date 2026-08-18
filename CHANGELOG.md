@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.7.0](https://github.com/muitneliss/ymir/compare/ymir-v0.6.0...ymir-v0.7.0) (2026-08-18)
+
+
+### Features
+
+* **ci:** add skills-install gate — smoke-test discovery, payload, and portability ([#53](https://github.com/muitneliss/ymir/issues/53)) ([3a6c840](https://github.com/muitneliss/ymir/commit/3a6c840eeb9bc5a6839bff85375849a49d59e452))
+* **ci:** gate Ymir's own wiki health in CI and wire local drift hook ([#39](https://github.com/muitneliss/ymir/issues/39)) ([a561d57](https://github.com/muitneliss/ymir/commit/a561d57270f1af06f99ad64e76e5367efaabc64a))
+* **skills:** make harness agent-aware — branch on target_agent for wiki, rules, and steering file ([#52](https://github.com/muitneliss/ymir/issues/52)) ([66a64c3](https://github.com/muitneliss/ymir/commit/66a64c3f07fe3cb3515ae54db7b274f39c35be72)), closes [#46](https://github.com/muitneliss/ymir/issues/46)
+* **skills:** replace CLAUDE_PLUGIN_ROOT with skill-root-relative paths and self-provisioning ([#51](https://github.com/muitneliss/ymir/issues/51)) ([b2c72bf](https://github.com/muitneliss/ymir/commit/b2c72bf82e6603832a505c1c6e0fc5912ad46d0a))
+* **skills:** trim installed skill payload by moving wiki-cli to repo root ([#55](https://github.com/muitneliss/ymir/issues/55)) ([5ad9383](https://github.com/muitneliss/ymir/commit/5ad9383783a9178817b60225e4c9e680878147ce))
+
+
+### Bug Fixes
+
+* **skills:** declare plugin skill in manifest so discovery is deterministic ([#50](https://github.com/muitneliss/ymir/issues/50)) ([88a3d06](https://github.com/muitneliss/ymir/commit/88a3d06990116785609b0d79ebcaca281470544f)), closes [#41](https://github.com/muitneliss/ymir/issues/41)
+
 ## [0.6.0](https://github.com/muitneliss/ymir/compare/ymir-v0.5.1...ymir-v0.6.0) (2026-08-18)
 
 
