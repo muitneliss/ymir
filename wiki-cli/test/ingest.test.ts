@@ -13,6 +13,7 @@ describe("runIngest", () => {
     await runIngest({
       root, raw: "raw/a.pdf", title: "Doc A",
       body: "Key takeaway. See [[Doc A]].", today: "2026-06-17",
+      noReindex: true,
     });
     const page = readPage(join(root, "sources", "doc-a.md"));
     expect(page).toContain("type: source");
@@ -26,6 +27,7 @@ describe("runIngest", () => {
     await expect(runIngest({
       root, raw: "raw/a.pdf", title: "Doc A",
       body: "See [[Ghost]].", today: "2026-06-17",
+      noReindex: true,
     })).rejects.toThrow(/broken link/);
     expect(existsSync(join(root, "sources", "doc-a.md"))).toBe(false);
   });
@@ -34,12 +36,14 @@ describe("runIngest", () => {
     await runIngest({
       root, raw: "raw/a.pdf", title: "Doc A",
       body: "Original body. See [[Doc A]].", today: "2026-06-17",
+      noReindex: true,
     });
     const original = readPage(join(root, "sources", "doc-a.md"));
 
     await expect(runIngest({
       root, raw: "raw/a.pdf", title: "Doc A",
       body: "Broken update. See [[Ghost]].", today: "2026-06-18",
+      noReindex: true,
     })).rejects.toThrow(/broken link/);
 
     expect(readPage(join(root, "sources", "doc-a.md"))).toBe(original);
@@ -49,12 +53,14 @@ describe("runIngest", () => {
     await runIngest({
       root, raw: "raw/a.pdf", title: "Hiệu trưởng",
       body: "See [[Hiệu trưởng]].", today: "2026-06-17",
+      noReindex: true,
     });
     const original = readPage(join(root, "sources", "hi-u-tr-ng.md"));
 
     await expect(runIngest({
       root, raw: "raw/b.pdf", title: "Hiếu trường",
       body: "See [[Hiệu trưởng]].", today: "2026-06-18",
+      noReindex: true,
     })).rejects.toThrow(/collision/);
 
     expect(readPage(join(root, "sources", "hi-u-tr-ng.md"))).toBe(original);
