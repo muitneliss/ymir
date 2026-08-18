@@ -6,7 +6,7 @@ formats and validates every change. Direct edits to `sources/`, `notes/`,
 `index.md`, and `log.md` are blocked by a PreToolUse hook.
 
 ## Layers
-- `raw/` — immutable sources. You may read these; never edit them. The user adds files here.
+- `raw/` — for external content not tracked elsewhere in the repo (e.g. PDFs, exported snapshots). Use `ingest --raw <raw/path>` for these. Files that already live in the repo should be ingested with `ingest --source <path>` instead — that binds provenance to the living file and enables drift detection.
 - `sources/` — one CLI-written summary page per ingested source.
 - `notes/` — CLI-written entity / concept / topic pages (the synthesis).
 - `index.md` — CLI-rebuilt catalog. Never edit by hand.

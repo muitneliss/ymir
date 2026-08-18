@@ -34,6 +34,12 @@ function walkDir(dir: string, relPrefix: string, acc: string[]): void {
   }
 }
 
+function stripCode(text: string): string {
+  return text
+    .replace(/^```[\s\S]*?^```[ \t]*$/gm, "")
+    .replace(/`[^`\n]+`/g, "");
+}
+
 function loadDir(root: string, sub: string, errors: string[]): Page[] {
   const out: Page[] = [];
   for (const file of listPages(join(root, sub))) {
@@ -45,7 +51,7 @@ function loadDir(root: string, sub: string, errors: string[]): Page[] {
       errors.push(`${rel}: invalid frontmatter — ${res.error.issues.map((i) => i.message).join("; ")}`);
     }
     const title = (parsed.data as { title?: string }).title ?? file.replace(/\.md$/, "");
-    const links = [...parsed.content.matchAll(/\[\[([^\]]+)\]\]/g)].map((m) => m[1]!.trim());
+    const links = [...stripCode(parsed.content).matchAll(/\[\[([^\]]+)\]\]/g)].map((m) => m[1]!.trim());
     out.push({ rel, title, body: parsed.content, links });
   }
   return out;
