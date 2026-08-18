@@ -22,3 +22,16 @@ jobs:
         run: bun test
       - name: Build
         run: bun run build
+
+  wiki-health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install released wiki binary
+        run: |
+          gh release download --pattern 'wiki-linux-x64' --dir /tmp/wiki-bin
+          install -m 755 /tmp/wiki-bin/wiki-linux-x64 /usr/local/bin/wiki
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Wiki health check
+        run: wiki --root wiki check --error-on-untracked-sources

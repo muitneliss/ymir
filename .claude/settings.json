@@ -10,6 +10,23 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLAUDE_PLUGIN_ROOT=\"${CLAUDE_PROJECT_DIR}/plugins/ymir\" node \"${CLAUDE_PROJECT_DIR}/plugins/ymir/hooks/ensure-wiki-binary.mjs\"",
+            "timeout": 120
+          },
+          {
+            "type": "command",
+            "command": "CLAUDE_PLUGIN_ROOT=\"${CLAUDE_PROJECT_DIR}/plugins/ymir\" node \"${CLAUDE_PROJECT_DIR}/plugins/ymir/hooks/wiki-sync-status.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
     ]
   }
 }
