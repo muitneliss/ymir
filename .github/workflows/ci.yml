@@ -70,7 +70,16 @@ jobs:
           test -d .claude/skills/ymir/references
           test -d .claude/skills/ymir/templates/playbook
 
-      - name: Portability — zero CLAUDE_PLUGIN_ROOT in installed copy
+      - name: Portability — no shell CLAUDE_PLUGIN_ROOT ref in skill content
         run: |
-          count=$(grep -rl 'CLAUDE_PLUGIN_ROOT' /tmp/skills-copy/.claude/skills/ymir/ | wc -l)
-          [ "$count" -eq 0 ] || { echo "FAIL: ${count} file(s) contain CLAUDE_PLUGIN_ROOT"; exit 1; }
+          skill=.claude/skills/ymir
+          count=$(grep -rl '\${CLAUDE_PLUGIN_ROOT}' \
+            /tmp/skills-copy/$skill/SKILL.md \
+            /tmp/skills-copy/$skill/templates/ \
+            /tmp/skills-copy/$skill/references/ \
+            2>/dev/null | wc -l)
+          [ "$count" -eq 0 ] || {
+            echo "FAIL: ${count} file(s) in SKILL.md/templates/references use \${CLAUDE_PLUGIN_ROOT}"
+            grep -rl '\${CLAUDE_PLUGIN_ROOT}' /tmp/skills-copy/$skill/SKILL.md /tmp/skills-copy/$skill/templates/ /tmp/skills-copy/$skill/references/ 2>/dev/null
+            exit 1
+          }
