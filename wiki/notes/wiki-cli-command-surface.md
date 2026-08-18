@@ -1,15 +1,30 @@
 ---
 title: Wiki CLI Command Surface
 type: concept
-date: 2026-06-17
+date: 2026-08-18
 tags: []
 source_count: 0
 ---
 
 # Wiki CLI Command Surface
 
-The wiki CLI (`plugins/ymir/wiki-cli`, TypeScript/Node, built and tested with bun) is the only sanctioned writer of the wiki. It is invoked as `wiki --root ./wiki <command>` and built on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).
+The wiki CLI (`plugins/ymir/wiki-cli`, TypeScript/Node, built and tested with bun) is invoked as `wiki --root ./wiki <command>` and is the only sanctioned writer of the wiki. It is built on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).
 
-Commands: `init` scaffolds the wiki tree + hook + settings + CLAUDE.md block and validates; `ingest --raw <path> --title <t>` (body on stdin) writes a source summary; `note --type entity|concept|topic --name <n>` (body on stdin) writes a synthesis page; `index` rebuilds `index.md`; `log <op> <title>` appends to `log.md`; `validate` checks frontmatter schema, broken double-bracket links, and orphan notes; `fmt` normalizes markdown; `query <q>` shells out to qmd; `help` prints the contract for the LLM.
+Current commands:
 
-Invariant: every write command runs format then validate before committing — on failure it aborts with a nonzero exit and an actionable message, leaving no partial file, and rebuilds index + appends log atomically on success. Frontmatter is injected by the CLI (never hand-written): common title/type/date/tags, plus source/ingested for source pages and source\_count for notes. See [[Wiki Harness Design Spec]] and [[Wiki Harness Implementation Plan]] for origin, [[Wiki Schema]] for the workflow rules, and [[Wiki Harness Model]] for the surrounding model.
+* `ingest --source <path> --title <t>` (body on STDIN) — summarize a tracked file, recording `source_path` + `source_hash` (sha256) in frontmatter for drift detection. `--raw <label>` is the legacy path for untracked input.
+* `note --type entity|concept|topic --name <n>` (body on STDIN) — synthesis page.
+* `index` — rebuild `index.md`.
+* `status [--json]` — report drift between source pages and their tracked files. Each source page classifies as `current`, `stale`, `missing`, or `untracked` (no `source_hash`). Exits 1 if any page is stale or missing.
+* `coverage [--json]` — verify declarative source coverage defined in `wiki/tracked.yaml` (`include`/`exclude` globs). Fails on an uncovered in-scope file, a stale exclusion, an excluded-yet-ingested file, an out-of-scope source page, or duplicate claims on one file.
+* `check [--json] [--error-on-orphan-notes] [--error-on-untracked-sources]` — the single CI gate. Evaluates schema validity, page identity, broken links, orphan policy, provenance drift, untracked sources, coverage, and index freshness in one read-only pass; exits non-zero on any hard failure. Orphan notes and untracked sources are warnings by default, promotable to errors via the flags.
+* `validate` — structural health check (frontmatter, `[[links]]`, orphans, slug collisions, filename/title mismatches).
+* `remove --title <t> [--preview]` — atomically delete a page and rebuild generated state; refuses if inbound `[[links]]` exist.
+* `rename --old-title <t> --new-title <t> [--preview]` — rename a page and rewrite every inbound `[[link]]` atomically.
+* `reindex` — refresh the qmd search index (best-effort; runs automatically after `ingest`/`note`/`index` unless `--no-reindex`).
+* `query <q> [--limit] [--chunks] [--verbatim] [--full|--snippet] [--context]` — search via qmd.
+* `fmt` — reformat all pages.
+* `init [--project-root] [--name]` — idempotently scaffold the entire wiki harness (see [[Init Scaffold Contract]]).
+* `help` — full command reference.
+
+See [[Wiki Harness Design Spec]] for the original architecture, [[Wiki Schema]] for the in-wiki rules and command reference, [[Ymir SKILL Dispatcher]] for how the skill invokes the CLI, and [[Wiki Harness Model]] for the three-layer model this CLI enforces.
