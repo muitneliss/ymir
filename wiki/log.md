@@ -56,3 +56,9 @@
 ## [2026-08-18] note | Socratic Interview Flow
 ## [2026-08-18] note | Harness Playbook Model
 ## [2026-08-18] note | Wiki Harness Model
+## [2026-08-18] ingest | Wiki Schema
+## [2026-08-18] ingest | Playbook Wiki
+## [2026-08-18] ingest | Ymir SKILL Dispatcher
+## [2026-08-18] ingest | Ymir SKILL Dispatcher
+## [2026-08-18] ingest | Playbook Wiki
+## [2026-08-18] ingest | Wiki Schema

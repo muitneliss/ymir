@@ -5,10 +5,39 @@ date: 2026-08-18
 tags: []
 source: plugins/ymir/templates/playbook/wiki.md
 source_path: plugins/ymir/templates/playbook/wiki.md
-source_hash: e38c30a587bf0339f815ec88d205cd62211d6b89f83956e6b7474125fce029c1
+source_hash: 5b58433103b94f96eda6d43a5b8e08b269010228637fc718d6369547d03514bd
 ingested: 2026-08-18
 ---
 
 # Playbook Wiki
 
-Playbook section template for the wiki/context concern. Opens with a Why/Findings placeholder block, targets the wiki/ tree plus .claude/hooks/block-wiki-edits.mjs, and takes concerns.wiki.enabled/collection and meta.project as Inputs. Its single Step runs the idempotent wiki init CLI call (the CLI owns the tree, PreToolUse hook, settings.json entry, CLAUDE.md block, and validation), then tells the user the one-time qmd collection add setup for BM25 keyword search (no qmd embed). Verify requires wiki --root ./wiki validate to print "wiki valid".
+## wiki / context → LLM-maintained wiki
+
+* **Why / Findings:** {{WIKI\_WHY}} — repo scan: {{WIKI\_FINDINGS}}.
+* **Target:** the `wiki/` tree + `.claude/hooks/block-wiki-edits.mjs`
+* **Inputs:** `concerns.wiki.enabled` (run only when `true`), `concerns.wiki.collection`, `meta.project`
+
+This lays down an LLM-maintained wiki backed by the Ymir wiki CLI. The wiki
+harness is scaffolded by **a single CLI call** — never by hand-editing files. The
+CLI owns the tree, the PreToolUse hook, the `.claude/settings.json` entry, the
+`CLAUDE.md` block, and the validation step.
+
+1. **Scaffold + verify** — provision the wiki binary (idempotent), then from the
+   project root run:
+
+   ```bash
+   node "$SKILL_ROOT/hooks/ensure-wiki-binary.mjs"
+   "$SKILL_ROOT/wiki-cli/bin/wiki" --root ./wiki init
+   ```
+
+   `$SKILL_ROOT` is the Ymir skill's root directory (contains `SKILL.md`).
+   It is idempotent (safe to re-run). On success the last line is `wiki valid`.
+   If it errors, stop and report.
+
+2. **Tell the user** the qmd one-time setup (also in `wiki/SCHEMA.md`):
+   `qmd collection add ./wiki --name <project>-wiki`. Search is keyword-only
+   (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after adding
+   pages.
+
+* **Verify:** `"$SKILL_ROOT/wiki-cli/bin/wiki" --root ./wiki validate`
+  prints `wiki valid`.

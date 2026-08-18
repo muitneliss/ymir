@@ -5,7 +5,7 @@ date: 2026-08-18
 tags: []
 source: wiki/SCHEMA.md
 source_path: wiki/SCHEMA.md
-source_hash: eed87e045d4e5df7b17b60cdf9ccff2c7c37be058a85c9a41524f2c2aa9ccf21
+source_hash: 8a446f542eb3038bf86ba07ce2a3ab9839c8254f760e9312091b0742a2cb462a
 ingested: 2026-08-18
 ---
 
@@ -28,10 +28,11 @@ formats and validates every change. Direct edits to `sources/`, `notes/`,
 
 ## The CLI
 
-Invoke via the bundled binary:
+Invoke via the bundled binary (`$SKILL_ROOT` is the Ymir skill root — the
+directory containing `SKILL.md`):
 
 ```
-${CLAUDE_PLUGIN_ROOT}/wiki-cli/bin/wiki --root ./wiki <command>
+$SKILL_ROOT/wiki-cli/bin/wiki --root ./wiki <command>
 ```
 
 Run `... help` for the full command reference. Key commands:
