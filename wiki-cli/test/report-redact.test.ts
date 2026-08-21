@@ -3,6 +3,18 @@ import { redact, truncate } from "../src/report/redact.js";
 
 const CTX = { cwd: "/Users/alice/work/acme-corp/my-project" };
 
+/**
+ * Credential fixtures are assembled at runtime, never written as literals.
+ *
+ * A credential-shaped string in a source file is indistinguishable from a real
+ * leak — to a scanner, to a reviewer, and to GitHub's push protection, which
+ * blocks the push. Splitting the prefix keeps the value under test byte-for-byte
+ * identical while leaving nothing in the file that looks like a live key.
+ */
+const token = (prefix: string, rest: string): string => prefix + rest;
+
+const FAKE_GH_PAT = token("gh" + "p_", "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8");
+
 describe("redact — filesystem paths", () => {
   it("rewrites a path inside the project to <project>, keeping the relative part", () => {
     const out = redact("failed to read /Users/alice/work/acme-corp/my-project/src/auth.ts", CTX);
@@ -38,15 +50,15 @@ describe("redact — filesystem paths", () => {
 
 describe("redact — credentials", () => {
   it.each([
-    ["ghp_", "gh" + "p_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"],
-    ["gho_", "gh" + "o_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"],
-    ["github_pat_", "github" + "_pat_11ABCDEFG0abcdefghijklmnopqrstuvwxyz123456"],
-    ["sk-", "sk" + "-proj0A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6"],
-    ["AKIA", "AK" + "IAIOSFODNN7EXAMPLE"],
-    ["xoxb-", "xo" + "xb-123456789012-abcdefghijklmnop"],
-  ])("redacts a %s token", (_label, token) => {
-    const out = redact(`auth failed using ${token} on retry`, CTX);
-    expect(out).not.toContain(token);
+    ["github pat", token("gh" + "p_", "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8")],
+    ["github oauth", token("gh" + "o_", "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8")],
+    ["github fine-grained", token("github" + "_pat_", "11ABCDEFG0abcdefghijklmnopqrstuvwxyz123456")],
+    ["openai", token("sk" + "-", "proj0A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6")],
+    ["aws access key", token("AK" + "IA", "IOSFODNN7EXAMPLE")],
+    ["slack bot", token("xo" + "xb-", "123456789012-abcdefghijklmnop")],
+  ])("redacts a %s token", (_label, secret) => {
+    const out = redact(`auth failed using ${secret} on retry`, CTX);
+    expect(out).not.toContain(secret);
     expect(out).toContain("<redacted>");
   });
 
@@ -73,7 +85,7 @@ describe("redact — credentials", () => {
   });
 
   it("redacts a token even when embedded in a path", () => {
-    const out = redact("/tmp/gh" + "p_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8/cache", CTX);
+    const out = redact(`/tmp/${FAKE_GH_PAT}/cache`, CTX);
     expect(out).not.toContain("A1b2C3d4E5f6");
   });
 
@@ -121,7 +133,7 @@ describe("redact — identities and network", () => {
 
 describe("redact — invariants", () => {
   it("is idempotent", () => {
-    const input = "/Users/alice/p/x.ts gh" + "p_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8 a@b.com";
+    const input = `/Users/alice/p/x.ts ${FAKE_GH_PAT} a@b.com`;
     const once = redact(input, CTX);
     expect(redact(once, CTX)).toBe(once);
   });
@@ -135,12 +147,12 @@ describe("redact — invariants", () => {
     const input = [
       "ingest rejected: /Users/alice/work/acme-corp/my-project/src/auth.ts",
       "  upstream https://internal.acme-corp.com/api?key=s3cr3t",
-      "  as alice@acme-corp.com with token=gh" + "p_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8",
+      `  as alice@acme-corp.com with token=${FAKE_GH_PAT}`,
       "  cache at /Users/alice/.ymir/cache.json",
     ].join("\n");
     const out = redact(input, CTX);
 
-    for (const leak of ["alice", "s3cr3t", "ghp_A1b2", "acme-corp.com"]) {
+    for (const leak of ["alice", "s3cr3t", FAKE_GH_PAT.slice(0, 8), "acme-corp.com"]) {
       expect(out).not.toContain(leak);
     }
     expect(out).toContain("<project>/src/auth.ts");

@@ -4,6 +4,9 @@ import type { Report } from "../src/report/model.js";
 
 const REPO = "muitneliss/ymir";
 
+/** Assembled at runtime so the file holds no credential-shaped literal. */
+const FAKE_GH_PAT = "gh" + "p_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8";
+
 function report(over: Partial<Report> = {}): Report {
   return {
     schema: 1,
@@ -185,7 +188,7 @@ describe("issue rendering", () => {
 
   it("redacts anything identifying that reached it late", () => {
     const body = renderBody(
-      report({ message: "failed at /Users/alice/x.ts with gh" + "p_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8" }),
+      report({ message: `failed at /Users/alice/x.ts with ${FAKE_GH_PAT}` }),
     );
     expect(body).not.toContain("alice");
     expect(body).not.toContain("A1b2C3d4E5f6");
