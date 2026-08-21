@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/muitneliss/ymir/compare/ymir-v0.7.0...ymir-v0.8.0) (2026-08-21)
+
+
+### Features
+
+* **wiki-cli:** self-report — capture failures and file them as GitHub issues ([#60](https://github.com/muitneliss/ymir/issues/60)) ([234e6d6](https://github.com/muitneliss/ymir/commit/234e6d619e59de6699c010af8e4d41df54ab4408))
+
 ## [0.7.0](https://github.com/muitneliss/ymir/compare/ymir-v0.6.0...ymir-v0.7.0) (2026-08-18)
 
 
