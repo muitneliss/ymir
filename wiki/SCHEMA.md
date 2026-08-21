@@ -48,6 +48,13 @@ Run `... help` for the full command reference. Key commands:
   `--preview` reports the plan (link count, affected paths) without writing.
 - `reindex` — refresh the search index (creates the collection, or `qmd update`s it).
 - `query <q> [--limit <n>] [--chunks] [--verbatim] [--full|--snippet] [--context <chars>]` — search this wiki via qmd.
+- `report [--yes] [--off] [--flush] [--feedback <text>] [--skill --title <t> --detail <d>]` —
+  review and file Ymir self-reports. Command crashes are captured automatically to
+  `~/.ymir/`; with no flags this prints the exact issue text and sends nothing.
+  `--yes` files pending reports and opts in to automatic filing thereafter.
+  `--skill` records a failure of the Ymir skill flow that the CLI cannot observe.
+  Reports are redacted (paths, hostnames, credentials, identities) before storage.
+  Opt out with `--off`, `DO_NOT_TRACK=1`, `DISABLE_TELEMETRY=1`, or `YMIR_REPORT=off`.
 
 ## Page conventions
 - Cross-reference pages with `[[Exact Title]]`. The CLI validates every link target exists.

@@ -87,6 +87,43 @@ node "$SKILL_ROOT/hooks/ensure-wiki-binary.mjs"
 **Telemetry:** the skills CLI collects anonymous usage telemetry.
 Set `DISABLE_TELEMETRY=1` or `DO_NOT_TRACK=1` to opt out.
 
+## Self-report
+
+Ymir runs on your machine, so its failures are invisible to us unless you send
+them. When a command crashes, Ymir writes a redacted report to `~/.ymir/` and
+tells you it did. **Nothing is sent until you say so:**
+
+```shell
+wiki report          # show exactly what would be posted — sends nothing
+wiki report --yes    # file it, and opt in to filing future ones automatically
+wiki report --off    # opt out and discard everything captured
+```
+
+`wiki report` prints the literal issue body, so you can read it before deciding.
+Once you opt in, later reports are filed on their own; recurrences comment on the
+existing issue rather than opening a new one.
+
+You can also file things Ymir cannot detect itself:
+
+```shell
+wiki report --feedback "ymir apply should have a --dry-run"
+```
+
+**What a report contains:** the subcommand, error type and message, Ymir's
+version, and your OS/arch. Before anything is stored — let alone sent — it is
+stripped of filesystem paths, hostnames, email addresses, git remotes and
+credential-shaped strings. Paths inside your project keep only their
+project-relative part (`<project>/src/auth.ts`); everything else is reduced to a
+bare filename. No file contents, and no argument values, are ever included.
+
+**Delivery** uses your own `gh` login, so the issue is filed by you and Ymir
+ships no credentials. Without `gh`, you get a prefilled issue URL to open.
+
+**Opting out** — `wiki report --off`, or any of `DO_NOT_TRACK=1`,
+`DISABLE_TELEMETRY=1`, `YMIR_REPORT=off`. When off, nothing is captured at all,
+not merely withheld. Forks and internal deployments can redirect reports with
+`YMIR_REPORT_REPO=owner/name`.
+
 ## Status
 
 `v0.6.0`. Ymir runs a codebase-first flow: it scans the repo, then runs a deep

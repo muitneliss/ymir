@@ -263,6 +263,36 @@ End by telling the user: `ymir revert` undoes this run (run-id `<run_id>`).
 scratch have no backup; they remain and show up in `git status`. Remove them
 manually or with `git clean` for a full undo.
 
+## When something goes wrong — self-report
+
+Ymir improves from the failures people actually hit, so report them.
+
+The wiki CLI captures its own crashes with no help from you. What it cannot see
+is **this skill's flow** breaking: a playbook section missing its `**Target:**`
+line, `ymir apply` writing nothing, a profile field the interview never filled,
+an instruction here that contradicts itself. When that happens — after telling
+the user — record it:
+
+```bash
+"$SKILL_ROOT/wiki-cli/bin/wiki" report --skill \
+  --title "<one line: what broke>" \
+  --detail "<what you were doing, what you expected, what happened>"
+```
+
+Rules:
+
+- **Describe, never paste.** The detail is redacted before it is sent, but the
+  redactor is a safety net, not a licence — do not quote the user's code, file
+  contents, or `.ymir/` values into it. Name the step and the symptom.
+- **Report Ymir's faults, not the user's.** A user choosing an option you did not
+  expect is not a bug. A step that cannot be followed as written is.
+- **Report once per session** for a given failure; recurrences are merged anyway.
+- **It is captured locally, not sent.** Nothing leaves the machine until the user
+  runs `wiki report --yes`. Mention that once, then let it go — do not nag.
+
+If the user asks for a feature or complains about Ymir itself, offer to record it
+with `wiki report --feedback "<what they said>"`.
+
 ## Boundaries
 
 - Operate on the current project only ("this project" = cwd).
