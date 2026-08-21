@@ -7,6 +7,7 @@ import { buildIndex } from "../index-build.js";
 import { appendLog } from "../wikilog.js";
 import { validateWiki } from "../validate.js";
 import { reindex, type ReindexRunner } from "../reindex.js";
+import { Rejection } from "../rejection.js";
 
 export interface IngestInput {
   root: string;
@@ -34,7 +35,7 @@ export async function runIngest(i: IngestInput): Promise<string> {
   if (existsSync(path)) {
     const existingTitle = (parseFrontmatter(readPage(path)).data as { title?: string }).title;
     if (existingTitle !== i.title) {
-      throw new Error(
+      throw new Rejection(
         `ingest rejected: slug collision — "${path}" already holds "${existingTitle}", cannot overwrite with "${i.title}"`,
       );
     }
@@ -46,7 +47,7 @@ export async function runIngest(i: IngestInput): Promise<string> {
   if (!result.ok) {
     if (prev === null) rmSync(path);
     else writePage(path, prev);
-    throw new Error(`ingest rejected:\n${result.errors.join("\n")}`);
+    throw new Rejection(`ingest rejected:\n${result.errors.join("\n")}`);
   }
 
   writePage(wikiPaths(i.root).index, buildIndex(i.root));

@@ -84,6 +84,27 @@ describe("cli error boundary", () => {
     expect(spooled()).toHaveLength(0);
   });
 
+  it("does not report a rejection — a broken link is a refusal, not a bug", () => {
+    const { stderr, status } = runCli(
+      ["--root", "./wiki", "note", "--type", "concept", "--name", "X", "--no-reindex"],
+      "see [[Ghost]]",
+    );
+
+    expect(status).toBe(1);
+    expect(stderr).toContain("broken link");
+    expect(stderr).not.toContain("wiki report");
+    expect(spooled()).toHaveLength(0);
+  });
+
+  it("does not report a slug collision either", () => {
+    const write = ["--root", "./wiki", "note", "--type", "concept", "--no-reindex"];
+    runCli([...write, "--name", "Hiệu trưởng"], "first");
+    const { status } = runCli([...write, "--name", "Hiếu trường"], "second");
+
+    expect(status).toBe(1);
+    expect(spooled()).toHaveLength(0);
+  });
+
   it("rejects an invalid --type as user error, not as a crash", () => {
     const { stderr, status } = runCli(
       ["--root", "./wiki", "note", "--type", "bogus", "--name", "P"],

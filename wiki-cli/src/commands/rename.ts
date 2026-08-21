@@ -7,6 +7,7 @@ import { appendLog } from "../wikilog.js";
 import { parseFrontmatter, stringifyFrontmatter } from "../frontmatter.js";
 import { validateWiki } from "../validate.js";
 import { reindex, type ReindexRunner } from "../reindex.js";
+import { Rejection } from "../rejection.js";
 
 export interface RenameInput {
   root: string;
@@ -61,7 +62,7 @@ function rewriteLinks(content: string, oldSlug: string, newTitle: string): { upd
 
 export async function runRename(i: RenameInput): Promise<RenameResult> {
   const found = findPage(i.root, i.oldTitle);
-  if (!found) throw new Error(`rename rejected: "${i.oldTitle}" not found`);
+  if (!found) throw new Rejection(`rename rejected: "${i.oldTitle}" not found`);
 
   const targetPath = newPath(i.root, found.sub, i.newTitle);
   const newSlug = slugify(i.newTitle);
@@ -69,7 +70,7 @@ export async function runRename(i: RenameInput): Promise<RenameResult> {
 
   if (newSlug !== oldSlug && existsSync(targetPath)) {
     const existingTitle = (parseFrontmatter(readPage(targetPath)).data as { title?: string }).title;
-    throw new Error(
+    throw new Rejection(
       `rename rejected: slug collision — "${targetPath}" already holds "${existingTitle}"`,
     );
   }
@@ -127,7 +128,7 @@ export async function runRename(i: RenameInput): Promise<RenameResult> {
   const result = validateWiki(i.root);
   if (!result.ok) {
     restore();
-    throw new Error(`rename rejected:\n${result.errors.join("\n")}`);
+    throw new Rejection(`rename rejected:\n${result.errors.join("\n")}`);
   }
 
   writePage(wikiPaths(i.root).index, buildIndex(i.root));

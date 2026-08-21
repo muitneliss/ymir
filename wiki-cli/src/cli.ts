@@ -22,7 +22,7 @@ import { fileProvenance } from "./provenance.js";
 import { reindex } from "./reindex.js";
 import { runReport } from "./commands/report.js";
 import { capture, draftFromError, maybeFlush, REPORT_HINT } from "./report.js";
-import { loadConfig, reportHome } from "./report/store.js";
+import { Rejection } from "./rejection.js";
 import { readFileSync as readVersionFile } from "node:fs";
 import { dirname } from "node:path";
 
@@ -343,9 +343,10 @@ program
  * V8 dump. The compiled binary makes that worse, not better — it prints no stack
  * frames at all, so the dump is noise with nothing to act on.
  *
- * Only genuine exceptions are captured. The inline `process.exit(1)` paths — a
- * bad flag, a failing `check` — are the CLI working correctly, and reporting
- * them would bury real bugs under everyone's typos.
+ * Only genuine exceptions are captured. The inline `process.exit(1)` paths and
+ * every `Rejection` — a bad flag, a slug collision, a broken link — are the CLI
+ * working correctly, and reporting them would bury real bugs under everyone's
+ * typos.
  */
 async function main(): Promise<void> {
   maybeFlush();
@@ -353,10 +354,12 @@ async function main(): Promise<void> {
   try {
     await program.parseAsync();
   } catch (e) {
-    const command = program.args[0] ? `wiki ${program.args[0]}` : "wiki";
     process.stderr.write(`error: ${(e as Error)?.message ?? String(e)}\n`);
 
-    if (capture(draftFromError(command, e)) !== null) process.stderr.write(`${REPORT_HINT}\n`);
+    if (!(e instanceof Rejection)) {
+      const command = program.args[0] ? `wiki ${program.args[0]}` : "wiki";
+      if (capture(draftFromError(command, e)) !== null) process.stderr.write(`${REPORT_HINT}\n`);
+    }
 
     process.exit(1);
   }
