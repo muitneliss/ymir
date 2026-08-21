@@ -95,8 +95,14 @@ const sumsUrl  = `${base}/SHA256SUMS.txt`;
 
 mkdirSync(binDir, { recursive: true });
 
-const tmpBin  = `${binPath}.tmp`;
-const tmpSums = join(binDir, "SHA256SUMS.txt.tmp");
+// Scratch paths are per-process because more than one run can be in flight at
+// once — Claude Code fires this at session start, and installing the skill can
+// trigger it again while the first download is still going. Sharing one
+// `wiki.tmp` let two curls interleave into the same file, which either corrupts
+// the binary past the sha256 gate or makes one run delete the other's work
+// mid-flight. The final rename is atomic, so the last verified writer wins.
+const tmpBin  = `${binPath}.${process.pid}.tmp`;
+const tmpSums = join(binDir, `SHA256SUMS.txt.${process.pid}.tmp`);
 
 const cleanupTmp = () => {
   try { unlinkSync(tmpBin); } catch {}
