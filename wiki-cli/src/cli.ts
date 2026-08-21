@@ -20,12 +20,29 @@ import { NoteType } from "./schema.js";
 import { join, resolve } from "node:path";
 import { fileProvenance } from "./provenance.js";
 import { reindex } from "./reindex.js";
+import { runReport } from "./commands/report.js";
+import { capture, draftFromError, maybeFlush, REPORT_HINT } from "./report.js";
+import { loadConfig, reportHome } from "./report/store.js";
+import { readFileSync as readVersionFile } from "node:fs";
+import { dirname } from "node:path";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const readStdin = () => readFileSync(0, "utf8");
 
+function version(): string {
+  try {
+    return readVersionFile(join(dirname(process.execPath), ".version"), "utf8").trim() || "dev";
+  } catch {
+    return "dev";
+  }
+}
+
 const program = new Command();
-program.name("wiki").description("Ymir wiki CLI").option("--root <dir>", "wiki root", "wiki");
+program
+  .name("wiki")
+  .description("Ymir wiki CLI")
+  .version(version())
+  .option("--root <dir>", "wiki root", "wiki");
 
 program
   .command("ingest")
@@ -88,7 +105,16 @@ program
   .option("--no-reindex", "skip qmd reindex after write")
   .action(async (opts: { type: string; name: string; reindex: boolean }) => {
     const root = program.opts<{ root: string }>().root;
-    const type = NoteType.parse(opts.type);
+
+    const parsed = NoteType.safeParse(opts.type);
+    if (!parsed.success) {
+      process.stderr.write(
+        `error: --type must be one of ${NoteType.options.join("|")} (got "${opts.type}")\n`,
+      );
+      process.exit(1);
+    }
+
+    const type = parsed.data;
     const path = await runNote({ root, type, name: opts.name, body: readStdin(), today: today(), noReindex: !opts.reindex });
     process.stdout.write(`wrote ${path}\n`);
   });
@@ -279,4 +305,61 @@ program
     }
   });
 
-program.parseAsync();
+program
+  .command("report")
+  .description("review, file, or disable Ymir self-reports")
+  .option("--yes", "consent and file pending reports now", false)
+  .option("--flush", "file pending reports if already consented; silent otherwise", false)
+  .option("--skill", "record a skill-flow failure", false)
+  .option("--title <title>", "short summary (with --skill)")
+  .option("--detail <detail>", "what happened (with --skill)")
+  .option("--feedback <text>", "record an improvement idea")
+  .option("--off", "opt out and discard anything captured", false)
+  .action((opts: {
+    yes: boolean;
+    flush: boolean;
+    skill: boolean;
+    title?: string;
+    detail?: string;
+    feedback?: string;
+    off: boolean;
+  }) => {
+    const { text, exitCode } = runReport({
+      yes: opts.yes,
+      flush: opts.flush,
+      off: opts.off,
+      feedback: opts.feedback,
+      skill: opts.skill ? { title: opts.title ?? "", detail: opts.detail ?? "" } : undefined,
+    });
+    process.stdout.write(text);
+    if (exitCode !== 0) process.exit(exitCode);
+  });
+
+/**
+ * The one place a command's failure becomes a user-facing message.
+ *
+ * Before this existed, `program.parseAsync()` ran unattended: anything an async
+ * action threw escaped as an unhandled rejection and reached the user as a raw
+ * V8 dump. The compiled binary makes that worse, not better — it prints no stack
+ * frames at all, so the dump is noise with nothing to act on.
+ *
+ * Only genuine exceptions are captured. The inline `process.exit(1)` paths — a
+ * bad flag, a failing `check` — are the CLI working correctly, and reporting
+ * them would bury real bugs under everyone's typos.
+ */
+async function main(): Promise<void> {
+  maybeFlush();
+
+  try {
+    await program.parseAsync();
+  } catch (e) {
+    const command = program.args[0] ? `wiki ${program.args[0]}` : "wiki";
+    process.stderr.write(`error: ${(e as Error)?.message ?? String(e)}\n`);
+
+    if (capture(draftFromError(command, e)) !== null) process.stderr.write(`${REPORT_HINT}\n`);
+
+    process.exit(1);
+  }
+}
+
+void main();

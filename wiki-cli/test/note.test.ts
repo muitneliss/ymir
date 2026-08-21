@@ -12,7 +12,7 @@ describe("runNote", () => {
   it("creates a validated note, rebuilds index, appends log", async () => {
     await runNote({
       root, type: "concept", name: "Token Bucket",
-      body: "A rate limiter.", today: "2026-06-17",
+      body: "A rate limiter.", today: "2026-06-17", noReindex: true,
     });
     const page = readPage(join(root, "notes", "token-bucket.md"));
     expect(page).toContain("type: concept");
@@ -22,7 +22,7 @@ describe("runNote", () => {
 
   it("rejects on broken link and writes nothing", async () => {
     await expect(runNote({
-      root, type: "concept", name: "X", body: "see [[Ghost]]", today: "2026-06-17",
+      root, type: "concept", name: "X", body: "see [[Ghost]]", today: "2026-06-17", noReindex: true,
     })).rejects.toThrow(/broken link/);
     expect(existsSync(join(root, "notes", "x.md"))).toBe(false);
   });
@@ -34,7 +34,7 @@ describe("runNote", () => {
     );
     await runNote({
       root, type: "concept", name: "Token Bucket",
-      body: "Updated body.", today: "2026-06-18",
+      body: "Updated body.", today: "2026-06-18", noReindex: true,
     });
     const page = readPage(join(root, "notes", "token-bucket.md"));
     expect(page).toContain("source_count: 3");
@@ -44,13 +44,13 @@ describe("runNote", () => {
   it("rejects a note name whose slug collides with an existing note of a different name", async () => {
     await runNote({
       root, type: "concept", name: "Hiệu trưởng",
-      body: "Original note.", today: "2026-06-17",
+      body: "Original note.", today: "2026-06-17", noReindex: true,
     });
     const original = readPage(join(root, "notes", "hi-u-tr-ng.md"));
 
     await expect(runNote({
       root, type: "concept", name: "Hiếu trường",
-      body: "Colliding note.", today: "2026-06-18",
+      body: "Colliding note.", today: "2026-06-18", noReindex: true,
     })).rejects.toThrow(/collision/);
 
     expect(readPage(join(root, "notes", "hi-u-tr-ng.md"))).toBe(original);
