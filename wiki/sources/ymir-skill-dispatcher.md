@@ -5,7 +5,7 @@ date: 2026-08-21
 tags: []
 source: plugins/ymir/SKILL.md
 source_path: plugins/ymir/SKILL.md
-source_hash: f9b11b2bf987886213aa575a410f25864de9694ee7c97c6977961e25fbef3cea
+source_hash: 3bd4ebf7b43a6ba605c0eb749fd9499305246f01ecadb6b2d9c482804de4478b
 ingested: 2026-08-21
 ---
 
@@ -29,6 +29,11 @@ a summary. `ymir revert` restores that run's backups, with the documented
 limitation that files created from scratch have no backup. The wiki-only intents
 `ymir add context` and `ymir add wiki` are the one exception that writes project
 files directly, via a single CLI call.
+
+Asset paths are resolved relative to `$SKILL_ROOT`, the directory containing
+`SKILL.md`, derived from the file's own path — commonly `~/.claude/skills/ymir/`
+or a project-local `.claude/skills/ymir/` now that distribution is the skills CLI
+rather than a Claude Code plugin.
 
 The skill also carries the self-report protocol. The wiki CLI captures its own
 crashes unaided; what it cannot see is this skill's flow breaking — a playbook
