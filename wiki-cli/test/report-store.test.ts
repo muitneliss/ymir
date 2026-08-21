@@ -169,6 +169,32 @@ describe("hook records", () => {
     writeFileSync(join(root, "reports", "incoming", "hook.jsonl"), "not json\n");
     expect(pending(root)).toHaveLength(0);
   });
+
+  it("redacts adopted records — a hook message quotes whatever path failed", () => {
+    mkdirSync(join(root, "reports", "incoming"), { recursive: true });
+    writeFileSync(
+      join(root, "reports", "incoming", "hook.jsonl"),
+      JSON.stringify({
+        kind: "hook",
+        command: "ensure-wiki-binary",
+        errorName: "ManifestUnreadable",
+        message: "ENOENT: /Users/alice/.claude/plugins/ymir/plugin.json",
+      }) + "\n",
+    );
+
+    expect(JSON.stringify(pending(root))).not.toContain("alice");
+  });
+
+  it("consumes the incoming file so a record is adopted once", () => {
+    mkdirSync(join(root, "reports", "incoming"), { recursive: true });
+    writeFileSync(
+      join(root, "reports", "incoming", "hook.jsonl"),
+      JSON.stringify({ kind: "hook", command: "h", errorName: "E", message: "boom" }) + "\n",
+    );
+
+    expect(pending(root)).toHaveLength(1);
+    expect(pending(root)[0]!.occurrences).toBe(1);
+  });
 });
 
 describe("posted map", () => {

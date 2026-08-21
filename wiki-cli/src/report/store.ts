@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fingerprint, type Report, type ReportDraft } from "./model.js";
+import { redact } from "./redact.js";
 
 /**
  * Persistent report state, in `~/.ymir`.
@@ -177,16 +178,22 @@ function adoptIncoming(root: string): Report[] {
       }
       if (!draft.kind || !draft.command || typeof draft.message !== "string") continue;
 
-      const now = draft.lastSeen ?? new Date().toISOString();
-      adopted.push({
-        schema: 1,
+      // Hook messages quote whatever path or URL failed, and the hook has no
+      // redactor of its own — this is the first point that does.
+      const clean: ReportDraft = {
         kind: draft.kind,
         command: draft.command,
         errorName: draft.errorName ?? "Error",
-        message: draft.message,
-        stack: draft.stack,
+        message: redact(draft.message),
+        stack: draft.stack ? redact(draft.stack) : undefined,
         flags: draft.flags,
-        fingerprint: fingerprint(draft),
+      };
+
+      const now = draft.lastSeen ?? new Date().toISOString();
+      adopted.push({
+        ...clean,
+        schema: 1,
+        fingerprint: fingerprint(clean),
         version: draft.version ?? "unknown",
         platform: draft.platform ?? "unknown",
         firstSeen: draft.firstSeen ?? now,
