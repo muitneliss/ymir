@@ -8,6 +8,7 @@ import { appendLog } from "../wikilog.js";
 import { validateWiki } from "../validate.js";
 import { reindex, type ReindexRunner } from "../reindex.js";
 import type { NoteTypeT } from "../schema.js";
+import { Rejection } from "../rejection.js";
 
 export interface NoteInput {
   root: string; type: NoteTypeT; name: string; body: string; today: string;
@@ -23,7 +24,7 @@ export async function runNote(i: NoteInput): Promise<string> {
     const existing = parseFrontmatter(readPage(path));
     const data = existing.data as { title?: string; source_count?: number };
     if (data.title !== i.name) {
-      throw new Error(
+      throw new Rejection(
         `note rejected: slug collision — "${path}" already holds "${data.title}", cannot overwrite with "${i.name}"`,
       );
     }
@@ -41,7 +42,7 @@ export async function runNote(i: NoteInput): Promise<string> {
   if (!result.ok) {
     if (prev === null) rmSync(path);
     else writePage(path, prev);
-    throw new Error(`note rejected:\n${result.errors.join("\n")}`);
+    throw new Rejection(`note rejected:\n${result.errors.join("\n")}`);
   }
 
   writePage(wikiPaths(i.root).index, buildIndex(i.root));

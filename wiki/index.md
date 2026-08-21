@@ -25,6 +25,8 @@
 - [Ymir Harness Spec Design](sources/ymir-harness-spec-design.md)
 - [Ymir Harness Spec Plan](sources/ymir-harness-spec-plan.md)
 - [Ymir README](sources/ymir-readme.md)
+- [Ymir Self-Report Design](sources/ymir-self-report-design.md)
+- [Ymir Self-Report Plan](sources/ymir-self-report-plan.md)
 - [Ymir SKILL Dispatcher](sources/ymir-skill-dispatcher.md)
 - [Ymir Socratic Interview Design](sources/ymir-socratic-interview-design.md)
 - [Ymir Socratic Interview Plan](sources/ymir-socratic-interview-plan.md)

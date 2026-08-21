@@ -6,6 +6,7 @@ import { buildIndex } from "../index-build.js";
 import { appendLog } from "../wikilog.js";
 import { parseFrontmatter } from "../frontmatter.js";
 import { reindex, type ReindexRunner } from "../reindex.js";
+import { Rejection } from "../rejection.js";
 
 export interface InboundLink {
   from: string;
@@ -59,7 +60,7 @@ function scanInboundLinks(root: string, title: string, excludePath: string): Inb
 
 export function runRemove(i: RemoveInput): RemoveResult {
   const path = findPage(i.root, i.title);
-  if (!path) throw new Error(`remove rejected: "${i.title}" not found`);
+  if (!path) throw new Rejection(`remove rejected: "${i.title}" not found`);
 
   const inboundLinks = scanInboundLinks(i.root, i.title, path);
 
@@ -67,7 +68,7 @@ export function runRemove(i: RemoveInput): RemoveResult {
 
   if (inboundLinks.length > 0) {
     const detail = inboundLinks.map((l) => `  ${l.from}: ${l.link}`).join("\n");
-    throw new Error(`remove rejected: inbound link(s) would break — remove or update them first:\n${detail}`);
+    throw new Rejection(`remove rejected: inbound link(s) would break — remove or update them first:\n${detail}`);
   }
 
   rmSync(path);

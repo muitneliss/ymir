@@ -46,6 +46,19 @@ Commands:
                                       --verbatim searches the text exactly as typed.
                                       --chunks returns matching passages instead of
                                       whole files.
+  report [--yes|--off|--flush]        Review and file Ymir self-reports. With no flags it
+                                      prints the exact issue text that would be posted and
+                                      sends nothing. --yes opts in and files them; after
+                                      that they are filed automatically. --off opts out and
+                                      discards anything captured.
+                                      --feedback "<text>" records an improvement idea;
+                                      --skill --title <t> --detail <d> records a skill-flow
+                                      failure the CLI could not see itself.
+                                      Reports carry the command, error, version and platform
+                                      only — paths, hostnames, credentials and identities are
+                                      stripped. Nothing is sent until you opt in. Disable
+                                      entirely with DO_NOT_TRACK=1, DISABLE_TELEMETRY=1, or
+                                      YMIR_REPORT=off; retarget with YMIR_REPORT_REPO.
   help                                Show this text.
 
 Page conventions:

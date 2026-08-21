@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import { execSync, spawnSync } from "node:child_process";
 import {
-  chmodSync, existsSync, mkdirSync,
+  appendFileSync, chmodSync, existsSync, mkdirSync,
   readFileSync, renameSync, unlinkSync, writeFileSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
 import { createHash } from "node:crypto";
 
 // Keep in sync with wiki-cli/src/platform.ts (cannot import TS from this .mjs hook).
@@ -21,20 +22,56 @@ function detectAssetLabel(unameSM) {
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = process.env.CLAUDE_PLUGIN_ROOT ?? join(SCRIPT_DIR, "..");
 
+const optedOut = ["DO_NOT_TRACK", "DISABLE_TELEMETRY"].some(
+  (k) => process.env[k] && process.env[k] !== "0"
+) || process.env.YMIR_REPORT === "off";
+
+/**
+ * Fail the install, leaving a record the CLI can file later.
+ *
+ * A failure here is invisible to the wiki CLI — the binary it would have
+ * reported through is the very thing that did not install. So the record is
+ * appended as JSONL and completed on the next `wiki` run, which keeps the whole
+ * reporting pipeline (redaction, fingerprinting, dedup) in one place instead of
+ * being half-copied into a hook that cannot import it.
+ */
+function bail(errorName, message) {
+  process.stderr.write(`[ymir] ${message}\n`);
+
+  if (!optedOut) {
+    try {
+      const dir = join(process.env.YMIR_HOME ?? join(homedir(), ".ymir"), "reports", "incoming");
+      mkdirSync(dir, { recursive: true });
+      appendFileSync(
+        join(dir, "hooks.jsonl"),
+        JSON.stringify({
+          kind: "hook",
+          command: "ensure-wiki-binary",
+          errorName,
+          message,
+          version: typeof pluginVersion === "string" ? pluginVersion : "unknown",
+          platform: typeof label === "string" ? label : "unknown",
+        }) + "\n"
+      );
+    } catch { /* A hook must never fail because reporting failed. */ }
+  }
+
+  process.exit(2);
+}
+
 let pluginVersion;
+let label;
 try {
   const manifest = JSON.parse(
     readFileSync(join(SKILL_ROOT, ".claude-plugin/plugin.json"), "utf8")
   );
   pluginVersion = manifest.version;
 } catch (e) {
-  process.stderr.write(`[ymir] Cannot read plugin.json: ${e.message}\n`);
-  process.exit(2);
+  bail("ManifestUnreadable", `Cannot read plugin.json: ${e.message}`);
 }
 
 if (typeof pluginVersion !== "string" || !/^\d+\.\d+\.\d+/.test(pluginVersion)) {
-  process.stderr.write(`[ymir] Invalid plugin version: ${JSON.stringify(pluginVersion)}\n`);
-  process.exit(2);
+  bail("InvalidVersion", `Invalid plugin version: ${JSON.stringify(pluginVersion)}`);
 }
 
 const binDir    = join(SKILL_ROOT, "wiki-cli/bin");
@@ -45,13 +82,11 @@ if (existsSync(binPath) && existsSync(stampPath)) {
   if (readFileSync(stampPath, "utf8").trim() === pluginVersion) process.exit(0);
 }
 
-let label;
 try {
   const uname = execSync("uname -sm", { encoding: "utf8" });
   label = detectAssetLabel(uname);
 } catch (e) {
-  process.stderr.write(`[ymir] Platform detection failed: ${e.message}\n`);
-  process.exit(2);
+  bail("UnsupportedPlatform", `Platform detection failed: ${e.message}`);
 }
 
 const base     = `https://github.com/muitneliss/ymir/releases/download/ymir-v${pluginVersion}`;
@@ -71,15 +106,13 @@ const cleanupTmp = () => {
 const dlBin = spawnSync("curl", ["-fsSL", "--output", tmpBin, assetUrl], { stdio: "inherit" });
 if (dlBin.status !== 0) {
   cleanupTmp();
-  process.stderr.write(`[ymir] Failed to download wiki binary: ${assetUrl}\n`);
-  process.exit(2);
+  bail("DownloadFailed", `Failed to download wiki binary: ${assetUrl}`);
 }
 
 const dlSums = spawnSync("curl", ["-fsSL", "--output", tmpSums, sumsUrl], { stdio: "inherit" });
 if (dlSums.status !== 0) {
   cleanupTmp();
-  process.stderr.write(`[ymir] Failed to download SHA256SUMS: ${sumsUrl}\n`);
-  process.exit(2);
+  bail("ChecksumDownloadFailed", `Failed to download SHA256SUMS: ${sumsUrl}`);
 }
 
 const sumsText     = readFileSync(tmpSums, "utf8");
@@ -89,17 +122,16 @@ const expectedLine = sumsText.split("\n").find((l) => {
 });
 if (!expectedLine) {
   cleanupTmp();
-  process.stderr.write(`[ymir] No sha256 entry for wiki-${label} in SHA256SUMS.txt\n`);
-  process.exit(2);
+  bail("ChecksumMissing", `No sha256 entry for wiki-${label} in SHA256SUMS.txt`);
 }
 const expectedHash = expectedLine.trim().split(/\s+/)[0];
 const actualHash   = createHash("sha256").update(readFileSync(tmpBin)).digest("hex");
 if (actualHash !== expectedHash) {
   cleanupTmp();
-  process.stderr.write(
-    `[ymir] SHA256 mismatch for wiki-${label}:\n  expected ${expectedHash}\n  got      ${actualHash}\n`
+  bail(
+    "ChecksumMismatch",
+    `SHA256 mismatch for wiki-${label}:\n  expected ${expectedHash}\n  got      ${actualHash}`
   );
-  process.exit(2);
 }
 
 renameSync(tmpBin, binPath);
