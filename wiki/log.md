@@ -75,3 +75,5 @@
 ## [2026-08-21] ingest | Ymir README
 ## [2026-08-21] ingest | Ymir SKILL Dispatcher
 ## [2026-08-21] note | Wiki CLI Command Surface
+## [2026-08-21] ingest | Ymir README
+## [2026-08-21] ingest | Ymir SKILL Dispatcher
