@@ -68,3 +68,10 @@
 ## [2026-08-18] ingest | Playbook Rules
 ## [2026-08-18] ingest | Socratic Interview Reference
 ## [2026-08-18] ingest | Ymir README
+## [2026-08-21] ingest | Ymir Self-Report Plan
+## [2026-08-21] ingest | Ymir Self-Report Design
+## [2026-08-21] ingest | Ymir Self-Report Plan
+## [2026-08-21] ingest | Wiki Schema
+## [2026-08-21] ingest | Ymir README
+## [2026-08-21] ingest | Ymir SKILL Dispatcher
+## [2026-08-21] note | Wiki CLI Command Surface

@@ -1,14 +1,17 @@
 ---
 title: Wiki CLI Command Surface
 type: concept
-date: 2026-08-18
+date: 2026-08-21
 tags: []
 source_count: 0
 ---
 
 # Wiki CLI Command Surface
 
-The wiki CLI (`plugins/ymir/wiki-cli`, TypeScript/Node, built and tested with bun) is invoked as `wiki --root ./wiki <command>` and is the only sanctioned writer of the wiki. It is built on commander (parsing/help), a small js-yaml frontmatter module, remark (format), and zod (per-page-type frontmatter schema).
+The wiki CLI (`wiki-cli/` at the repo root, TypeScript/Node, built and tested with
+bun) is invoked as `wiki --root ./wiki <command>` and is the only sanctioned
+writer of the wiki. It is built on commander (parsing/help), a small js-yaml
+frontmatter module, remark (format), and zod (per-page-type frontmatter schema).
 
 Current commands:
 
@@ -25,6 +28,18 @@ Current commands:
 * `query <q> [--limit] [--chunks] [--verbatim] [--full|--snippet] [--context]` — search via qmd.
 * `fmt` — reformat all pages.
 * `init [--project-root] [--name]` — idempotently scaffold the entire wiki harness (see [[Init Scaffold Contract]]).
+* `report [--yes] [--off] [--flush] [--feedback <t>] [--skill --title <t> --detail <d>]` — review and file Ymir self-reports. With no flags it prints the exact issue body and sends nothing; `--yes` files pending reports and opts in to automatic filing thereafter; `--off` opts out and discards. See [[Ymir Self-Report Design]].
 * `help` — full command reference.
+* `--version` — the installed Ymir version, read from the `.version` stamp beside the executable.
 
-See [[Wiki Harness Design Spec]] for the original architecture, [[Wiki Schema]] for the in-wiki rules and command reference, [[Ymir SKILL Dispatcher]] for how the skill invokes the CLI, and [[Wiki Harness Model]] for the three-layer model this CLI enforces.
+Two conventions govern failures. Commands are pure functions returning
+`{text, exitCode}`, which is what lets tests drive them in-process rather than as
+subprocesses. And `cli.ts` wraps `parseAsync` in a single error boundary that
+prints one `error:` line: a `Rejection` — a predicted refusal such as a slug
+collision or broken link — stops there, while anything unpredicted is also
+captured as a self-report.
+
+See [[Wiki Harness Design Spec]] for the original architecture, [[Wiki Schema]] for
+the in-wiki rules and command reference, [[Ymir SKILL Dispatcher]] for how the
+skill invokes the CLI, and [[Wiki Harness Model]] for the three-layer model this
+CLI enforces.
