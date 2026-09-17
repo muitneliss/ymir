@@ -1,12 +1,12 @@
 ---
 title: Playbook Wiki
 type: source
-date: 2026-08-18
+date: 2026-09-17
 tags: []
 source: plugins/ymir/templates/playbook/wiki.md
 source_path: plugins/ymir/templates/playbook/wiki.md
-source_hash: b78e4ff45e1a5c02308b966cb2e4ae24e2e66a0464ba95df45af3946586ed773
-ingested: 2026-08-18
+source_hash: 5435c4c5eb95757b59dbbcd1348838032a2d7a5a51ce1dc6154f25ca5fdef45b
+ingested: 2026-09-17
 ---
 
 # Playbook Wiki
@@ -14,6 +14,7 @@ ingested: 2026-08-18
 ## wiki / context → LLM-maintained wiki
 
 * **Why / Findings:** {{WIKI\_WHY}} — repo scan: {{WIKI\_FINDINGS}}.
+* **Target:** the wiki root directory — `./wiki` unless the profile names another. The CLI owns this tree, so treat it as a single artifact rather than per-file: the scaffold in step 1 is idempotent and skips files that already exist, so an existing wiki needs no backup and no keep/merge/overwrite question.
 * **Inputs:** `concerns.wiki.enabled` (run only when `true`), `concerns.wiki.collection`, `meta.project`, `target_agent.value`
 
 This lays down an LLM-maintained wiki backed by the Ymir wiki CLI. The wiki
