@@ -1,0 +1,5 @@
+[test]
+# Several suites spawn the real CLI or the install hook, so each case pays full
+# process startup. The 5s default is marginal once those files run concurrently,
+# which surfaced as a flake rather than an honest failure.
+timeout = 30000

@@ -58,9 +58,9 @@ entry, the `CLAUDE.md` block, and the validation step.
 
 All asset paths below (`references/`, `templates/`, `wiki-cli/`, `hooks/`) are
 **relative to this skill's root directory** — the directory that contains this
-`SKILL.md`. Resolve `$SKILL_ROOT` as that directory before running any command
-(`CLAUDE_PLUGIN_ROOT` holds it in Claude Code plugin installs; derive it from this
-file's path for skills-CLI installs).
+`SKILL.md`. Derive `$SKILL_ROOT` from this file's own path before running any
+command; it is wherever the skills CLI installed Ymir (commonly
+`~/.claude/skills/ymir/` or a project-local `.claude/skills/ymir/`).
 
 Provision the wiki binary once (idempotent), then scaffold from the project root:
 
