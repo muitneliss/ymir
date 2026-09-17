@@ -1,6 +1,7 @@
 ## CLAUDE.md / AGENT.md → steering file
 
 - **Why / Findings:** {{CLAUDE_MD_WHY}} — repo scan: {{CLAUDE_MD_FINDINGS}}. Considered: {{CLAUDE_MD_ALTERNATIVES}}.
+- **Target:** `CLAUDE.md` at the project root when `target_agent.value` is `claude-code`, else `AGENT.md` at the project root.
 - **Inputs:** `concerns.claude_md.steer[]`, `target_agent.value`, plus the other captured concerns
 
 Branch on `target_agent.value`:
