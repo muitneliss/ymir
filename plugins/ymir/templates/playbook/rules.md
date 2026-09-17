@@ -1,6 +1,7 @@
 ## rules → native rules files (Claude Code) or `AGENT.md` sections (other agents)
 
 - **Why / Findings:** {{RULES_WHY}} — repo scan: {{RULES_FINDINGS}}. Considered: {{RULES_ALTERNATIVES}}.
+- **Target:** when `target_agent.value` is `claude-code`, the directory `.claude/rules/` — each `concerns.rules.files[]` entry is its own artifact (`.claude/rules/<name>.md`), so test, ask keep/merge/overwrite, and back up **per file**. When it is `any`, this section has no target of its own: the rules are written into `AGENT.md` by the `claude_md` section, so plan nothing here.
 - **Inputs:** `concerns.rules.files[]` (each `{name, paths?, obey[], avoid[]}`), `target_agent.value`
 
 Branch on `target_agent.value`:

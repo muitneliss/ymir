@@ -1,6 +1,7 @@
 ## wiki / context → LLM-maintained wiki
 
 - **Why / Findings:** {{WIKI_WHY}} — repo scan: {{WIKI_FINDINGS}}.
+- **Target:** the wiki root directory — `./wiki` unless the profile names another. The CLI owns this tree, so treat it as a single artifact rather than per-file: the scaffold in step 1 is idempotent and skips files that already exist, so an existing wiki needs no backup and no keep/merge/overwrite question.
 - **Inputs:** `concerns.wiki.enabled` (run only when `true`), `concerns.wiki.collection`, `meta.project`, `target_agent.value`
 
 This lays down an LLM-maintained wiki backed by the Ymir wiki CLI. The wiki
