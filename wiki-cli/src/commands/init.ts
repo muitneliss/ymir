@@ -1,5 +1,5 @@
 import {
-  existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync,
+  existsSync, mkdirSync, readFileSync, writeFileSync,
 } from "node:fs";
 import { dirname, join, basename, resolve } from "node:path";
 import { validateWiki } from "../validate.js";
@@ -30,8 +30,10 @@ export function runInit(opts: {
   const projectRoot = resolve(opts.projectRoot);
   const wikiRoot = resolve(projectRoot, opts.root);
   const name = opts.name ?? basename(projectRoot);
-  const rawBin = process.argv[0];
-  const wikiBin = opts.wikiBin ?? (rawBin !== undefined ? realpathSync(rawBin) : "wiki");
+  // `process.execPath` — not `argv[0]`: inside a `bun build --compile` binary
+  // (how the CLI ships) argv[0] is the bare string "bun", which resolves to no
+  // path on disk. execPath is the running executable, already symlink-resolved.
+  const wikiBin = opts.wikiBin ?? (process.execPath || "wiki");
 
   const created: string[] = [];
   const skipped: string[] = [];
