@@ -1,12 +1,12 @@
 ---
 title: Playbook Rules
 type: source
-date: 2026-08-18
+date: 2026-09-17
 tags: []
 source: plugins/ymir/templates/playbook/rules.md
 source_path: plugins/ymir/templates/playbook/rules.md
-source_hash: b9e676acb8281eadbbdece64dffc6a287733ae594c658621fb43adf606bb7631
-ingested: 2026-08-18
+source_hash: ea4957427aaf5b37964f401f9729002bde2215d808003b239d8b9a34209ae0b3
+ingested: 2026-09-17
 ---
 
 # Playbook Rules
@@ -14,6 +14,7 @@ ingested: 2026-08-18
 ## rules → native rules files (Claude Code) or `AGENT.md` sections (other agents)
 
 * **Why / Findings:** {{RULES\_WHY}} — repo scan: {{RULES\_FINDINGS}}. Considered: {{RULES\_ALTERNATIVES}}.
+* **Target:** when `target_agent.value` is `claude-code`, the directory `.claude/rules/` — each `concerns.rules.files[]` entry is its own artifact (`.claude/rules/<name>.md`), so test, ask keep/merge/overwrite, and back up **per file**. When it is `any`, this section has no target of its own: the rules are written into `AGENT.md` by the `claude_md` section, so plan nothing here.
 * **Inputs:** `concerns.rules.files[]` (each `{name, paths?, obey[], avoid[]}`), `target_agent.value`
 
 Branch on `target_agent.value`:

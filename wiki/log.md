@@ -75,3 +75,8 @@
 ## [2026-08-21] ingest | Ymir README
 ## [2026-08-21] ingest | Ymir SKILL Dispatcher
 ## [2026-08-21] note | Wiki CLI Command Surface
+## [2026-09-17] ingest | Playbook Rules
+## [2026-09-17] ingest | Playbook Wiki
+## [2026-09-17] ingest | Playbook Header
+## [2026-09-17] ingest | Playbook Claude MD
+## [2026-09-17] ingest | Playbook Header
