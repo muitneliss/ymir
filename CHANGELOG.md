@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.1](https://github.com/muitneliss/ymir/compare/ymir-v0.8.0...ymir-v0.8.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* **wiki-cli:** resolve the wiki binary from process.execPath ([#66](https://github.com/muitneliss/ymir/issues/66)) ([0412f39](https://github.com/muitneliss/ymir/commit/0412f396e45bde4fee3ea9a093cc48a1dd8fc9fc)), closes [#64](https://github.com/muitneliss/ymir/issues/64) [#65](https://github.com/muitneliss/ymir/issues/65)
+* **ymir:** declare a Target line in every playbook concern template ([#67](https://github.com/muitneliss/ymir/issues/67)) ([4f4ef8b](https://github.com/muitneliss/ymir/commit/4f4ef8b71f6a099010e93058489fe287f67ace55)), closes [#63](https://github.com/muitneliss/ymir/issues/63)
+
 ## [0.8.0](https://github.com/muitneliss/ymir/compare/ymir-v0.7.0...ymir-v0.8.0) (2026-08-21)
 
 
