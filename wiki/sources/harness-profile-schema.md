@@ -1,12 +1,12 @@
 ---
 title: Harness Profile Schema
 type: source
-date: 2026-08-18
+date: 2026-09-18
 tags: []
 source: plugins/ymir/templates/harness-profile.schema.md
 source_path: plugins/ymir/templates/harness-profile.schema.md
-source_hash: 45ba78324b3bf4313f2fa1dec2a90e72a03a10d4714d32d0fd3592d4fea33e82
-ingested: 2026-08-18
+source_hash: d405e73314a733c4ba98eda6168a0cd3d397a9fb542501f3e8aad8100df1c78a
+ingested: 2026-09-18
 ---
 
 # Harness Profile Schema
@@ -66,10 +66,25 @@ verdict of `present-strong` / `present-weak` / `missing`). `alternatives_conside
 | Concern     | Required when captured (besides `why` + `findings`)                                              |
 | ----------- | ------------------------------------------------------------------------------------------------ |
 | `rules`     | at least one `files[]` entry; each entry needs a `name` and at least one of `obey[]` / `avoid[]` |
-| `lint`      | `tool`                                                                                           |
+| `lint`      | `tool`; and if `tool: biome`, then `ruleset` (see below)                                         |
 | `ci`        | `provider`, `runs[]`                                                                             |
 | `wiki`      | `enabled`; and if `enabled: true`, then `collection`                                             |
 | `claude_md` | `steer[]`                                                                                        |
+
+## `lint.ruleset` — how many rules run (biome)
+
+Required when `tool: biome`; ignored for other tools.
+
+| Value         | Meaning                                                                                   |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| `full`        | every stable rule in every group (nursery excluded); the default recommendation for biome |
+| `recommended` | Biome's recommended subset only — for a large codebase adopting a linter gradually        |
+
+`ruleset` and `strict` are separate knobs: `ruleset` decides **which rules run**,
+`strict` decides **what fails the build** (`true` → warnings fail). They matter
+together for biome, because rules outside the recommended set default to *warn*.
+`plugins/ymir/references/biome-ruleset.md` holds the full guideline — the
+per-version config, the nursery/domain policy, and the severity gate.
 
 ## `rules.files[]` — one native `.claude/rules/` file per entry
 
@@ -113,6 +128,7 @@ concerns:
   lint:
     status: captured
     tool: biome
+    ruleset: full                       # biome only — full | recommended
     strict: true
     style: { indent: tab, quotes: single }
     why: "catch real bugs + kill mixed quote styles without config overhead"

@@ -2,6 +2,7 @@
 
 ## Sources
 
+- [Biome Ruleset Guideline](sources/biome-ruleset-guideline.md)
 - [Harness Profile Schema](sources/harness-profile-schema.md)
 - [Playbook CI](sources/playbook-ci.md)
 - [Playbook Claude MD](sources/playbook-claude-md.md)

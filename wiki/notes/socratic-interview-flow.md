@@ -1,7 +1,7 @@
 ---
 title: Socratic Interview Flow
 type: concept
-date: 2026-08-18
+date: 2026-09-18
 tags: []
 source_count: 0
 ---
@@ -21,6 +21,8 @@ For each in-scope concern, in checklist order, Ymir runs a 4-move loop:
 
 Grounding by verdict: `present-strong` confirms or tunes what exists; `present-weak` names the weakness and proposes strengthening; `missing` proposes adding but applies YAGNI — a concern the user has no real need for is recorded `status: skipped` with a reason instead of forced.
 
-After the per-concern sweep, Step 2 runs a required-field check, a bounded cross-concern consistency pass (enumerated couplings like `lint.tool` ↔ `rules`, `ci.provider` ↔ `project.host`) that surfaces conflicts and goes back to re-ask the implicated concern, and a reflection gate that prints each concern's decision + one-line why and asks the user to confirm or revisit before the spec is written.
+The lint concern carries one tool-specific branch: when the chosen tool is `biome`, the loop is followed by a ruleset question — `full` (every stable rule, nursery excluded) versus `recommended` — recommending `full` and making the severity consequence explicit, because rules outside the recommended set default to warn and therefore gate nothing unless `strict` is also true. See [[Biome Ruleset Guideline]].
+
+After the per-concern sweep, Step 2 runs a required-field check, a bounded cross-concern consistency pass (enumerated couplings like `lint.tool` ↔ `rules`, `ci.provider` ↔ `project.host`, and `lint.ruleset` ↔ `lint.strict` ↔ `ci.runs` — a full biome ruleset with `strict: false` is a CI gate that can never fail) that surfaces conflicts and goes back to re-ask the implicated concern, and a reflection gate that prints each concern's decision + one-line why and asks the user to confirm or revisit before the spec is written.
 
 See [[Socratic Interview Reference]] for the full engine detail (per-concern probe bank, greenfield fallback, anti-patterns), [[Ymir Socratic Interview Design]] for the design rationale, and [[Ymir SKILL Dispatcher]] for how Steps 0-5 fit into the overall `ymir init`/`ymir apply` flow.
