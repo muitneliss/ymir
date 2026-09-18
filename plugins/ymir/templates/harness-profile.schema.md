@@ -53,10 +53,25 @@ verdict of `present-strong` / `present-weak` / `missing`). `alternatives_conside
 | Concern | Required when captured (besides `why` + `findings`) |
 |---|---|
 | `rules` | at least one `files[]` entry; each entry needs a `name` and at least one of `obey[]` / `avoid[]` |
-| `lint` | `tool` |
+| `lint` | `tool`; and if `tool: biome`, then `ruleset` (see below) |
 | `ci` | `provider`, `runs[]` |
 | `wiki` | `enabled`; and if `enabled: true`, then `collection` |
 | `claude_md` | `steer[]` |
+
+## `lint.ruleset` — how many rules run (biome)
+
+Required when `tool: biome`; ignored for other tools.
+
+| Value | Meaning |
+|---|---|
+| `full` | every stable rule in every group (nursery excluded); the default recommendation for biome |
+| `recommended` | Biome's recommended subset only — for a large codebase adopting a linter gradually |
+
+`ruleset` and `strict` are separate knobs: `ruleset` decides **which rules run**,
+`strict` decides **what fails the build** (`true` → warnings fail). They matter
+together for biome, because rules outside the recommended set default to *warn*.
+`plugins/ymir/references/biome-ruleset.md` holds the full guideline — the
+per-version config, the nursery/domain policy, and the severity gate.
 
 ## `rules.files[]` — one native `.claude/rules/` file per entry
 
@@ -100,6 +115,7 @@ concerns:
   lint:
     status: captured
     tool: biome
+    ruleset: full                       # biome only — full | recommended
     strict: true
     style: { indent: tab, quotes: single }
     why: "catch real bugs + kill mixed quote styles without config overhead"

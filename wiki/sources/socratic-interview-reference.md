@@ -1,12 +1,12 @@
 ---
 title: Socratic Interview Reference
 type: source
-date: 2026-08-18
+date: 2026-09-18
 tags: []
 source: plugins/ymir/references/socratic-interview.md
 source_path: plugins/ymir/references/socratic-interview.md
-source_hash: 7e91eb0e48b695b174f572a3335529ada25ee493fdc33b6db7bccb3b02d5bce0
-ingested: 2026-08-18
+source_hash: 3e12cf9fcd1ffbd2ebd1d648af072bc565483d4f926326bf2e80e123dac423fd
+ingested: 2026-09-18
 ---
 
 # Socratic Interview Reference
@@ -93,6 +93,17 @@ Why (bugs / style / both) → recommend a tool for the stack
 (biome / eslint / ruff / golangci-lint) with the trade-off → strictness →
 record `tool`, `strict`, `style`.
 
+**If the tool is `biome`, ask one more question — the ruleset** (`full` vs
+`recommended`), and record `ruleset`. Recommendation-first, grounded in the size
+of what Step 0 scanned: "I'd turn on Biome's full rule set — every stable rule,
+nursery excluded — and opt out of the ones you reject with a written reason. On
+a codebase this size the first run will report a lot; `recommended` is the
+gentler start. Full?" Then make the severity consequence explicit, because it
+decides whether the ruleset gates anything: rules outside the recommended set
+default to *warn*, and `biome ci` exits 0 on warnings — so `full` with
+`strict: false` reports without blocking. If the user wants that, record why.
+Read `references/biome-ruleset.md` before asking.
+
 ### ci → CI workflow
 
 Why (gate PRs / catch regressions) → recommend the provider from `project.host`
@@ -136,6 +147,10 @@ plainly and **go back** to re-ask the implicated concern:
   Flag a glob that matches nothing (likely a typo or a dead directory).
 * `ci.provider` ↔ `project.host`: provider matches the host?
 * `lint.strict` ↔ `project.layer`/`runtime`: strictness sensible for the stack?
+* `lint.ruleset` ↔ `lint.strict` ↔ `ci.runs`: for biome, `ruleset: full` with
+  `strict: false` while CI runs lint is a gate that can never fail — every rule
+  the preset adds emits a warning and `biome ci` exits 0. Surface it and confirm
+  the user wants advisory-only, or raise `strict`.
 * `claude_md.steer` ↔ concerns 2-4: steers toward the wiki/lint actually set up;
   for `claude-code`, does NOT redundantly point at `.claude/rules/`;
   for `any`, rules are embedded inline, no `.claude/rules/` reference.

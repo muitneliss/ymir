@@ -1,7 +1,7 @@
 ---
 title: Harness Playbook Model
 type: concept
-date: 2026-08-18
+date: 2026-09-18
 tags: []
 source_count: 0
 ---
@@ -22,6 +22,8 @@ Every per-concern section shares a fixed shape:
 
 The six template sections are [[Playbook Header]], and per-concern templates for rules ([[Playbook Rules]] — targets `.claude/rules/*.md`, one file per `concerns.rules.files[]` entry with optional `paths:` frontmatter), lint ([[Playbook Lint]]), CI ([[Playbook CI]]), wiki ([[Playbook Wiki]] — the sole exception where the underlying steps also execute directly for the wiki-only intent), and CLAUDE.md ([[Playbook Claude MD]]).
 
-`harness-profile.yaml`'s required fields per concern are documented in [[Harness Profile Schema]] (schema v2: every captured concern requires `why` and `findings`; `rules` requires at least one `files[]` entry).
+A section's Steps may delegate tool-specific detail to a skill reference rather than inlining it: the lint section branches to [[Biome Ruleset Guideline]] when `concerns.lint.tool` is `biome`, which owns how `concerns.lint.ruleset` maps to config per Biome version, the nursery and domain policy, and the severity gate.
+
+`harness-profile.yaml`'s required fields per concern are documented in [[Harness Profile Schema]] (schema v2: every captured concern requires `why` and `findings`; `rules` requires at least one `files[]` entry; `lint` requires `ruleset` when the tool is `biome`).
 
 See [[Ymir Harness Spec Design]] for why the spec is split into two files, and [[Ymir SKILL Dispatcher]] for how Step 3 assembles the playbook and how `ymir apply` later reads `Target`/`Verify` and executes `Steps`.
