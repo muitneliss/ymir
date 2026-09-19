@@ -1,12 +1,12 @@
 ---
 title: Socratic Interview Reference
 type: source
-date: 2026-09-18
+date: 2026-09-19
 tags: []
 source: plugins/ymir/references/socratic-interview.md
 source_path: plugins/ymir/references/socratic-interview.md
-source_hash: 3e12cf9fcd1ffbd2ebd1d648af072bc565483d4f926326bf2e80e123dac423fd
-ingested: 2026-09-18
+source_hash: 141b266a107b49c53ada2295c2a19ca91e7b62370109e4fbf3c46214902df51c
+ingested: 2026-09-19
 ---
 
 # Socratic Interview Reference
@@ -104,10 +104,34 @@ default to *warn*, and `biome ci` exits 0 on warnings — so `full` with
 `strict: false` reports without blocking. If the user wants that, record why.
 Read `references/biome-ruleset.md` before asking.
 
+### taskfile → Taskfile.yml
+
+Why (one entrypoint vs remembered commands) → recommend Task, grounded in what
+Step 0 found: "your lint command already appears in the README and the CI step —
+a `Taskfile.yml` makes `task lint` the one place it lives; the trade-off is one
+more tool to install." Task is the only runner Ymir generates; a user who wants
+`make` or `just` skips the concern (`status: skipped` with the reason).
+
+Then ask the two decisions, one message each:
+
+* **The task list** — which actions deserve a task (`lint`, `test`, `build`,
+  `dev`, `ci`). Derive the candidates from what the repo can already do and from
+  the captured concerns; do not invent a task with no command behind it.
+* **`wraps`** — `commands` (the task runs the tool directly) or `scripts` (the
+  task calls an existing `package.json`/`Makefile` script). Ground it in Step 0:
+  with real scripts already present, `scripts` avoids a second copy of every
+  command; with none, `commands` makes the Taskfile the single owner.
+
+Record `wraps` and one `tasks[]` entry per task (`name`, `desc`, `runs`). Read
+`references/taskfile.md` before asking — it holds the naming set and the
+semantics you must not improvise.
+
 ### ci → CI workflow
 
 Why (gate PRs / catch regressions) → recommend the provider from `project.host`
-(github → github-actions) → what it runs (`runs: [lint]`) → record.
+(github → github-actions) → what it runs (`runs: [lint]`) → record. If `taskfile`
+is captured, say plainly that CI will call `task <name>` rather than repeat the
+commands.
 
 ### wiki / context
 
@@ -116,8 +140,10 @@ record `enabled`, `collection`.
 
 ### claude\_md → CLAUDE.md / AGENT.md
 
-Why (what should steer the agent here) → recommend steer points derived from
-concerns 2-4 (`lint-before-commit`, `point-to-wiki`).
+Why (what should steer the agent here) → recommend steer points derived from the
+captured concerns (`lint-before-commit`, `point-to-wiki`, and `run-via-task`
+whenever `taskfile` is captured — the agent should reach for `task <name>`
+instead of reconstructing commands).
 
 * For `claude-code`: do NOT add `point-to-rules` — `.claude/rules/` auto-loads.
 * For `any`: rules content goes inline in `AGENT.md`; no separate rule files.
@@ -145,13 +171,25 @@ plainly and **go back** to re-ask the implicated concern:
   enforce it.
 * `rules` `paths` ↔ project layout: does each glob match real paths from Step 0?
   Flag a glob that matches nothing (likely a typo or a dead directory).
+* `taskfile.tasks[]` ↔ `lint`: if both are captured there must be a `lint` task,
+  and its `runs` must be the command the lint concern produces (for biome with
+  `strict: true`, `biome ci --error-on-warnings .`). A `lint` task that runs a
+  gentler command than the linter concern decided is a silently weakened gate.
+* `taskfile.wraps` ↔ Step 0 scripts: `wraps: scripts` with no existing scripts to
+  call has nothing to wrap; `wraps: commands` while the repo keeps scripts that
+  run the same tools leaves two owners of one command. Surface either and confirm.
+* `ci.runs[]` ↔ `taskfile.tasks[]`: every `ci.runs[]` entry should have a task of
+  that name when `taskfile` is captured — otherwise CI ends up with its own copy
+  of the command, which is what the Taskfile exists to prevent.
 * `ci.provider` ↔ `project.host`: provider matches the host?
 * `lint.strict` ↔ `project.layer`/`runtime`: strictness sensible for the stack?
 * `lint.ruleset` ↔ `lint.strict` ↔ `ci.runs`: for biome, `ruleset: full` with
   `strict: false` while CI runs lint is a gate that can never fail — every rule
   the preset adds emits a warning and `biome ci` exits 0. Surface it and confirm
   the user wants advisory-only, or raise `strict`.
-* `claude_md.steer` ↔ concerns 2-4: steers toward the wiki/lint actually set up;
+* `claude_md.steer` ↔ the captured concerns: steers toward the wiki/lint actually
+  set up, and carries `run-via-task` when `taskfile` is captured (so the agent
+  runs `task lint`, not a hand-rebuilt linter invocation);
   for `claude-code`, does NOT redundantly point at `.claude/rules/`;
   for `any`, rules are embedded inline, no `.claude/rules/` reference.
 

@@ -19,10 +19,13 @@
      `preset` excludes nursery by design, and does not exist before 2.5.0 — check
      `biome --version` first and fall back to per-group `"on"` as the reference
      describes. For `ruleset: recommended`, write no `rules` key at all.
-  3. Add a `lint` (and `lint:fix` where supported) script/target appropriate to
-     `project.runtime`. For biome the gate is the command, not the config: rules
+  3. Settle the command. For biome the gate is the command, not the config: rules
      outside the recommended set default to *warn* and `biome ci` exits 0 on
-     warnings, so `strict: true` means `biome ci --error-on-warnings .`.
+     warnings, so `strict: true` means `biome ci --error-on-warnings .`. If
+     `concerns.taskfile.status` is `captured`, that command belongs in the
+     `lint` task and nowhere else — do not also add a `package.json` script for
+     it. Otherwise add a `lint` (and `lint:fix` where supported) script/target
+     appropriate to `project.runtime`.
   4. Land the config on the code that already exists: run the fixer
      (`lint:fix`), then triage what remains. Turn off a single offending rule
      with a written reason before weakening the ruleset as a whole.

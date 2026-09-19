@@ -1,12 +1,12 @@
 ---
 title: Playbook Claude MD
 type: source
-date: 2026-09-17
+date: 2026-09-19
 tags: []
 source: plugins/ymir/templates/playbook/claude_md.md
 source_path: plugins/ymir/templates/playbook/claude_md.md
-source_hash: 346a0e9bd41a208af74a4bf6259957e159d420b23737ffb4681cd628ed2a1ddb
-ingested: 2026-09-17
+source_hash: 862a38bff847d61b8b7527e29b442fda2613eb7553277bf4042b45d8f8f0a3b4
+ingested: 2026-09-19
 ---
 
 # Playbook Claude MD
@@ -23,7 +23,9 @@ Branch on `target_agent.value`:
 
 * For each `steer[]` point, add a short directive — e.g. `point-to-wiki`
   links `wiki/SCHEMA.md`; `lint-before-commit` tells Claude to run the lint
-  command before commits.
+  command before commits; `run-via-task` tells it to run the repo through
+  `task <name>` (with `task --list` as the menu) rather than rebuilding
+  commands by hand.
 * Do NOT add a pointer to `.claude/rules/` — Claude Code auto-discovers those;
   a `point-to-rules` steer is redundant.
 * **Verify:** `CLAUDE.md` exists and references the captured steer concerns

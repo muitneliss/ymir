@@ -6,9 +6,10 @@
 [![release](https://img.shields.io/github/v/release/muitneliss/ymir?sort=semver)](https://github.com/muitneliss/ymir/releases)
 [![skills.sh](https://skills.sh/b/muitneliss/ymir)](https://skills.sh/muitneliss/ymir)
 
-An agent skill that produces a **harness spec** for a repo — rules, lint, CI
-lint, wiki/context, and `CLAUDE.md`/`AGENT.md`. Works with Claude Code, Cursor,
-Codex, and any other agent the [skills CLI](https://skills.sh) supports.
+An agent skill that produces a **harness spec** for a repo — rules, lint, a
+`Taskfile.yml` run entrypoint, CI lint, wiki/context, and
+`CLAUDE.md`/`AGENT.md`. Works with Claude Code, Cursor, Codex, and any other
+agent the [skills CLI](https://skills.sh) supports.
 
 Ymir does **not** generate application code. It first **explores your codebase**,
 then runs a **deep Socratic interview** — per concern it probes the *why*,
@@ -49,6 +50,7 @@ the intent; the skill interprets it and acts on the current project:
 ymir init for this project
 ymir add lint for this project
 ymir add rules
+ymir add taskfile      # a Taskfile.yml the agent, CI and you all run
 ymir set up CI
 ymir apply            # generate the harness from the spec
 ymir revert           # undo the last apply
