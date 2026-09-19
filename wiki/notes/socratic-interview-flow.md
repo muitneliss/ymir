@@ -1,7 +1,7 @@
 ---
 title: Socratic Interview Flow
 type: concept
-date: 2026-09-18
+date: 2026-09-19
 tags: []
 source_count: 0
 ---
@@ -10,7 +10,7 @@ source_count: 0
 
 Ymir's Step 1 interview runs as a codebase-first Socratic dialogue rather than a schema-driven form-fill. The cardinal rule is one question per message: every question is its own `AskUserQuestion` call, and the agent stops and yields the floor after each one — questions are never batched.
 
-Before interviewing, Step 0 scans the repo and produces a gap report: for each concern (rules, lint, ci, wiki, claude\_md) a verdict of `present-strong`, `present-weak`, or `missing`, plus what was detected. Every question in Step 1 is grounded in that finding.
+Before interviewing, Step 0 scans the repo and produces a gap report: for each concern (rules, lint, taskfile, ci, wiki, claude\_md) a verdict of `present-strong`, `present-weak`, or `missing`, plus what was detected. Every question in Step 1 is grounded in that finding.
 
 For each in-scope concern, in checklist order, Ymir runs a 4-move loop:
 
@@ -23,6 +23,8 @@ Grounding by verdict: `present-strong` confirms or tunes what exists; `present-w
 
 The lint concern carries one tool-specific branch: when the chosen tool is `biome`, the loop is followed by a ruleset question — `full` (every stable rule, nursery excluded) versus `recommended` — recommending `full` and making the severity consequence explicit, because rules outside the recommended set default to warn and therefore gate nothing unless `strict` is also true. See [[Biome Ruleset Guideline]].
 
-After the per-concern sweep, Step 2 runs a required-field check, a bounded cross-concern consistency pass (enumerated couplings like `lint.tool` ↔ `rules`, `ci.provider` ↔ `project.host`, and `lint.ruleset` ↔ `lint.strict` ↔ `ci.runs` — a full biome ruleset with `strict: false` is a CI gate that can never fail) that surfaces conflicts and goes back to re-ask the implicated concern, and a reflection gate that prints each concern's decision + one-line why and asks the user to confirm or revisit before the spec is written.
+The taskfile concern asks two decisions after its *why*, one message each: which actions deserve a task, derived from what the repo can already do and from the captured concerns rather than invented, and `wraps` — whether each task runs the tool directly (`commands`) or calls an existing script (`scripts`). Task is the only runner offered; a user who wants `make` or `just` skips the concern. See [[Taskfile Guideline]].
+
+After the per-concern sweep, Step 2 runs a required-field check, a bounded cross-concern consistency pass (enumerated couplings like `lint.tool` ↔ `rules`, `ci.provider` ↔ `project.host`, `lint.ruleset` ↔ `lint.strict` ↔ `ci.runs` — a full biome ruleset with `strict: false` is a CI gate that can never fail — and the taskfile couplings: the `lint` task must run the command the lint concern produced, `wraps` must match the scripts Step 0 actually found, and every `ci.runs[]` entry needs a task of that name) that surfaces conflicts and goes back to re-ask the implicated concern, and a reflection gate that prints each concern's decision + one-line why and asks the user to confirm or revisit before the spec is written.
 
 See [[Socratic Interview Reference]] for the full engine detail (per-concern probe bank, greenfield fallback, anti-patterns), [[Ymir Socratic Interview Design]] for the design rationale, and [[Ymir SKILL Dispatcher]] for how Steps 0-5 fit into the overall `ymir init`/`ymir apply` flow.

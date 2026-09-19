@@ -9,7 +9,9 @@ Branch on `target_agent.value`:
 **`claude-code`** — write `CLAUDE.md` at the project root.
   - For each `steer[]` point, add a short directive — e.g. `point-to-wiki`
     links `wiki/SCHEMA.md`; `lint-before-commit` tells Claude to run the lint
-    command before commits.
+    command before commits; `run-via-task` tells it to run the repo through
+    `task <name>` (with `task --list` as the menu) rather than rebuilding
+    commands by hand.
   - Do NOT add a pointer to `.claude/rules/` — Claude Code auto-discovers those;
     a `point-to-rules` steer is redundant.
   - **Verify:** `CLAUDE.md` exists and references the captured steer concerns
