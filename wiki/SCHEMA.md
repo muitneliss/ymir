@@ -13,14 +13,22 @@ formats and validates every change. Direct edits to `sources/`, `notes/`,
 - `log.md` — CLI-appended timeline. Never edit by hand.
 
 ## The CLI
-Invoke via the bundled binary (`$SKILL_ROOT` is the Ymir skill root — the
-directory containing `SKILL.md`):
+Invoke through the repo-local resolver, from the project root:
 
 ```
-$SKILL_ROOT/wiki-cli/bin/wiki --root ./wiki <command>
+./wiki/bin/wiki --root ./wiki <command>
 ```
 
-Run `... help` for the full command reference. Key commands:
+`./wiki/bin/wiki` is committed with this wiki. It finds the Ymir wiki binary at run
+time — skill install, plugin cache, or `PATH` — so this one line works in every
+checkout, on every machine. Set `YMIR_WIKI_BIN=/path/to/wiki` to override the
+search; if nothing is found the resolver prints where it looked. Examples below
+shorten that invocation to `wiki <command>`.
+
+Run `./wiki/bin/wiki --root ./wiki help` for the command reference of the
+binary you actually have: the list below describes the version that scaffolded
+this wiki, so an `unknown command` means the installed binary is older.
+Key commands:
 - `ingest --source <path> --title <t>` (body on STDIN) — summarize a tracked file.
   Records `source_path` + `source_hash` for drift detection.
   Use `--raw <label>` (legacy) when ingesting from a non-tracked input.
@@ -46,8 +54,6 @@ Run `... help` for the full command reference. Key commands:
 - `rename --old-title <t> --new-title <t> [--preview]` — rename a page, rewrite all inbound
   `[[links]]`, and rebuild generated state atomically. Fails on slug collision.
   `--preview` reports the plan (link count, affected paths) without writing.
-- `reindex` — refresh the search index (creates the collection, or `qmd update`s it).
-- `query <q> [--limit <n>] [--chunks] [--verbatim] [--full|--snippet] [--context <chars>]` — search this wiki via qmd.
 - `report [--yes] [--off] [--flush] [--feedback <text>] [--skill --title <t> --detail <d>]` —
   review and file Ymir self-reports. Command crashes are captured automatically to
   `~/.ymir/`; with no flags this prints the exact issue text and sends nothing.
@@ -55,6 +61,8 @@ Run `... help` for the full command reference. Key commands:
   `--skill` records a failure of the Ymir skill flow that the CLI cannot observe.
   Reports are redacted (paths, hostnames, credentials, identities) before storage.
   Opt out with `--off`, `DO_NOT_TRACK=1`, `DISABLE_TELEMETRY=1`, or `YMIR_REPORT=off`.
+- `reindex` — refresh the search index (creates the collection, or `qmd update`s it).
+- `query <q> [--limit <n>] [--chunks] [--verbatim] [--full|--snippet] [--context <chars>]` — search this wiki via qmd.
 
 ## Page conventions
 - Cross-reference pages with `[[Exact Title]]`. The CLI validates every link target exists.
@@ -113,7 +121,7 @@ out of date (the tracked file changed since last ingest), it prints:
 [ymir] Wiki out of date. Re-ingest these to match current files:
   - page "Auth Module"  ← src/auth.ts (changed)
 For each: read the file, then run:
-  wiki --root ./wiki ingest --source <path> --title "<page title>"
+  ./wiki/bin/wiki --root ./wiki ingest --source <path> --title "<page title>"
 ```
 
 Source pages that have no `source_hash` (ingested with `--raw`, or older pages)
@@ -125,7 +133,7 @@ Indexing is automatic: every `ingest`, `note`, and `index` calls `reindex`,
 which registers the collection on first use and `qmd update`s it thereafter. No
 manual setup step is needed; run `wiki reindex` yourself only to force a refresh.
 
-`wiki query "..."` shells out to `qmd search --json -c ymir-wiki`. The
+`wiki query "..."` shells out to `qmd search --json -c fix-github-issues-wiki`. The
 `-c` scope matters: without it qmd searches *every* collection registered on the
 machine, not just this project's wiki. Only `sources/` and `notes/` are indexed —
 `raw/` is deliberately excluded, since the raw originals outrank the curated

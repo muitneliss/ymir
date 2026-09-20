@@ -12,7 +12,11 @@ if (!existsSync(wikiRoot)) {
   process.exit(0);
 }
 
-const wikiBin = join(SKILL_ROOT, "wiki-cli/bin/wiki");
+// The repo-local shim first: it is committed with the wiki, it resolves the
+// binary across install layouts, and — unlike this hook's own skill root — it is
+// a path the agent reading the message below can type and have work.
+const shim = `${wikiRoot}/bin/wiki`;
+const wikiBin = existsSync(shim) ? shim : join(SKILL_ROOT, "wiki-cli/bin/wiki");
 if (!existsSync(wikiBin)) {
   process.exit(0);
 }
@@ -41,14 +45,14 @@ try {
     process.exit(0);
   }
 
-  process.stdout.write(formatSyncMessage(stale, missing, wikiRoot));
+  process.stdout.write(formatSyncMessage(stale, missing, wikiRoot, wikiBin));
 } catch {
   // never block session start
 }
 
 process.exit(0);
 
-function formatSyncMessage(stale, missing, root) {
+function formatSyncMessage(stale, missing, root, bin) {
   const lines = ["[ymir] Wiki out of date. Re-ingest these to match current files:"];
   for (const s of stale) {
     lines.push(`  - page "${s.title}"  ← ${s.source_path} (changed)`);
@@ -57,6 +61,6 @@ function formatSyncMessage(stale, missing, root) {
     lines.push(`  - page "${s.title}"  ← ${s.source_path ?? "(unknown)"} (missing)`);
   }
   lines.push("For each: read the file, then run:");
-  lines.push(`  wiki --root ${root} ingest --source <path> --title "<page title>"`);
+  lines.push(`  ${bin} --root ${root} ingest --source <path> --title "<page title>"`);
   return lines.join("\n") + "\n";
 }

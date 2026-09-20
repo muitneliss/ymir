@@ -70,7 +70,15 @@ node "$SKILL_ROOT/hooks/ensure-wiki-binary.mjs"
 ```
 
 It is idempotent (safe to re-run); on success the last line is `wiki valid`. If it
-errors, stop and report. Then tell the user the qmd one-time setup (also in
+errors, stop and report.
+
+`init` also writes `./wiki/bin/wiki`: a committed resolver that locates the binary
+at run time, whichever layout it is installed under. That is the invocation
+`wiki/SCHEMA.md` documents and the one to use for wiki commands in the project
+from then on — `$SKILL_ROOT` resolves on this machine only, so it must never end
+up in a file the project commits.
+
+Then tell the user the qmd one-time setup (also in
 `wiki/SCHEMA.md`): `qmd collection add ./wiki --name <project>-wiki`. Search is
 keyword-only (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after
 adding pages. This is the only case where Ymir writes project files.

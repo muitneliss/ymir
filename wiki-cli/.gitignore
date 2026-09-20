@@ -1,3 +1,5 @@
 node_modules/
 dist/
-bin/
+# The downloaded binary lands here; the leading slash keeps this from also
+# swallowing src/templates/wiki/bin/, which is shipped source.
+/bin/

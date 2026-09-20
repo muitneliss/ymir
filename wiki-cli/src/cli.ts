@@ -195,6 +195,7 @@ program
     const s = runInit({ projectRoot: opts.projectRoot, root, name: opts.name, skipHook: !opts.hook });
     for (const p of s.created) process.stdout.write(`created ${p}\n`);
     for (const p of s.skipped) process.stdout.write(`skipped ${p}\n`);
+    if (s.schemaRepaired) process.stdout.write("updated SCHEMA.md CLI invocation\n");
     if (s.hookSkipped) {
       process.stdout.write("hook skipped (non-Claude target)\n");
     } else {

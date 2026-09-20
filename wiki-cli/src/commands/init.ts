@@ -1,15 +1,18 @@
 import {
-  existsSync, mkdirSync, readFileSync, writeFileSync,
+  chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync,
 } from "node:fs";
 import { dirname, join, basename, resolve } from "node:path";
 import { validateWiki } from "../validate.js";
 import {
-  SCHEMA_TPL, INDEX_SEED, LOG_SEED, BLOCK_HOOK, SETTINGS_HOOK_ENTRY,
+  SCHEMA_TPL, INDEX_SEED, LOG_SEED, WIKI_SHIM, BLOCK_HOOK, SETTINGS_HOOK_ENTRY,
 } from "../templates/embedded.js";
 import {
   mergeSettings, appendClaudeBlock, claudeBlockPresent,
   type Settings,
 } from "../scaffold.js";
+import {
+  invocation, projectRelative, repairInvocation, shimReference,
+} from "../cli-reference.js";
 
 export type InitSummary = {
   created: string[];
@@ -17,6 +20,7 @@ export type InitSummary = {
   settingsMerged: boolean;
   claudeBlockAppended: boolean;
   hookSkipped: boolean;
+  schemaRepaired: boolean;
   valid: boolean;
 };
 
@@ -24,16 +28,12 @@ export function runInit(opts: {
   projectRoot: string;
   root: string;
   name?: string;
-  wikiBin?: string;
   skipHook?: boolean;
 }): InitSummary {
   const projectRoot = resolve(opts.projectRoot);
   const wikiRoot = resolve(projectRoot, opts.root);
   const name = opts.name ?? basename(projectRoot);
-  // `process.execPath` — not `argv[0]`: inside a `bun build --compile` binary
-  // (how the CLI ships) argv[0] is the bare string "bun", which resolves to no
-  // path on disk. execPath is the running executable, already symlink-resolved.
-  const wikiBin = opts.wikiBin ?? (process.execPath || "wiki");
+  const wikiRootRef = projectRelative(projectRoot, wikiRoot);
 
   const created: string[] = [];
   const skipped: string[] = [];
@@ -45,13 +45,41 @@ export function runInit(opts: {
     created.push(path);
   };
 
+  const writeExecutable = (path: string, body: string) => {
+    const existed = existsSync(path);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, body);
+    // `writeFileSync`'s mode option only applies on creation, so an existing
+    // shim would keep whatever bits it had — including none.
+    chmodSync(path, 0o755);
+    (existed ? skipped : created).push(path);
+  };
+
   for (const d of ["raw", "sources", "notes"]) {
     writeIfMissing(join(wikiRoot, d, ".gitkeep"), "");
   }
-  writeIfMissing(
-    join(wikiRoot, "SCHEMA.md"),
-    SCHEMA_TPL.replaceAll("PROJECT_NAME", name).replaceAll("{{WIKI_BIN}}", wikiBin),
-  );
+
+  // The shim is generated output, like the hook: always rewritten, so a repo
+  // that re-runs `init` under a newer Ymir never keeps an older resolver.
+  writeExecutable(join(wikiRoot, "bin", "wiki"), WIKI_SHIM);
+
+  const schemaPath = join(wikiRoot, "SCHEMA.md");
+  const renderedSchema = SCHEMA_TPL
+    .replaceAll("PROJECT_NAME", name)
+    .replaceAll("{{WIKI_BIN}}", shimReference(wikiRootRef))
+    .replaceAll("{{WIKI_ROOT}}", wikiRootRef);
+  const schemaExisted = existsSync(schemaPath);
+  writeIfMissing(schemaPath, renderedSchema);
+
+  let schemaRepaired = false;
+  if (schemaExisted) {
+    const repaired = repairInvocation(readFileSync(schemaPath, "utf8"), renderedSchema);
+    if (repaired !== null) {
+      writeFileSync(schemaPath, repaired);
+      schemaRepaired = true;
+    }
+  }
+
   writeIfMissing(join(wikiRoot, "index.md"), INDEX_SEED);
   writeIfMissing(join(wikiRoot, "log.md"), LOG_SEED);
 
@@ -63,7 +91,10 @@ export function runInit(opts: {
     const hookPath = join(projectRoot, ".claude", "hooks", "block-wiki-edits.mjs");
     const hookExisted = existsSync(hookPath);
     mkdirSync(dirname(hookPath), { recursive: true });
-    writeFileSync(hookPath, BLOCK_HOOK);
+    // The deny message names the resolved command itself. Sending the reader to
+    // SCHEMA.md instead is how issue #71 ended with an agent concluding the CLI
+    // was not installed and asking to bypass this very hook.
+    writeFileSync(hookPath, BLOCK_HOOK.replaceAll("{{WIKI_BIN}}", invocation(wikiRootRef)));
     (hookExisted ? skipped : created).push(hookPath);
 
     const settingsPath = join(projectRoot, ".claude", "settings.json");
@@ -90,6 +121,7 @@ export function runInit(opts: {
     settingsMerged,
     claudeBlockAppended,
     hookSkipped,
+    schemaRepaired,
     valid: v.ok,
   };
 }

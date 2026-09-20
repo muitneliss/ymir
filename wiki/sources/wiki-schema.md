@@ -1,12 +1,12 @@
 ---
 title: Wiki Schema
 type: source
-date: 2026-08-21
+date: 2026-09-20
 tags: []
 source: wiki/SCHEMA.md
 source_path: wiki/SCHEMA.md
-source_hash: 1e19daebf07ee95338fee0bf039811133a4c87da3e1786898e23c3fa378d40cd
-ingested: 2026-08-21
+source_hash: 08dbcf9b13a177f9d6ec0a449bc0b8417575c817420cdd5eee63033633c62f15
+ingested: 2026-09-20
 ---
 
 # Wiki Schema
@@ -16,9 +16,18 @@ The in-wiki rules and command reference for this project's LLM-maintained wiki.
 The LLM never hand-writes or hand-edits wiki documents. All writes go through the
 Ymir wiki CLI, which formats and validates every change; a PreToolUse hook blocks
 direct edits to `sources/`, `notes/`, `index.md` and `log.md`. Layers are `raw/`
-for external material, `sources/` for one CLI-written summary per ingested file,
-`notes/` for synthesis pages, plus the CLI-rebuilt `index.md` and CLI-appended
-`log.md`.
+for external material not tracked elsewhere in the repo, `sources/` for one
+CLI-written summary per ingested file, `notes/` for synthesis pages, plus the
+CLI-rebuilt `index.md` and CLI-appended `log.md`.
+
+The CLI is invoked through `./wiki/bin/wiki --root ./wiki <command>` — the
+repo-local resolver committed alongside the wiki. It locates the binary at run
+time across skill install, plugin cache and `PATH`, so the one invocation this
+tracked file documents resolves in every checkout rather than only on the machine
+that scaffolded the wiki; `YMIR_WIKI_BIN` overrides the search. Because the
+command list describes the version that scaffolded the wiki, an `unknown command`
+means the installed binary is older than this document — `help` reports what the
+binary at hand actually supports.
 
 The command reference covers `init`, `ingest` (tracked via `--source` with a
 recorded `source_path` and `source_hash`, or legacy `--raw`), `note`, `index`,
@@ -39,4 +48,5 @@ write, where queries are reduced to content words because asking a question
 verbatim retrieves far worse.
 
 See [[Wiki CLI Command Surface]] for the command set, [[Wiki Harness Model]] for
-the three-layer model, and [[Ymir Self-Report Design]] for the reporting design.
+the three-layer model, [[Init Scaffold Contract]] for what writes this file, and
+[[Ymir Self-Report Design]] for the reporting design.

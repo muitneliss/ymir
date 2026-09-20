@@ -89,3 +89,8 @@
 ## [2026-09-18] note | Socratic Interview Flow
 ## [2026-09-18] note | Harness Playbook Model
 ## [2026-09-18] ingest | Biome Ruleset Guideline
+## [2026-09-20] ingest | Wiki Schema
+## [2026-09-20] ingest | Ymir SKILL Dispatcher
+## [2026-09-20] ingest | Playbook Wiki
+## [2026-09-20] note | Init Scaffold Contract
+## [2026-09-20] note | Wiki CLI Command Surface
