@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readdirSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
@@ -36,13 +36,13 @@ function spooled(): string[] {
 }
 
 /**
- * A genuinely unexpected failure: `index` cannot write `index.md` because a
- * directory occupies the path. Unlike a bad flag, nothing in the CLI predicts
- * this — which is exactly the class the reporter exists for.
+ * A genuinely unexpected failure: the wiki root is a regular file, so `index`
+ * cannot even create the directory it writes into. Unlike a bad flag, nothing in
+ * the CLI predicts this — which is exactly the class the reporter exists for.
  */
 function provokeCrash(): ReturnType<typeof runCli> {
-  mkdirSync(join(project, "wiki", "index.md"), { recursive: true });
-  return runCli(["--root", "./wiki", "index", "--no-reindex"]);
+  writeFileSync(join(project, "wiki", "sources", "occupied.md"), "not a directory");
+  return runCli(["--root", "./wiki/sources/occupied.md", "index", "--no-reindex"]);
 }
 
 describe("cli error boundary", () => {
@@ -65,17 +65,33 @@ describe("cli error boundary", () => {
   });
 
   it("captures nothing when the user has opted out", () => {
-    mkdirSync(join(project, "wiki", "index.md"), { recursive: true });
-    runCli(["--root", "./wiki", "index", "--no-reindex"], "", { DO_NOT_TRACK: "1" });
+    writeFileSync(join(project, "wiki", "sources", "occupied.md"), "not a directory");
+    runCli(["--root", "./wiki/sources/occupied.md", "index", "--no-reindex"], "", { DO_NOT_TRACK: "1" });
     expect(spooled()).toHaveLength(0);
   });
 
   it("stays silent about reporting when opted out", () => {
-    mkdirSync(join(project, "wiki", "index.md"), { recursive: true });
-    const { stderr } = runCli(["--root", "./wiki", "index", "--no-reindex"], "", { DO_NOT_TRACK: "1" });
+    writeFileSync(join(project, "wiki", "sources", "occupied.md"), "not a directory");
+    const { stderr } = runCli(
+      ["--root", "./wiki/sources/occupied.md", "index", "--no-reindex"], "", { DO_NOT_TRACK: "1" },
+    );
 
     expect(stderr).toContain("error:");
     expect(stderr).not.toContain("wiki report");
+  });
+
+  it("refuses a directory standing where index.md belongs, instead of dumping EISDIR", () => {
+    mkdirSync(join(project, "wiki", "index.md"), { recursive: true });
+
+    const { stderr, status } = runCli(["--root", "./wiki", "index", "--no-reindex"]);
+
+    expect(status).toBe(1);
+    expect(stderr).toContain("index.md is a directory");
+    expect(stderr).toContain("remove or rename it");
+    expect(stderr).not.toContain("EISDIR");
+    // Issue #58: a broken working tree is the user's to fix, not an Ymir bug.
+    expect(stderr).not.toContain("wiki report");
+    expect(spooled()).toHaveLength(0);
   });
 
   it("does not report ordinary user error — a bad flag is not a bug", () => {

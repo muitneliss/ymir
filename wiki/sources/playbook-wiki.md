@@ -1,12 +1,12 @@
 ---
 title: Playbook Wiki
 type: source
-date: 2026-09-17
+date: 2026-09-20
 tags: []
 source: plugins/ymir/templates/playbook/wiki.md
 source_path: plugins/ymir/templates/playbook/wiki.md
-source_hash: 5435c4c5eb95757b59dbbcd1348838032a2d7a5a51ce1dc6154f25ca5fdef45b
-ingested: 2026-09-17
+source_hash: 8ae53147eca85d9dd999804c127e91af6bdb1be3ff17a1ca19c499ffb4110d67
+ingested: 2026-09-20
 ---
 
 # Playbook Wiki
@@ -45,6 +45,11 @@ harness is scaffolded by **a single CLI call** — never by hand-editing files.
    It is idempotent (safe to re-run). On success the last line is `wiki valid`.
    If it errors, stop and report.
 
+   `init` also writes `./wiki/bin/wiki` — a committed resolver that finds the
+   binary wherever it is installed. It is what `wiki/SCHEMA.md` documents and
+   what every later wiki command in this project should use; `$SKILL_ROOT` is a
+   path on this machine only.
+
 2. **Wiki guard (non-Claude target only)** — when `target_agent.value` is `any`,
    add a CI job that enforces wiki integrity. For GitHub Actions, add to the CI
    workflow a job that runs:
@@ -59,5 +64,4 @@ harness is scaffolded by **a single CLI call** — never by hand-editing files.
    (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after adding
    pages.
 
-* **Verify:** `"$SKILL_ROOT/wiki-cli/bin/wiki" --root ./wiki validate`
-  prints `wiki valid`.
+* **Verify:** `./wiki/bin/wiki --root ./wiki validate` prints `wiki valid`.

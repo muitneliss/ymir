@@ -1,7 +1,7 @@
 ---
 title: Wiki CLI Command Surface
 type: concept
-date: 2026-08-21
+date: 2026-09-20
 tags: []
 source_count: 0
 ---
@@ -9,9 +9,10 @@ source_count: 0
 # Wiki CLI Command Surface
 
 The wiki CLI (`wiki-cli/` at the repo root, TypeScript/Node, built and tested with
-bun) is invoked as `wiki --root ./wiki <command>` and is the only sanctioned
-writer of the wiki. It is built on commander (parsing/help), a small js-yaml
-frontmatter module, remark (format), and zod (per-page-type frontmatter schema).
+bun) is invoked as `./wiki/bin/wiki --root ./wiki <command>` — the repo-local
+resolver `init` commits beside the wiki — and is the only sanctioned writer of the
+wiki. It is built on commander (parsing/help), a small js-yaml frontmatter module,
+remark (format), and zod (per-page-type frontmatter schema).
 
 Current commands:
 
@@ -36,8 +37,11 @@ Two conventions govern failures. Commands are pure functions returning
 `{text, exitCode}`, which is what lets tests drive them in-process rather than as
 subprocesses. And `cli.ts` wraps `parseAsync` in a single error boundary that
 prints one `error:` line: a `Rejection` — a predicted refusal such as a slug
-collision or broken link — stops there, while anything unpredicted is also
-captured as a self-report.
+collision, a broken link, or a directory standing where a page file belongs —
+stops there, while anything unpredicted is also captured as a self-report. The
+boundary is what decides whether a failure reaches the maintainers, so a
+condition only the user can repair is stated with its remedy and kept out of the
+report spool rather than surfaced as a raw errno.
 
 See [[Wiki Harness Design Spec]] for the original architecture, [[Wiki Schema]] for
 the in-wiki rules and command reference, [[Ymir SKILL Dispatcher]] for how the

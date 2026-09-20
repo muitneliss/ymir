@@ -20,7 +20,7 @@ if (blocked) {
           hookEventName: "PreToolUse",
           permissionDecision: "deny",
           permissionDecisionReason:
-            "Wiki docs are CLI-managed. Use the Ymir wiki CLI (ingest/note/index/log) instead of editing wiki files directly. Allowed direct edits: wiki/raw/** and wiki/SCHEMA.md.",
+            "Wiki docs are CLI-managed. Run `{{WIKI_BIN}} <command>` (ingest/note/index/log — `help` for the full list) from the project root instead of editing wiki files directly. Allowed direct edits: wiki/raw/** and wiki/SCHEMA.md.",
         },
       },
       null,

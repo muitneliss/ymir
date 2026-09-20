@@ -6,20 +6,29 @@ formats and validates every change. Direct edits to `sources/`, `notes/`,
 `index.md`, and `log.md` are blocked by a PreToolUse hook.
 
 ## Layers
-- `raw/` — immutable sources. You may read these; never edit them. The user adds files here.
+- `raw/` — for external content not tracked elsewhere in the repo (e.g. PDFs, exported snapshots). Use `ingest --raw <raw/path>` for these. Files that already live in the repo should be ingested with `ingest --source <path>` instead — that binds provenance to the living file and enables drift detection.
 - `sources/` — one CLI-written summary page per ingested source.
 - `notes/` — CLI-written entity / concept / topic pages (the synthesis).
 - `index.md` — CLI-rebuilt catalog. Never edit by hand.
 - `log.md` — CLI-appended timeline. Never edit by hand.
 
 ## The CLI
-Invoke via the bundled binary:
+Invoke through the repo-local resolver, from the project root:
 
 ```
-{{WIKI_BIN}} --root ./wiki <command>
+{{WIKI_BIN}} --root {{WIKI_ROOT}} <command>
 ```
 
-Run `... help` for the full command reference. Key commands:
+`{{WIKI_BIN}}` is committed with this wiki. It finds the Ymir wiki binary at run
+time — skill install, plugin cache, or `PATH` — so this one line works in every
+checkout, on every machine. Set `YMIR_WIKI_BIN=/path/to/wiki` to override the
+search; if nothing is found the resolver prints where it looked. Examples below
+shorten that invocation to `wiki <command>`.
+
+Run `{{WIKI_BIN}} --root {{WIKI_ROOT}} help` for the command reference of the
+binary you actually have: the list below describes the version that scaffolded
+this wiki, so an `unknown command` means the installed binary is older.
+Key commands:
 - `ingest --source <path> --title <t>` (body on STDIN) — summarize a tracked file.
   Records `source_path` + `source_hash` for drift detection.
   Use `--raw <label>` (legacy) when ingesting from a non-tracked input.
@@ -45,6 +54,13 @@ Run `... help` for the full command reference. Key commands:
 - `rename --old-title <t> --new-title <t> [--preview]` — rename a page, rewrite all inbound
   `[[links]]`, and rebuild generated state atomically. Fails on slug collision.
   `--preview` reports the plan (link count, affected paths) without writing.
+- `report [--yes] [--off] [--flush] [--feedback <text>] [--skill --title <t> --detail <d>]` —
+  review and file Ymir self-reports. Command crashes are captured automatically to
+  `~/.ymir/`; with no flags this prints the exact issue text and sends nothing.
+  `--yes` files pending reports and opts in to automatic filing thereafter.
+  `--skill` records a failure of the Ymir skill flow that the CLI cannot observe.
+  Reports are redacted (paths, hostnames, credentials, identities) before storage.
+  Opt out with `--off`, `DO_NOT_TRACK=1`, `DISABLE_TELEMETRY=1`, or `YMIR_REPORT=off`.
 - `reindex` — refresh the search index (creates the collection, or `qmd update`s it).
 - `query <q> [--limit <n>] [--chunks] [--verbatim] [--full|--snippet] [--context <chars>]` — search this wiki via qmd.
 
@@ -105,7 +121,7 @@ out of date (the tracked file changed since last ingest), it prints:
 [ymir] Wiki out of date. Re-ingest these to match current files:
   - page "Auth Module"  ← src/auth.ts (changed)
 For each: read the file, then run:
-  wiki --root ./wiki ingest --source <path> --title "<page title>"
+  {{WIKI_BIN}} --root {{WIKI_ROOT}} ingest --source <path> --title "<page title>"
 ```
 
 Source pages that have no `source_hash` (ingested with `--raw`, or older pages)

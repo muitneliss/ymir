@@ -28,6 +28,11 @@ harness is scaffolded by **a single CLI call** — never by hand-editing files.
    It is idempotent (safe to re-run). On success the last line is `wiki valid`.
    If it errors, stop and report.
 
+   `init` also writes `./wiki/bin/wiki` — a committed resolver that finds the
+   binary wherever it is installed. It is what `wiki/SCHEMA.md` documents and
+   what every later wiki command in this project should use; `$SKILL_ROOT` is a
+   path on this machine only.
+
 2. **Wiki guard (non-Claude target only)** — when `target_agent.value` is `any`,
    add a CI job that enforces wiki integrity. For GitHub Actions, add to the CI
    workflow a job that runs:
@@ -42,5 +47,5 @@ harness is scaffolded by **a single CLI call** — never by hand-editing files.
    (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after adding
    pages.
 
-- **Verify:** `"$SKILL_ROOT/wiki-cli/bin/wiki" --root ./wiki validate`
+- **Verify:** `./wiki/bin/wiki --root ./wiki validate`
   prints `wiki valid`.

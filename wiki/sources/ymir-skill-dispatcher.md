@@ -1,12 +1,12 @@
 ---
 title: Ymir SKILL Dispatcher
 type: source
-date: 2026-08-21
+date: 2026-09-20
 tags: []
 source: plugins/ymir/SKILL.md
 source_path: plugins/ymir/SKILL.md
-source_hash: 3bd4ebf7b43a6ba605c0eb749fd9499305246f01ecadb6b2d9c482804de4478b
-ingested: 2026-08-21
+source_hash: 59373cf85edf5410404a901589f9c592ddd781b7a2b2f31229e809f0f9786e70
+ingested: 2026-09-20
 ---
 
 # Ymir SKILL Dispatcher
@@ -33,7 +33,11 @@ files directly, via a single CLI call.
 Asset paths are resolved relative to `$SKILL_ROOT`, the directory containing
 `SKILL.md`, derived from the file's own path — commonly `~/.claude/skills/ymir/`
 or a project-local `.claude/skills/ymir/` now that distribution is the skills CLI
-rather than a Claude Code plugin.
+rather than a Claude Code plugin. `$SKILL_ROOT` names a path on the current
+machine only, so it must never reach a file the project commits: the scaffold
+writes `./wiki/bin/wiki`, a committed resolver that finds the binary at run time,
+and that is the invocation both `wiki/SCHEMA.md` and every later wiki command in
+the project use.
 
 The skill also carries the self-report protocol. The wiki CLI captures its own
 crashes unaided; what it cannot see is this skill's flow breaking — a playbook
@@ -46,5 +50,6 @@ user opts in. Feature requests and complaints go through `wiki report --feedback
 
 See [[Ymir README]] for install and the user-facing contract,
 [[Socratic Interview Flow]] for the interview engine,
-[[Harness Playbook Model]] for the spec shape, and [[Ymir Self-Report Design]] for
-the reporting architecture.
+[[Harness Playbook Model]] for the spec shape, [[Init Scaffold Contract]] for what
+the wiki-only intent writes, and [[Ymir Self-Report Design]] for the reporting
+architecture.
