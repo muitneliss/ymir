@@ -1,7 +1,7 @@
 ---
 name: ymir
-description: Ymir explores THIS project's codebase (the current working directory), then runs a deep Socratic interview across a harness checklist, re-audits for completeness + consistency, and emits a SPEC under .ymir/ (the interview step writes only the spec). The spec covers rules, lint, CI lint, wiki/context, and CLAUDE.md/AGENT.md; 'ymir apply' then generates the harness from the spec (with backups + 'ymir revert'). Use whenever the user asks Ymir to do something to the project, e.g. "ymir init for this project", "ymir add lint", "ymir add rules", "ymir set up CI", "ymir apply", "ymir revert", "scaffold the harness", "bootstrap this repo".
-argument-hint: "init | add lint | add rules | add ci | add context | add claude.md | apply [concern] | revert — what to do for this project"
+description: Ymir explores THIS project's codebase (the current working directory), then runs a deep Socratic interview across a harness checklist, re-audits for completeness + consistency, and emits a SPEC under .ymir/ (the interview step writes only the spec). The spec covers rules, lint, taskfile (Taskfile.yml run entrypoint), CI lint, wiki/context, and CLAUDE.md/AGENT.md; 'ymir apply' then generates the harness from the spec (with backups + 'ymir revert'). Use whenever the user asks Ymir to do something to the project, e.g. "ymir init for this project", "ymir add lint", "ymir add rules", "ymir add taskfile", "ymir set up CI", "ymir apply", "ymir revert", "scaffold the harness", "bootstrap this repo".
+argument-hint: "init | add lint | add rules | add taskfile | add ci | add context | add claude.md | apply [concern] | revert — what to do for this project"
 ---
 
 # Ymir
@@ -13,9 +13,11 @@ steers Claude Code:
 
 1. **rules** — coding standards / conventions
 2. **lint** — linter config for the chosen stack
-3. **CI lint** — a CI workflow that runs the linter
-4. **wiki / context** — a place for project knowledge
-5. **CLAUDE.md / AGENT.md** — the file that steers Claude Code on this repo
+3. **taskfile** — a `Taskfile.yml` so CI, the agent and the human run the repo
+   through one entrypoint
+4. **CI lint** — a CI workflow that runs the linter
+5. **wiki / context** — a place for project knowledge
+6. **CLAUDE.md / AGENT.md** — the file that steers Claude Code on this repo
 
 The deliverable is two files under `.ymir/`:
 
@@ -37,6 +39,7 @@ to the checklist of harness concerns above. Examples:
 | `ymir init for this project` | understand the codebase, sweep the checklist, audit, emit the spec |
 | `ymir add lint for this project` | interview + audit only the `lint` concern; update the spec |
 | `ymir add rules` | interview + audit only `rules`; update the spec |
+| `ymir add taskfile` / `ymir add tasks` | interview + audit only `taskfile`; update the spec |
 | `ymir set up CI` | interview + audit only `ci`; update the spec |
 | `ymir add context` / `ymir add wiki` | **scaffold the wiki directly** — execute the existing wiki flow (the one exception to spec-only); see "Wiki-only intent" below |
 | `ymir apply` | generate the harness from the spec: preview → confirm → per concern (keep/merge/overwrite, backing up first) → verify all → summary; see "Applying the spec" below |
@@ -82,16 +85,20 @@ the wiki is captured in the profile and written into `harness-playbook.md` as th
 ## The checklist
 
 The interview and the audit are driven by this checklist — one foundation item
-plus the five concerns:
+plus the six concerns:
 
 | # | Item | Drives |
 |---|---|---|
 | 0 | project / techstack | language, runtime, layer (frontend/backend/both), repo host |
 | 1 | rules | conventions to obey / patterns to avoid |
 | 2 | lint | linter tool, strictness, style |
-| 3 | CI lint | CI provider, what it runs |
-| 4 | wiki / context | enabled?, collection name |
-| 5 | CLAUDE.md / AGENT.md | steering points (derived from 1–4) |
+| 3 | taskfile | the tasks worth having, and whether they wrap scripts or own commands |
+| 4 | CI lint | CI provider, what it runs (through `task <name>` when 3 is captured) |
+| 5 | wiki / context | enabled?, collection name |
+| 6 | CLAUDE.md / AGENT.md | steering points (derived from 1–5) |
+
+`taskfile` sits before `ci` on purpose: the Taskfile owns the command text, and
+CI then calls the task instead of keeping a second copy of it.
 
 ## Step 0 — Understand the project (codebase-first)
 
@@ -103,6 +110,9 @@ detect current state + a verdict — `present-strong`, `present-weak`, or `missi
 - `rules`: existing `.claude/rules/*.md`, conventions docs, `.editorconfig`, a
   `CLAUDE.md`/`AGENT.md` rules section.
 - `lint`: a linter config present? which tool? strict?
+- `taskfile`: a `Taskfile.{yml,yaml}` already? otherwise what plays that role
+  today — `package.json` scripts, a `Makefile`, commands living only in the
+  README or the CI workflow?
 - `ci`: workflows present? what do they run?
 - `wiki`: a docs/context/wiki dir already used for project knowledge?
 - `claude_md`: `CLAUDE.md`/`AGENT.md` present? what does it steer?
@@ -206,6 +216,7 @@ table:
 |---|---|---|---|
 | rules | `.claude/rules/` | missing | create |
 | lint | `eslint.config.mjs` | exists | ask keep/merge/overwrite |
+| taskfile | `Taskfile.yml` | missing | create |
 | wiki | `wiki/` | missing | create |
 
 **2 — Confirm once.** Ask the user to confirm the whole plan a single time before

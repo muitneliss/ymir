@@ -89,3 +89,15 @@
 ## [2026-09-18] note | Socratic Interview Flow
 ## [2026-09-18] note | Harness Playbook Model
 ## [2026-09-18] ingest | Biome Ruleset Guideline
+## [2026-09-19] ingest | Playbook Taskfile
+## [2026-09-19] ingest | Taskfile Guideline
+## [2026-09-19] ingest | Harness Profile Schema
+## [2026-09-19] ingest | Socratic Interview Reference
+## [2026-09-19] ingest | Playbook Claude MD
+## [2026-09-19] ingest | Playbook Lint
+## [2026-09-19] ingest | Playbook CI
+## [2026-09-19] ingest | Playbook Taskfile
+## [2026-09-19] ingest | Ymir README
+## [2026-09-19] ingest | Ymir SKILL Dispatcher
+## [2026-09-19] note | Socratic Interview Flow
+## [2026-09-19] note | Harness Playbook Model
