@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.0](https://github.com/muitneliss/ymir/compare/ymir-v0.8.1...ymir-v0.9.0) (2026-09-20)
+
+
+### Features
+
+* **ymir:** make the biome full ruleset an audited lint decision ([#69](https://github.com/muitneliss/ymir/issues/69)) ([0f57f0b](https://github.com/muitneliss/ymir/commit/0f57f0ba7a7f10fec5387ed9ebc7f2966bc13499))
+
+
+### Bug Fixes
+
+* **wiki-cli:** resolve the CLI from a committed shim, and refuse a dir where a page belongs ([#73](https://github.com/muitneliss/ymir/issues/73)) ([ccd95ef](https://github.com/muitneliss/ymir/commit/ccd95efdcc9f2c5960cb99dbe55266428313a9ce)), closes [#71](https://github.com/muitneliss/ymir/issues/71) [#58](https://github.com/muitneliss/ymir/issues/58)
+
 ## [0.8.1](https://github.com/muitneliss/ymir/compare/ymir-v0.8.0...ymir-v0.8.1) (2026-09-17)
 
 
