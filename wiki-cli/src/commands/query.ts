@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { expandContext, DEFAULT_BUDGET } from "../context.js";
 import { collectionName } from "../paths.js";
 import { extractTerms } from "../query-terms.js";
+import { QmdMissing, isMissingExecutable } from "../qmd.js";
 
 export type Runner = (cmd: string, args: string[]) => Promise<string>;
 
@@ -17,7 +18,7 @@ const defaultRunner: Runner = (cmd, args) =>
     let err = "";
     child.stdout.on("data", (d) => (out += d));
     child.stderr.on("data", (d) => (err += d));
-    child.on("error", reject);
+    child.on("error", (e) => reject(isMissingExecutable(e) ? new QmdMissing() : e));
     child.on("close", (code) =>
       code === 0 ? resolve(out) : reject(new Error(err || `qmd exited ${code}`)),
     );
@@ -135,13 +136,17 @@ async function runSearch(i: QueryInput): Promise<string> {
   // Concurrent qmd processes contend on its shared index and intermittently
   // exit non-zero (measured: 1 in 10 parallel probes). Every speculative call
   // below is therefore SEQUENTIAL and failure-tolerant — one flaky probe must
-  // never take down the whole query. A real fault (qmd missing) still surfaces:
-  // we keep the first error and rethrow it if nothing was ever retrieved.
+  // never take down the whole query. A real fault still surfaces: an absent qmd
+  // fails fast (see tryExec), and any other error is kept and rethrown if
+  // nothing was ever retrieved.
   let firstError: unknown = null;
   const tryExec = async (q: string): Promise<string> => {
     try {
       return await exec(q);
     } catch (err) {
+      // An absent qmd is not flakiness: every remaining probe would spawn the
+      // same missing binary and fail identically, so stop at the first one.
+      if (err instanceof QmdMissing) throw err;
       firstError ??= err;
       return "";
     }
