@@ -1,12 +1,12 @@
 ---
 title: Wiki CLI Publish Design Spec
 type: source
-date: 2026-08-18
+date: 2026-09-21
 tags: []
 source: docs/superpowers/specs/2026-06-17-wiki-cli-publish-design.md
 source_path: docs/superpowers/specs/2026-06-17-wiki-cli-publish-design.md
-source_hash: 38ac5a5f5c1e41c32037dd256b1e6464aa30459ebeebc3ea561904a354cdf0db
-ingested: 2026-08-18
+source_hash: a91e57d37df1177c646a4115094e17b91482fcac193732126f5128e1d0f1edf4
+ingested: 2026-09-21
 ---
 
 # Wiki CLI Publish Design Spec
@@ -143,8 +143,8 @@ edits to `wiki/` so the CLI is the only writer.
 
 * Resolve `${CLAUDE_PLUGIN_ROOT}`; target dir `wiki-cli/bin/`.
 * Read expected version from `.claude-plugin/plugin.json` `$.version` — this is
-  the field release-please keeps in sync with the release tag. Do NOT use
-  `wiki-cli/package.json` (independent, drifts).
+  the field release-please keeps in sync with the release tag, and the only
+  version the repo declares outside release-please's own files.
 * If `bin/wiki` exists and `bin/.version` == expected → exit 0.
 * Else detect platform via `uname -sm`, build asset URL:
   `https://github.com/<owner>/<repo>/releases/download/v<version>/wiki-<label>`.
@@ -196,21 +196,33 @@ edits to `wiki/` so the CLI is the only writer.
 
 * Single source of truth = `plugins/ymir/.claude-plugin/plugin.json` `$.version`,
   which release-please updates (via `extra-files`) to match each release tag.
-* Asset URL tag = `v<that version>`. Hook stamp compares against the same value.
-* `wiki-cli/package.json` version is independent and MUST NOT be used for the
-  tag or stamp.
+* Asset URL tag = `ymir-v<that version>`. Hook stamp compares against the same
+  value.
+* `wiki-cli/package.json` declares no version. The package is `private` and never
+  published, so a version there would only be a second number to keep in sync —
+  and it did drift (see below). The compiled binary carries no version of its
+  own; `wiki --version` reports the `bin/.version` stamp the hook writes from
+  `plugin.json`.
 
 ## Open dependencies
 
 * `<owner>/<repo>` = `muitneliss/ymir`.
 * release-please: root package `.`, `release-type: simple`, `package-name: ymir`.
-  Tag format = `v<version>` (single root package, no component prefix). Confirm
-  on first release; the `compile` job reads `needs.release-please.outputs.tag_name`
-  rather than constructing it.
+  Tag format is `ymir-v<version>` (confirmed from the first release onward — the
+  `package-name` is used as the component prefix). The `compile` job reads
+  `needs.release-please.outputs.tag_name` rather than constructing it.
 
-## Pre-existing issue (out of scope, flagged)
+## Pre-existing issue (resolved)
 
-`.release-please-manifest.json` and `version.txt` are at `0.1.0` while
-`plugin.json` and `wiki-cli/package.json` are at `0.2.0`. This drift predates
-this work. It affects what the next release tag will be (computed from `0.1.0`).
-Not fixed here — flagged for the user to decide.
+`.release-please-manifest.json` and `version.txt` were at `0.1.0` while
+`plugin.json` and `wiki-cli/package.json` were at `0.2.0`. The release-please
+files caught up on their own — every release rewrites `version.txt`, the
+manifest, `plugin.json` and `marketplace.json` together, so those four have
+agreed ever since. `wiki-cli/package.json` was not in `extra-files` and nothing
+moved it, so it sat at `0.2.0` seven releases later.
+
+Resolved by removing the `version` field from `wiki-cli/package.json` rather than
+adding it to `extra-files`: a private, unpublished package that no code reads
+does not need a version, and a fifth copy would only be one more thing to keep in
+sync. The repo now declares its version in exactly the files release-please
+owns.
