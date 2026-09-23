@@ -1,12 +1,12 @@
 ---
 title: Wiki Schema
 type: source
-date: 2026-09-20
+date: 2026-09-23
 tags: []
 source: wiki/SCHEMA.md
 source_path: wiki/SCHEMA.md
-source_hash: 08dbcf9b13a177f9d6ec0a449bc0b8417575c817420cdd5eee63033633c62f15
-ingested: 2026-09-20
+source_hash: e48888a041209681afbd4e9d8e42c9110a498bba5ca0a6d285f963b36338c911
+ingested: 2026-09-23
 ---
 
 # Wiki Schema
@@ -42,7 +42,10 @@ redacted before storage and disabled by `--off`, `DO_NOT_TRACK=1`,
 
 Beyond commands it specifies page conventions and `[[Exact Title]]` linking,
 declarative source coverage via `wiki/tracked.yaml`, drift detection through
-content hashing surfaced by a SessionStart hook, and the qmd search setup —
+content hashing surfaced by a SessionStart hook, and the qmd search setup. qmd is
+named as the one dependency the wiki binary does not bundle, installed once with
+`bun install -g @tobilu/qmd` (or the npm equivalent): writes work without it and
+only `query` stops, saying so, until qmd is on `PATH`. Search itself is
 keyword-only BM25 over `sources/` and `notes/` with automatic reindexing on every
 write, where queries are reduced to content words because asking a question
 verbatim retrieves far worse.

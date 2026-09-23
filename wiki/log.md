@@ -94,3 +94,4 @@
 ## [2026-09-20] ingest | Playbook Wiki
 ## [2026-09-20] note | Init Scaffold Contract
 ## [2026-09-20] note | Wiki CLI Command Surface
+## [2026-09-23] ingest | Wiki Schema
