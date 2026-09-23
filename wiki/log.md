@@ -98,3 +98,5 @@
 ## [2026-09-21] note | Publish and Auto-Fetch Flow
 ## [2026-09-21] ingest | Wiki CLI Publish Design Spec
 ## [2026-09-23] ingest | Wiki Schema
+## [2026-09-23] ingest | Ymir AGENTS.md
+## [2026-09-23] ingest | Ymir CLAUDE.md

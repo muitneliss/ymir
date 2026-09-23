@@ -1,5 +1,9 @@
+@AGENTS.md
+
+<!-- Shared rules live in AGENTS.md. Keep this heading: `wiki init` looks for it
+and appends a duplicate wiki block to CLAUDE.md when it is missing. -->
 ## Wiki / Context
-This project has an LLM-maintained wiki under `wiki/`. You MUST NOT hand-edit
-wiki docs (`wiki/sources`, `wiki/notes`, `index.md`, `log.md`) — they are
-managed by the Ymir wiki CLI and a PreToolUse hook blocks direct edits. See
-`wiki/SCHEMA.md` for the rules and command reference.
+The wiki rules are in `AGENTS.md` (imported above). In Claude Code, the
+PreToolUse hook `.claude/hooks/block-wiki-edits.mjs` enforces them, and the
+SessionStart hooks in `.claude/settings.json` fetch the wiki binary and report
+wiki drift.

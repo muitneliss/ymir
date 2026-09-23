@@ -20,6 +20,7 @@
 - [Wiki Init Command Design](sources/wiki-init-command-design.md)
 - [Wiki Init Command Plan](sources/wiki-init-command-plan.md)
 - [Wiki Schema](sources/wiki-schema.md)
+- [Ymir AGENTS.md](sources/ymir-agents-md.md)
 - [Ymir Apply Design](sources/ymir-apply-design.md)
 - [Ymir Apply Plan](sources/ymir-apply-plan.md)
 - [Ymir CLAUDE.md](sources/ymir-claude-md.md)

@@ -1,14 +1,15 @@
 ---
 title: Ymir CLAUDE.md
 type: source
-date: 2026-08-18
+date: 2026-09-23
 tags: []
 source: CLAUDE.md
 source_path: CLAUDE.md
-source_hash: f255a699d1677458e55dffda50e3110664a9d029a0b7852d1c297987ec9b02c7
-ingested: 2026-08-18
+source_hash: 2da013c38956bd701e81b5e87500282d31c07ea741f8fbad8841a7c0b2ff8794
+ingested: 2026-09-23
 ---
 
 # Ymir CLAUDE.md
 
-Declares the LLM wiki rule for this project: the wiki under wiki/ is LLM-maintained; direct edits to wiki/sources, wiki/notes, index.md, log.md are blocked by a PreToolUse hook; all wiki writes go through the wiki CLI. References wiki/SCHEMA.md for rules and command reference. See [[Wiki Schema]].
+Claude Code adapter: imports AGENTS.md (@AGENTS.md), which holds the shared agent rules, and adds only Claude-specific notes.
+Keeps the '## Wiki / Context' heading because wiki init checks for it and would otherwise append a duplicate wiki block. Notes that in Claude Code the PreToolUse hook .claude/hooks/block-wiki-edits.mjs enforces the wiki rules and SessionStart hooks in .claude/settings.json fetch the wiki binary and report drift. See [[Ymir AGENTS.md]] and [[Wiki Schema]].

@@ -1,1 +1,3 @@
 .worktrees/
+# Wiki binary downloaded by the SessionStart hook (ensure-wiki-binary.mjs).
+plugins/ymir/wiki-cli/
