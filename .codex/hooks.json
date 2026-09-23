@@ -1,0 +1,32 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/block-wiki-edits.mjs\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && CLAUDE_PLUGIN_ROOT=\"$PWD/plugins/ymir\" node plugins/ymir/hooks/ensure-wiki-binary.mjs",
+            "timeout": 120
+          },
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && CLAUDE_PLUGIN_ROOT=\"$PWD/plugins/ymir\" node plugins/ymir/hooks/wiki-sync-status.mjs",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
