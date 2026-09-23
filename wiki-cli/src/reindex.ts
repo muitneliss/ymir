@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { collectionName } from "./paths.js";
+import { QMD_INSTALL_HINT, isMissingExecutable } from "./qmd.js";
 
 export interface RunnerResult {
   status: number | null;
@@ -32,7 +33,11 @@ export const COLLECTION_MASK = "{sources,notes}/**/*.md";
 
 const defaultRunner: ReindexRunner = (cmd, args) => {
   const result = spawnSync(cmd, args, { stdio: "pipe", encoding: "utf8" });
-  return { status: result.status, stdout: `${result.stdout ?? ""}${result.stderr ?? ""}` };
+  // A process that never started has no exit code. Node reports that as a null
+  // status, Bun as undefined — normalise, so "qmd is not installed" reads as
+  // itself rather than as "the collection was not created".
+  const status = isMissingExecutable(result.error) ? null : (result.status ?? null);
+  return { status, stdout: `${result.stdout ?? ""}${result.stderr ?? ""}` };
 };
 
 /**
@@ -89,7 +94,7 @@ export function reindex(root: string, runner: ReindexRunner = defaultRunner): Re
       // Either qmd is unavailable or nothing is registered yet; try to create.
       const created = add();
       if (created.status === null) {
-        process.stderr.write(`[wiki] reindex: qmd unavailable — skipping\n`);
+        process.stderr.write(`[wiki] reindex: qmd unavailable — skipping (${QMD_INSTALL_HINT})\n`);
         return { ok: false, skipped: true, name, mode: "skipped" };
       }
       if (collectionPath(runner, name) !== null) {

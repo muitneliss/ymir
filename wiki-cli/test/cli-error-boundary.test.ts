@@ -17,8 +17,9 @@ beforeEach(() => {
   mkdirSync(join(project, "wiki", "notes"), { recursive: true });
 });
 
+// Absolute, so a test may empty PATH without losing the runtime itself.
 function runCli(args: string[], input = "", extraEnv: Record<string, string> = {}) {
-  const result = spawnSync("bun", [CLI, ...args], {
+  const result = spawnSync(process.execPath, [CLI, ...args], {
     input,
     encoding: "utf8",
     cwd: project,
@@ -90,6 +91,22 @@ describe("cli error boundary", () => {
     expect(stderr).toContain("remove or rename it");
     expect(stderr).not.toContain("EISDIR");
     // Issue #58: a broken working tree is the user's to fix, not an Ymir bug.
+    expect(stderr).not.toContain("wiki report");
+    expect(spooled()).toHaveLength(0);
+  });
+
+  it("tells the user how to install qmd, instead of dumping a spawn errno", () => {
+    const emptyPath = mkdtempSync(join(tmpdir(), "cli-boundary-nopath-"));
+
+    const { stderr, status } = runCli(["--root", "./wiki", "query", "hook binary download"], "", {
+      PATH: emptyPath,
+    });
+
+    expect(status).toBe(1);
+    expect(stderr).toContain("qmd is not installed");
+    expect(stderr).toContain("bun install -g @tobilu/qmd");
+    expect(stderr).not.toContain("$PATH");
+    // Issue #74: a tool the user never installed is not an Ymir bug.
     expect(stderr).not.toContain("wiki report");
     expect(spooled()).toHaveLength(0);
   });
