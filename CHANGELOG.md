@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.2](https://github.com/muitneliss/ymir/compare/ymir-v0.9.1...ymir-v0.9.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* **wiki-cli:** register a missing qmd collection on first query ([#83](https://github.com/muitneliss/ymir/issues/83)) ([44151ab](https://github.com/muitneliss/ymir/commit/44151abf9db98c34ef041c054c4eb16743cc4075))
+
 ## [0.9.1](https://github.com/muitneliss/ymir/compare/ymir-v0.9.0...ymir-v0.9.1) (2026-09-23)
 
 
