@@ -1,12 +1,12 @@
 ---
 title: Playbook Wiki
 type: source
-date: 2026-09-20
+date: 2026-11-05
 tags: []
 source: plugins/ymir/templates/playbook/wiki.md
 source_path: plugins/ymir/templates/playbook/wiki.md
-source_hash: 8ae53147eca85d9dd999804c127e91af6bdb1be3ff17a1ca19c499ffb4110d67
-ingested: 2026-09-20
+source_hash: 87efa08379cbd76ff56a686e750fa0b36a7f51c991d0c1083f210d9c39d7aff4
+ingested: 2026-11-05
 ---
 
 # Playbook Wiki
@@ -59,9 +59,10 @@ harness is scaffolded by **a single CLI call** — never by hand-editing files.
    This is agent-independent enforcement equivalent to the PreToolUse hook.
    Skip this step entirely for `claude-code` targets (hook handles it).
 
-3. **Tell the user** the qmd one-time setup (also in `wiki/SCHEMA.md`):
-   `qmd collection add ./wiki --name <project>-wiki`. Search is keyword-only
-   (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after adding
-   pages.
+3. **Tell the user** about qmd search (also in `wiki/SCHEMA.md`): the collection
+   is registered automatically by any wiki write and by the first `wiki query`
+   in a checkout that has none, and `wiki reindex` forces a refresh. Search is
+   keyword-only (BM25) — no `qmd embed`.
 
-* **Verify:** `./wiki/bin/wiki --root ./wiki validate` prints `wiki valid`.
+* **Verify:** `./wiki/bin/wiki --root ./wiki validate`
+  prints `wiki valid`.

@@ -4,7 +4,8 @@ import { join } from "node:path";
 import { expandContext, DEFAULT_BUDGET } from "../context.js";
 import { collectionName } from "../paths.js";
 import { extractTerms } from "../query-terms.js";
-import { QmdMissing, isMissingExecutable } from "../qmd.js";
+import { QmdCollectionMissing, QmdMissing, isMissingExecutable } from "../qmd.js";
+import { reindex, type ReindexResult } from "../reindex.js";
 
 export type Runner = (cmd: string, args: string[]) => Promise<string>;
 
@@ -48,6 +49,8 @@ export interface QueryInput {
    */
   full?: boolean;
   runner?: Runner;
+  /** Registers this wiki's qmd collection when it has none. Defaults to `reindex`. */
+  register?: (root: string) => ReindexResult;
 }
 
 /** A single qmd hit, loosely typed to match whatever fields qmd emits. */
@@ -127,7 +130,21 @@ async function runSearch(i: QueryInput): Promise<string> {
     const args = ["search", q, "--json", "-c", collectionName(i.root)];
     if (i.full) args.push("--full");
     if (i.limit !== undefined) args.push("-n", String(i.limit));
-    const raw = await run("qmd", args);
+    let raw: string;
+    try {
+      raw = await run("qmd", args);
+    } catch (err) {
+      if (err instanceof QmdMissing) throw err;
+      // Ask qmd whether the collection exists instead of matching its stderr:
+      // the wording is qmd's to change, the exit status of `show` is not. Only
+      // the failure path pays for this extra call.
+      const name = collectionName(i.root);
+      const exists = await run("qmd", ["collection", "show", name]).then(
+        () => true,
+        () => false,
+      );
+      throw exists ? err : new QmdCollectionMissing(name);
+    }
     return i.chunks ? raw : JSON.stringify(collapseToFiles(parseHits(raw), i.limit));
   };
 
@@ -144,9 +161,9 @@ async function runSearch(i: QueryInput): Promise<string> {
     try {
       return await exec(q);
     } catch (err) {
-      // An absent qmd is not flakiness: every remaining probe would spawn the
-      // same missing binary and fail identically, so stop at the first one.
-      if (err instanceof QmdMissing) throw err;
+      // An absent qmd or collection is not flakiness: every remaining probe
+      // would fail identically, so stop at the first one.
+      if (err instanceof QmdMissing || err instanceof QmdCollectionMissing) throw err;
       firstError ??= err;
       return "";
     }
@@ -279,11 +296,32 @@ export function enrichHits(hits: Hit[], root: string, budget: number): Hit[] {
 }
 
 /**
+ * Search, first registering this wiki's qmd collection if it has none.
+ *
+ * Only writes register the collection, and qmd's registry is machine-global, so
+ * a fresh checkout (a new git worktree, a clone) has never registered one and
+ * its first query would fail (issues #79-#82). Registering is what any write
+ * would do; retry once after it, and refuse if it did not take.
+ */
+async function searchRegistering(i: QueryInput): Promise<string> {
+  try {
+    return await runSearch(i);
+  } catch (err) {
+    if (!(err instanceof QmdCollectionMissing)) throw err;
+    const registered = (i.register ?? ((root) => reindex(root)))(i.root);
+    if (!registered.ok) throw err;
+    // stdout carries the JSON result, so this notice goes to stderr.
+    process.stderr.write(`[wiki] registered qmd collection "${registered.name}" for this wiki\n`);
+    return runSearch(i);
+  }
+}
+
+/**
  * Search this wiki, returning each hit with enough surrounding text to answer
  * from. See context.ts for why the raw snippet is not enough.
  */
 export async function runQuery(i: QueryInput): Promise<string> {
-  const raw = await runSearch(i);
+  const raw = await searchRegistering(i);
   if (i.snippet || i.full) return raw;
   const hits = parseHits(raw);
   if (hits.length === 0) return raw;

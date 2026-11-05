@@ -78,10 +78,11 @@ at run time, whichever layout it is installed under. That is the invocation
 from then on — `$SKILL_ROOT` resolves on this machine only, so it must never end
 up in a file the project commits.
 
-Then tell the user the qmd one-time setup (also in
-`wiki/SCHEMA.md`): `qmd collection add ./wiki --name <project>-wiki`. Search is
-keyword-only (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after
-adding pages. This is the only case where Ymir writes project files.
+Then tell the user about qmd search (also in `wiki/SCHEMA.md`): the collection is
+registered automatically by any wiki write and by the first `wiki query` in a
+checkout that has none, and `wiki reindex` forces a refresh. Search is
+keyword-only (BM25) — no `qmd embed`. This is the only case where Ymir writes
+project files.
 
 For any broader intent (`ymir init`, or any other concern), Ymir stays spec-only:
 the wiki is captured in the profile and written into `harness-playbook.md` as the

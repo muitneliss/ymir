@@ -100,3 +100,5 @@
 ## [2026-09-23] ingest | Wiki Schema
 ## [2026-09-23] ingest | Ymir AGENTS.md
 ## [2026-09-23] ingest | Ymir CLAUDE.md
+## [2026-11-05] ingest | Playbook Wiki
+## [2026-11-05] ingest | Ymir SKILL Dispatcher

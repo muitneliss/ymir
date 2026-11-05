@@ -42,10 +42,10 @@ harness is scaffolded by **a single CLI call** — never by hand-editing files.
    This is agent-independent enforcement equivalent to the PreToolUse hook.
    Skip this step entirely for `claude-code` targets (hook handles it).
 
-3. **Tell the user** the qmd one-time setup (also in `wiki/SCHEMA.md`):
-   `qmd collection add ./wiki --name <project>-wiki`. Search is keyword-only
-   (BM25) — no `qmd embed`; re-run `qmd collection add` to refresh after adding
-   pages.
+3. **Tell the user** about qmd search (also in `wiki/SCHEMA.md`): the collection
+   is registered automatically by any wiki write and by the first `wiki query`
+   in a checkout that has none, and `wiki reindex` forces a refresh. Search is
+   keyword-only (BM25) — no `qmd embed`.
 
 - **Verify:** `./wiki/bin/wiki --root ./wiki validate`
   prints `wiki valid`.

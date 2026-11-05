@@ -111,6 +111,33 @@ describe("cli error boundary", () => {
     expect(spooled()).toHaveLength(0);
   });
 
+  it("tells the user to run wiki reindex when no qmd collection can be registered", () => {
+    // A qmd that knows no collection and registers none: reindex cannot help.
+    const bin = mkdtempSync(join(tmpdir(), "cli-boundary-fakeqmd-"));
+    writeFileSync(
+      join(bin, "qmd"),
+      [
+        "#!/bin/sh",
+        'if [ "$1" = search ] || { [ "$1" = collection ] && [ "$2" = show ]; }; then',
+        "  echo 'Collection not found: x' >&2",
+        "fi",
+        "exit 1",
+        "",
+      ].join("\n"),
+      { mode: 0o755 },
+    );
+
+    const { stderr, status } = runCli(["--root", "./wiki", "query", "hook binary download"], "", {
+      PATH: bin,
+    });
+
+    expect(status).toBe(1);
+    expect(stderr).toContain("wiki reindex");
+    // Issues #79-#82: an unregistered checkout is not an Ymir bug.
+    expect(stderr).not.toContain("wiki report");
+    expect(spooled()).toHaveLength(0);
+  });
+
   it("does not report ordinary user error — a bad flag is not a bug", () => {
     const { status } = runCli(["--root", "./wiki", "query", "--limit", "0", "x"]);
     expect(status).toBe(1);
