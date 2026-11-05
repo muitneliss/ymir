@@ -134,8 +134,10 @@ qmd is the one dependency the wiki binary does not bundle — install it once wi
 without it; `wiki query` says so and stops until it is on `PATH`.
 
 Indexing is automatic: every `ingest`, `note`, and `index` calls `reindex`,
-which registers the collection on first use and `qmd update`s it thereafter. No
-manual setup step is needed; run `wiki reindex` yourself only to force a refresh.
+which registers the collection on first use and `qmd update`s it thereafter. The
+first `wiki query` in a checkout that has no collection (a fresh git worktree or
+clone) registers it the same way. No manual setup step is needed; run
+`wiki reindex` yourself only to force a refresh.
 
 `wiki query "..."` shells out to `qmd search --json -c PROJECT_NAME-wiki`. The
 `-c` scope matters: without it qmd searches *every* collection registered on the

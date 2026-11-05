@@ -278,7 +278,10 @@ describe("runQuery resilience", () => {
 
   it("still raises when qmd is genuinely unavailable", async () => {
     const { wikiRoot } = tempWiki();
-    const runner = async () => {
+    // The collection exists (`collection show` succeeds), so the search failure
+    // is genuine and must surface rather than be taken for a missing collection.
+    const runner = async (_cmd: string, args: string[]) => {
+      if (args[0] === "collection") return "";
       throw new Error("qmd not found");
     };
     await expect(runQuery({ root: wikiRoot, q: "alpha beta gamma", runner })).rejects.toThrow(
@@ -376,5 +379,25 @@ describe("runQuery --full", () => {
 
     await runQuery({ root: wikiRoot, q: "hook", runner });
     expect(calls[0]).not.toContain("--full");
+  });
+
+  it("registers a missing collection on first query and retries (issues #79-#82)", async () => {
+    const { wikiRoot } = tempWiki();
+    const name = collectionName(wikiRoot);
+    const registeredRoots: string[] = [];
+    // A qmd whose registry has never heard of this wiki until `register` runs.
+    const runner = async (_cmd: string, args: string[]) => {
+      if (registeredRoots.length === 0) throw new Error(`Collection not found: ${name}`);
+      return args[0] === "search" ? '[{"path":"wiki/notes/a.md","score":0.9}]' : "";
+    };
+    const register = (root: string) => {
+      registeredRoots.push(root);
+      return { ok: true, skipped: false, name, mode: "created" as const };
+    };
+
+    const out = await runQuery({ root: wikiRoot, q: "hook binary download", runner, register });
+
+    expect(out).toContain("wiki/notes/a.md");
+    expect(registeredRoots).toEqual([wikiRoot]);
   });
 });

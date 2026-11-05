@@ -1,12 +1,12 @@
 ---
 title: Ymir SKILL Dispatcher
 type: source
-date: 2026-09-20
+date: 2026-11-05
 tags: []
 source: plugins/ymir/SKILL.md
 source_path: plugins/ymir/SKILL.md
-source_hash: 59373cf85edf5410404a901589f9c592ddd781b7a2b2f31229e809f0f9786e70
-ingested: 2026-09-20
+source_hash: d80bc1e6e196c1ea9c4fe18375dae48f5269ce4c49977b1cae74e24e54073855
+ingested: 2026-11-05
 ---
 
 # Ymir SKILL Dispatcher

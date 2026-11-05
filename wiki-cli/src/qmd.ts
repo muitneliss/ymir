@@ -24,6 +24,25 @@ export class QmdMissing extends Rejection {
   }
 }
 
+/**
+ * Refuse a search when this wiki has no qmd collection and none could be made.
+ *
+ * qmd's registry is machine-global, but the collection is named for the
+ * directory holding `wiki/` — so a fresh git worktree or clone has a name qmd
+ * has never heard of, and `qmd search -c <name>` dies with "Collection not
+ * found". The error boundary then filed that as an Ymir bug (issues #79-#82).
+ * It is not one: a checkout without a registration is machine setup. `query`
+ * registers the collection itself first; this is what is left when that fails.
+ */
+export class QmdCollectionMissing extends Rejection {
+  constructor(collection: string) {
+    super(
+      `this wiki has no qmd collection ("${collection}"), so it cannot be searched — ` +
+        "run: wiki reindex",
+    );
+  }
+}
+
 /** True for the spawn failure that means the executable is not on PATH. */
 export const isMissingExecutable = (e: unknown): boolean =>
   (e as NodeJS.ErrnoException | null)?.code === "ENOENT";
