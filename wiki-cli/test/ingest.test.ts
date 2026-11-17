@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import { mkdtempSync, existsSync } from "node:fs";
+import { mkdtempSync, existsSync, renameSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readPage } from "../src/store.js";
@@ -49,13 +49,23 @@ describe("runIngest", () => {
     expect(readPage(join(root, "sources", "doc-a.md"))).toBe(original);
   });
 
+  it("moves a page named by the pre-0.9.3 slug to its readable name on re-ingest, without a duplicate", async () => {
+    await runIngest({ root, raw: "raw/a.pdf", title: "Bản đồ", body: "First.", today: "2026-06-17", noReindex: true });
+    renameSync(join(root, "sources", "ban-do.md"), join(root, "sources", "b-n.md")); // as a 0.9.2 CLI named it
+
+    await runIngest({ root, raw: "raw/a.pdf", title: "Bản đồ", body: "Second.", today: "2026-06-18", noReindex: true });
+
+    expect(existsSync(join(root, "sources", "b-n.md"))).toBe(false);
+    expect(readPage(join(root, "sources", "ban-do.md"))).toContain("Second.");
+  });
+
   it("rejects a title whose slug collides with an existing page of a different title", async () => {
     await runIngest({
       root, raw: "raw/a.pdf", title: "Hiệu trưởng",
       body: "See [[Hiệu trưởng]].", today: "2026-06-17",
       noReindex: true,
     });
-    const original = readPage(join(root, "sources", "hi-u-tr-ng.md"));
+    const original = readPage(join(root, "sources", "hieu-truong.md"));
 
     await expect(runIngest({
       root, raw: "raw/b.pdf", title: "Hiếu trường",
@@ -63,6 +73,6 @@ describe("runIngest", () => {
       noReindex: true,
     })).rejects.toThrow(/collision/);
 
-    expect(readPage(join(root, "sources", "hi-u-tr-ng.md"))).toBe(original);
+    expect(readPage(join(root, "sources", "hieu-truong.md"))).toBe(original);
   });
 });

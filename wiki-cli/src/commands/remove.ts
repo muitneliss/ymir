@@ -2,6 +2,7 @@ import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { listPages, readPage, writePage } from "../store.js";
 import { sourcePath, notePath, wikiPaths, slugify } from "../paths.js";
+import { legacyPagePath } from "../migrate-slugs.js";
 import { buildIndex } from "../index-build.js";
 import { appendLog } from "../wikilog.js";
 import { parseFrontmatter } from "../frontmatter.js";
@@ -30,8 +31,9 @@ export interface RemoveResult {
 
 function findPage(root: string, title: string): string | null {
   for (const sub of ["sources", "notes"] as const) {
-    const candidate = sub === "sources" ? sourcePath(root, title) : notePath(root, title);
-    if (!existsSync(candidate)) continue;
+    const canonical = sub === "sources" ? sourcePath(root, title) : notePath(root, title);
+    const candidate = existsSync(canonical) ? canonical : legacyPagePath(canonical, title);
+    if (candidate === null) continue;
     const fm = parseFrontmatter(readPage(candidate)).data as { title?: string };
     if (fm.title === title) return candidate;
   }

@@ -46,13 +46,13 @@ describe("runNote", () => {
       root, type: "concept", name: "Hiệu trưởng",
       body: "Original note.", today: "2026-06-17", noReindex: true,
     });
-    const original = readPage(join(root, "notes", "hi-u-tr-ng.md"));
+    const original = readPage(join(root, "notes", "hieu-truong.md"));
 
     await expect(runNote({
       root, type: "concept", name: "Hiếu trường",
       body: "Colliding note.", today: "2026-06-18", noReindex: true,
     })).rejects.toThrow(/collision/);
 
-    expect(readPage(join(root, "notes", "hi-u-tr-ng.md"))).toBe(original);
+    expect(readPage(join(root, "notes", "hieu-truong.md"))).toBe(original);
   });
 });

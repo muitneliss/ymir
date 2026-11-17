@@ -21,7 +21,8 @@ Commands:
                                       States: current (hash matches), stale (file changed),
                                       missing (file deleted), untracked (no source_hash).
                                       Exit 1 if any page is stale or missing.
-  index                               Rebuild index.md from all pages.
+  index                               Rebuild index.md from all pages; rename pages still
+                                      named by the pre-0.9.3 slug ("b-n.md" → "ban-do.md").
   log <op> <title>                    Append a dated entry to log.md.
   check [--json] [--error-on-orphan-notes] [--error-on-untracked-sources]
                                       Single CI gate: validates schema, links, orphans,
