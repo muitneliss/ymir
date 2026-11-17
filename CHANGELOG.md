@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.3](https://github.com/muitneliss/ymir/compare/ymir-v0.9.2...ymir-v0.9.3) (2026-11-17)
+
+
+### Bug Fixes
+
+* **wiki-cli:** keep accented letters' base letter in page file names ([#85](https://github.com/muitneliss/ymir/issues/85)) ([efd07c9](https://github.com/muitneliss/ymir/commit/efd07c9aad317fc9863ee3a0a4032dcdd5a82192))
+
 ## [0.9.2](https://github.com/muitneliss/ymir/compare/ymir-v0.9.1...ymir-v0.9.2) (2026-11-05)
 
 
