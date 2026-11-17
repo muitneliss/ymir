@@ -33,7 +33,9 @@ Key commands:
   Records `source_path` + `source_hash` for drift detection.
   Use `--raw <label>` (legacy) when ingesting from a non-tracked input.
 - `note --type entity|concept|topic --name <n>` (body on STDIN) — synthesis page.
-- `index` — rebuild the catalog.
+- `index` — rebuild the catalog. Also renames pages whose file still carries the
+  pre-0.9.3 slug, which dropped accented letters (`b-n.md` for "Bản đồ" becomes
+  `ban-do.md`); `check` warns `legacy-filename` until then.
 - `check [--json] [--error-on-orphan-notes] [--error-on-untracked-sources]` — single CI gate.
   Evaluates schema validity, page identity, broken links, orphan policy, provenance drift,
   untracked sources, declarative coverage, and index freshness in one read-only pass.

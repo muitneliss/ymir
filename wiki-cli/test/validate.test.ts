@@ -40,8 +40,8 @@ describe("validateWiki", () => {
   });
 
   it("flags slug collision between two Vietnamese titles that produce identical slugs", () => {
-    writePage(join(root, "sources", "hi-u-tr-ng.md"), goodSource("Hiệu trưởng"));
-    writePage(join(root, "notes", "hi-u-tr-ng.md"), goodNote("Hiếu trường"));
+    writePage(join(root, "sources", "hieu-truong.md"), goodSource("Hiệu trưởng"));
+    writePage(join(root, "notes", "hieu-truong.md"), goodNote("Hiếu trường"));
     const r = validateWiki(root);
     expect(r.ok).toBe(false);
     expect(r.errors.some((e) => e.includes("slug collision"))).toBe(true);

@@ -3,6 +3,7 @@ import { parseFrontmatter } from "../frontmatter.js";
 import { renderNotePage } from "../pages.js";
 import { writePage, readPage } from "../store.js";
 import { notePath, wikiPaths } from "../paths.js";
+import { adoptLegacyFile } from "../migrate-slugs.js";
 import { buildIndex } from "../index-build.js";
 import { appendLog } from "../wikilog.js";
 import { validateWiki } from "../validate.js";
@@ -18,6 +19,7 @@ export interface NoteInput {
 
 export async function runNote(i: NoteInput): Promise<string> {
   const path = notePath(i.root, i.name);
+  adoptLegacyFile(path, i.name);
   const existed = existsSync(path);
   let prevSourceCount = 0;
   if (existed) {

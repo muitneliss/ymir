@@ -98,10 +98,18 @@ describe("runCheck", () => {
     });
 
     it("reports slug-collision error", () => {
-      writeSource(root, "hi-u-tr-ng.md", { title: "Hiệu trưởng" });
-      writeNote(root, "hi-u-tr-ng.md", "", { title: "Hiếu trường" });
+      writeSource(root, "hieu-truong.md", { title: "Hiệu trưởng" });
+      writeNote(root, "hieu-truong.md", "", { title: "Hiếu trường" });
       const r = runCheck({ root });
       expect(r.errors.some((e) => e.kind === "slug-collision")).toBe(true);
+    });
+
+    it("only warns about a page still named by the pre-0.9.3 slug, even with --error-on-orphan-notes", () => {
+      writeSource(root, "b-n-repo.md", { title: "Bản đồ repo" });
+      writePage(join(root, "index.md"), buildIndex(root));
+      const r = runCheck({ root, errorOnOrphanNotes: true });
+      expect(r.ok).toBe(true);
+      expect(r.warnings.some((w) => w.kind === "legacy-filename" && w.path === "sources/b-n-repo.md")).toBe(true);
     });
 
     it("reports filename-mismatch error", () => {

@@ -6,6 +6,11 @@ describe("slugify", () => {
     expect(slugify("  Hello World!  ")).toBe("hello-world");
     expect(slugify("API & Auth/v2")).toBe("api-auth-v2");
   });
+  it("keeps the base letter of accented and Vietnamese letters instead of dropping them", () => {
+    expect(slugify("Bản đồ repo và nơi sửa")).toBe("ban-do-repo-va-noi-sua");
+    expect(slugify("Đội agent Marketing")).toBe("doi-agent-marketing");
+    expect(slugify("Crème brûlée à Zürich")).toBe("creme-brulee-a-zurich");
+  });
 });
 
 describe("paths", () => {

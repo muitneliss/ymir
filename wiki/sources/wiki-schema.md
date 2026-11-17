@@ -1,13 +1,15 @@
 ---
 title: Wiki Schema
 type: source
-date: 2026-09-23
+date: 2026-11-17
 tags: []
 source: wiki/SCHEMA.md
 source_path: wiki/SCHEMA.md
-source_hash: e48888a041209681afbd4e9d8e42c9110a498bba5ca0a6d285f963b36338c911
-ingested: 2026-09-23
+source_hash: f3a7657b6b56a364dffa8fee097244dd8fbf3dd63a42b3663911ed0dad8323f2
+ingested: 2026-11-17
 ---
+
+# Wiki Schema
 
 # Wiki Schema
 
@@ -32,7 +34,7 @@ binary at hand actually supports.
 The command reference covers `init`, `ingest` (tracked via `--source` with a
 recorded `source_path` and `source_hash`, or legacy `--raw`), `note`, `index`,
 `log`, `check` as the single CI gate, `validate`, `status`, `coverage`, `remove`,
-`rename`, `reindex`, `query` and `fmt`. It also documents `report`, which reviews
+`rename`, `reindex`, `query` and `fmt`. `index` also renames pages whose file still carries the pre-0.9.3 slug, which dropped accented letters (`b-n.md` for "Bản đồ" becomes `ban-do.md`); until then `check` warns `legacy-filename`. It also documents `report`, which reviews
 and files Ymir self-reports: command crashes are captured automatically to
 `~/.ymir/`, `report` with no flags prints the exact issue text and sends nothing,
 `--yes` files pending reports and opts in to automatic filing, and `--skill`

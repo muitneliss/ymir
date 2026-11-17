@@ -21,7 +21,8 @@ export type CheckKind =
   | "coverage-excluded-ingested"
   | "coverage-out-of-scope"
   | "coverage-duplicate-source"
-  | "stale-index";
+  | "stale-index"
+  | "legacy-filename";
 
 export interface CheckFinding {
   kind: CheckKind;
@@ -102,6 +103,11 @@ export function runCheck(opts: CheckOptions): CheckReport {
   errors.push(...classifyValidateErrors(validation.errors));
 
   for (const w of validation.warnings) {
+    if (w.includes("uses the old slug")) {
+      // Never promoted: the page is valid, only its file name predates 0.9.3.
+      warnings.push({ kind: "legacy-filename", path: extractPath(w), message: w, remedy: "run: wiki index" });
+      continue;
+    }
     const finding: CheckFinding = {
       kind: "orphan-note",
       path: extractOrphanPath(w),

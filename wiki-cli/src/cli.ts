@@ -23,6 +23,7 @@ import { reindex } from "./reindex.js";
 import { runReport } from "./commands/report.js";
 import { capture, draftFromError, maybeFlush, REPORT_HINT } from "./report.js";
 import { Rejection } from "./rejection.js";
+import { migrateLegacyFilenames } from "./migrate-slugs.js";
 import { readFileSync as readVersionFile } from "node:fs";
 import { dirname } from "node:path";
 
@@ -124,6 +125,7 @@ program
   .option("--no-reindex", "skip qmd reindex after write")
   .action(async (opts: { reindex: boolean }) => {
     const root = program.opts<{ root: string }>().root;
+    for (const r of migrateLegacyFilenames(root)) process.stdout.write(`renamed ${r.from} → ${r.to}\n`);
     writePage(wikiPaths(root).index, buildIndex(root));
     process.stdout.write("rebuilt index.md\n");
     if (opts.reindex) reindex(root);

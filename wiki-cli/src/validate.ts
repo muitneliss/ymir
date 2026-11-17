@@ -3,7 +3,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { parseFrontmatter } from "./frontmatter.js";
 import { listPages, readPage } from "./store.js";
 import { sourceFrontmatter, noteFrontmatter } from "./schema.js";
-import { slugify } from "./paths.js";
+import { legacySlugify, slugify } from "./paths.js";
 
 export interface ValidationResult {
   ok: boolean;
@@ -74,7 +74,10 @@ export function validateWiki(root: string): ValidationResult {
   for (const p of all) {
     const filename = basename(p.rel);
     const expected = `${slugify(p.title)}.md`;
-    if (filename !== expected) {
+    if (filename !== expected && filename === `${legacySlugify(p.title)}.md`) {
+      // Written by a pre-0.9.3 CLI: still the same page, so upgrading must not break CI.
+      warnings.push(`${p.rel}: filename "${filename}" uses the old slug for "${p.title}" — run: wiki index (renames it to "${expected}")`);
+    } else if (filename !== expected) {
       errors.push(`${p.rel}: filename "${filename}" does not match title "${p.title}" (expected "${expected}") — rename the file or update the title`);
     }
   }
